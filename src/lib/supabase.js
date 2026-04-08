@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Fallback a las variables directas en caso de que Vercel compile sin el archivo .env
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://seiurmfdeuoxdwlddons.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_NLdOKBI3jlmY0h1nWxllYQ_ypekbRXD'
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
@@ -10,6 +11,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseUrl,
+  supabaseAnonKey
 )

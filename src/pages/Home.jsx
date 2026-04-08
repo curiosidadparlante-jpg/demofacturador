@@ -77,7 +77,7 @@ export default function Home() {
 
   // ─── Emitir Factura handler ───
   const handleInvoice = async () => {
-    const n8nUrl = import.meta.env.VITE_N8N_WEBHOOK_URL
+    const n8nUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n.tudominio.com/webhook/test-afip'
     const isMock = !n8nUrl || n8nUrl.includes('test-afip')
 
     const selectedVentas = ventas.filter(v => selectedIds.has(v.id) && v.status !== 'facturado')
