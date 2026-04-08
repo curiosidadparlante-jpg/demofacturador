@@ -60,6 +60,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                   <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Fecha</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Cliente</th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">Monto</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Factura</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Estado</th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider"></th>
                 </tr>
@@ -70,6 +71,11 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                     <td className="px-4 py-3 text-text-primary whitespace-nowrap">{formatDate(venta.fecha)}</td>
                     <td className="px-4 py-3 text-text-primary">{venta.cliente}</td>
                     <td className="px-4 py-3 text-right text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</td>
+                    <td className="px-4 py-3 text-left">
+                      <span className="text-text-primary text-xs font-mono whitespace-nowrap">
+                        {venta.datos_fiscales?.comprobante_numero || <span className="text-text-muted">—</span>}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <StatusBadge status={venta.status} />

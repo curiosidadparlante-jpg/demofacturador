@@ -96,53 +96,70 @@ export default function Home() {
     }
 
     try {
-      if (isMock) {
-        // Simulación mock
-        console.log('[MOCK] Procesando ventas seleccionadas:', selectedVentas)
-        await new Promise(resolve => setTimeout(resolve, 2000)) // Espera de 2s
-
-        let successCount = 0;
-        let errorCount = 0;
-
-        for (const venta of selectedVentas) {
-          try {
-            // ─── SIMULACIÓN DE ERROR (POR NOMBRE) ───
-            if (venta.cliente.includes('(Test Error)')) {
-              throw new Error(`AFIP: El CUIT ${venta.datos_fiscales?.cuit || ''} no está habilitado.`)
-            }
-
-            await updateVentaStatus(venta.id, 'facturado', {
-              cae: '74123456789012',
-              cae_vto: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
-            })
-            successCount++;
-          } catch (itemErr) {
-            console.error(`Status Error en venta ${venta.id}:`, itemErr.message);
-            const nuevosDatos = { ...venta.datos_fiscales, error_detalle: itemErr.message }
-            await updateVentaStatus(venta.id, 'error', { datos_fiscales: nuevosDatos })
-            errorCount++;
-          }
-        }
-
-        if (errorCount > 0) {
-           showToast(`Proceso parcial: ${successCount} ok, ${errorCount} errores.`, 'error');
-        } else {
-           showToast(`${successCount} ${successCount === 1 ? 'factura simulada' : 'facturas simuladas'} con éxito`, 'success')
-        }
-      } else {
-        // Lógica real
-        // ... (resto del fetch a n8n)
+      const payload = {
+        ventas: selectedVentas.map(v => ({
+          id: v.id,
+          fecha: v.fecha,
+          cliente: v.cliente,
+          monto: v.monto,
+          datos_fiscales: v.datos_fiscales || {},
+          mp_payment_id: v.mp_payment_id,
+        })),
       }
-      
+
+      console.log('Enviando a API AFIP interna...');
+      const response = await fetch('/api/afip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Error API status ${response.status}`);
+      }
+
+      const { resultados } = data;
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const resItem of resultados) {
+        try {
+          if (resItem.status === 'error') {
+             const ventaOriginal = selectedVentas.find(v => v.id === resItem.id);
+             const nuevosDatos = { ...ventaOriginal?.datos_fiscales, error_detalle: resItem.error_detalle };
+             await updateVentaStatus(resItem.id, 'error', { datos_fiscales: nuevosDatos });
+             errorCount++;
+          } else if (resItem.status === 'facturado') {
+             const ventaOriginal = selectedVentas.find(v => v.id === resItem.id);
+             const nuevosDatos = { ...ventaOriginal?.datos_fiscales, comprobante_numero: resItem.comprobante_numero };
+             
+             await updateVentaStatus(resItem.id, 'facturado', {
+                cae: resItem.cae,
+                cae_vto: resItem.cae_vto,
+                datos_fiscales: nuevosDatos
+             });
+             successCount++;
+          }
+        } catch (updateErr) {
+          console.error(`Error de UI actualizando BD (Venta ${resItem.id}):`, updateErr);
+        }
+      }
+
+      if (errorCount > 0) {
+         showToast(`Proceso completado: ${successCount} ok, ${errorCount} errores.`, 'error');
+      } else if (successCount > 0) {
+         showToast(`${successCount} ${successCount === 1 ? 'factura procesada' : 'facturas procesadas'} con éxito`, 'success');
+      }
+
       setSelectedIds(new Set())
       
     } catch (err) {
       console.error('[handleInvoice] Falló la emisión:', err.message)
       showToast(err.message, 'error')
 
-      // Solo marcamos como error las que no se llegaron a facturar
       for (const venta of selectedVentas) {
-        // Guardamos el detalle del error en la base de datos
         const nuevosDatos = { ...venta.datos_fiscales, error_detalle: err.message }
         await updateVentaStatus(venta.id, 'error', { datos_fiscales: nuevosDatos })
       }

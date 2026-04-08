@@ -86,6 +86,9 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                 Status
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                Factura
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                 CAE
               </th>
             </tr>
@@ -143,6 +146,11 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                           <AlertCircle size={15} />
                         </button>
                       )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-text-primary text-xs font-mono whitespace-nowrap">
+                      {venta.datos_fiscales?.comprobante_numero || <span className="text-text-muted">—</span>}
                     </div>
                   </td>
                   <td className="px-4 py-3">
