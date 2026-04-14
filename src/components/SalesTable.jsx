@@ -1,7 +1,7 @@
 import StatusBadge from './StatusBadge'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Edit2 } from 'lucide-react'
 
-export default function SalesTable({ ventas, selectedIds, onToggleSelect, onToggleAll, loading, onShowError }) {
+export default function SalesTable({ ventas, selectedIds, onToggleSelect, onToggleAll, loading, onShowError, onEdit }) {
   const pendientes = ventas.filter(v => v.status !== 'facturado')
   const allSelected = pendientes.length > 0 && selectedIds.size === pendientes.length
 
@@ -50,7 +50,7 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
           <div className="text-4xl mb-3 opacity-30">📋</div>
           <p className="text-text-secondary text-sm font-medium">No hay ventas registradas</p>
           <p className="text-text-muted text-xs mt-1">
-            Las ventas aparecerán aquí cuando se registren pagos desde Mercado Pago
+            Las ventas aparecerán aquí cuando se registren ventas desde Mercado Libre
           </p>
         </div>
       </div>
@@ -91,6 +91,7 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
               <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                 CAE
               </th>
+              <th className="px-4 py-3 text-right"></th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +126,7 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                     <div className="text-text-primary">{venta.cliente || '—'}</div>
                     {venta.mp_payment_id && (
                       <div className="text-text-muted text-xs font-mono">
-                        MP #{venta.mp_payment_id}
+                        MeLi #{venta.mp_payment_id}
                       </div>
                     )}
                   </td>
@@ -165,6 +166,17 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                       </div>
                     ) : (
                       <span className="text-text-muted text-xs">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {venta.status !== 'facturado' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onEdit(venta) }}
+                        className="p-2 text-text-muted hover:text-blue hover:bg-blue/10 rounded-lg transition-all"
+                        title="Editar datos fiscales"
+                      >
+                        <Edit2 size={16} />
+                      </button>
                     )}
                   </td>
                 </tr>

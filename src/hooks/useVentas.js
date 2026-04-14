@@ -65,6 +65,15 @@ export function useVentas() {
     if (updateError) throw updateError
   }, [])
 
+  const updateVenta = useCallback(async (id, payload) => {
+    const { error: updateError } = await supabase
+      .from('ventas')
+      .update(payload)
+      .eq('id', id)
+
+    if (updateError) throw updateError
+  }, [])
+
   const deleteVenta = useCallback(async (id) => {
     const { error: deleteError } = await supabase
       .from('ventas')
@@ -74,5 +83,5 @@ export function useVentas() {
     if (deleteError) throw deleteError
   }, [])
 
-  return { ventas, loading, error, refetch: fetchVentas, updateVentaStatus, deleteVenta }
+  return { ventas, loading, error, refetch: fetchVentas, updateVentaStatus, updateVenta, deleteVenta }
 }

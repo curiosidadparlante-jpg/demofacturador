@@ -4,16 +4,17 @@ import StatsCards from '../components/StatsCards'
 import SalesTable from '../components/SalesTable'
 import EmitirFacturaBar from '../components/EmitirFacturaBar'
 import SummaryModal from '../components/SummaryModal'
-import Layout from '../components/Layout'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Layout, Edit2 } from 'lucide-react'
+import EditSaleModal from '../components/EditSaleModal'
 
 export default function Home() {
-  const { ventas, loading, error, refetch, updateVentaStatus, deleteVenta } = useVentas()
+  const { ventas, loading, error, refetch, updateVentaStatus, updateVenta, deleteVenta } = useVentas()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [toast, setToast] = useState(null)
   
   // ─── Modal State ───
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingVenta, setEditingVenta] = useState(null)
   const [modalData, setModalData] = useState({ title: '', ventas: [] })
 
   const handleCardClick = (title, filteredVentas, timeframe) => {
@@ -166,6 +167,16 @@ export default function Home() {
     }
   }
 
+  const handleEditVenta = async (id, payload) => {
+    try {
+      await updateVenta(id, payload)
+      showToast('Datos actualizados correctamente', 'success')
+    } catch (err) {
+      console.error('Error al actualizar venta:', err)
+      showToast('Error al actualizar: ' + err.message, 'error')
+    }
+  }
+
   // ─── Create Test Sale handler ───
   const handleCreateTestSale = async (shouldFail = false) => {
     try {
@@ -273,6 +284,7 @@ export default function Home() {
           onToggleAll={handleToggleAll}
           loading={loading}
           onShowError={(msg) => showToast(msg, 'error')}
+          onEdit={(venta) => setEditingVenta(venta)}
         />
       </div>
 
@@ -281,6 +293,14 @@ export default function Home() {
         selectedCount={selectedIds.size}
         onEmitir={handleInvoice}
         onClear={handleClearSelection}
+      />
+
+      {/* ─── Edit Modal ─── */}
+      <EditSaleModal
+        isOpen={!!editingVenta}
+        onClose={() => setEditingVenta(null)}
+        venta={editingVenta}
+        onSave={handleEditVenta}
       />
 
       {/* ─── Summary Modal ─── */}
