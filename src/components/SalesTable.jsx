@@ -158,9 +158,9 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                     {venta.cae ? (
                       <div>
                         <div className="text-text-primary text-xs font-mono">{venta.cae}</div>
-                        {venta.cae_vto && (
+                        {venta.vto_cae && (
                           <div className="text-text-muted text-xs">
-                            Vto: {formatDate(venta.cae_vto)}
+                            Vto: {formatDate(venta.vto_cae)}
                           </div>
                         )}
                       </div>

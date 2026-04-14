@@ -168,34 +168,6 @@ export default function Home() {
     }
   }
 
-  // ─── Create Test Sale handler ───
-  const handleCreateTestSale = async (shouldFail = false) => {
-    try {
-      const { supabase } = await import('../lib/supabase')
-      const name = shouldFail 
-        ? 'Empresa con CUIT Inválido (Test Error)' 
-        : ['Juan Pérez', 'María García', 'Carlos Rodríguez', 'Ana López'][Math.floor(Math.random() * 4)]
-      
-      const { error: insertError } = await supabase
-        .from('ventas')
-        .insert([{
-          cliente: name,
-          monto: Math.floor(Math.random() * 50000) + 1000,
-          status: 'pendiente',
-          datos_fiscales: { 
-            cuit: shouldFail ? '99-99999999-9' : '20-12345678-9', 
-            force_fail: shouldFail 
-          }
-        }])
-
-      if (insertError) throw insertError
-      showToast(shouldFail ? 'Venta propensa a error creada' : 'Venta de prueba creada', 'success')
-    } catch (err) {
-      console.error('Error al crear venta de prueba:', err)
-      showToast('Error al crear venta: ' + err.message, 'error')
-    }
-  }
-
   const headerActions = (
     <button
       onClick={refetch}
@@ -218,37 +190,6 @@ export default function Home() {
   return (
     <Layout headerActions={headerActions}>
       <div className="space-y-6">
-        {/* ─── Header ─── */}
-        <div className="flex items-end justify-end">
-        <div className="flex gap-3">
-          <button
-            onClick={() => handleCreateTestSale(true)}
-            className="
-              flex items-center gap-2 px-4 py-2 rounded-lg
-              bg-red-subtle border border-red/20
-              text-red text-sm font-medium
-              hover:bg-red/20
-              transition-all duration-200
-              cursor-pointer
-            "
-          >
-            + Venta Fallida
-          </button>
-          <button
-            onClick={() => handleCreateTestSale(false)}
-            className="
-              flex items-center gap-2 px-4 py-2 rounded-lg
-              bg-accent/10 border border-accent/20
-              text-accent text-sm font-medium
-              hover:bg-accent/20
-              transition-all duration-200
-              cursor-pointer
-            "
-          >
-            + Venta de Prueba
-          </button>
-        </div>
-      </div>
 
       {/* ─── Error banner ─── */}
       {error && (
@@ -309,9 +250,11 @@ export default function Home() {
         <div className={`
           fixed top-6 right-6 z-50 animate-slide-down
           px-4 py-3 rounded-xl text-sm font-medium shadow-xl shadow-black/30
-          ${toast.type === 'error'
-            ? 'bg-red-subtle border border-red/20 text-red'
-            : 'bg-green-subtle border border-green/20 text-green'
+          ${
+            toast.type === 'error'   ? 'bg-red-subtle border border-red/20 text-red' :
+            toast.type === 'warning' ? 'bg-yellow-subtle border border-yellow/20 text-yellow' :
+            toast.type === 'info'    ? 'bg-accent-subtle border border-accent/20 text-accent' :
+                                       'bg-green-subtle border border-green/20 text-green'
           }
         `}>
           {toast.message}
