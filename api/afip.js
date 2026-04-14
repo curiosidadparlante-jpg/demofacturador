@@ -165,7 +165,7 @@ export default async function handler(req, res) {
         console.error(`❌ Error facturando venta ${v.id}:`, err.message)
 
         // Marcar como error en DB
-        await supabaseAdmin
+        const { error: dbErr } = await supabaseAdmin
           .from('ventas')
           .update({
             status: 'error',
@@ -175,7 +175,10 @@ export default async function handler(req, res) {
             }
           })
           .eq('id', v.id)
-          .catch(dbErr => console.error('Error secundario (DB):', dbErr.message))
+
+        if (dbErr) {
+          console.error('Error secundario (DB):', dbErr.message)
+        }
 
         resultados.push({ id: v.id, success: false, error: err.message })
       }

@@ -28,15 +28,23 @@ export async function generateInvoicePdf(venta) {
   doc.text('COD. 011', pageWidth / 2, margin + 13, { align: 'center' });
 
   // ─── Datos Emisor (Izquierda) ───
-  doc.setFontSize(16);
-  doc.text(EMISOR.razonSocial, margin + 5, 25);
+  const maxLeftWidth = (pageWidth / 2) - margin - 15;
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  const razonSocialLines = doc.splitTextToSize(EMISOR.razonSocial, maxLeftWidth);
+  doc.text(razonSocialLines, margin + 5, 25);
+  
+  const startYSub = 25 + (razonSocialLines.length * 6);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Domicilio: ${EMISOR.domicilio}`, margin + 5, 35);
-  doc.text(`Condición IVA: ${EMISOR.condicionIva}`, margin + 5, 42);
+  const domicilioLines = doc.splitTextToSize(`Domicilio: ${EMISOR.domicilio}`, maxLeftWidth);
+  doc.text(domicilioLines, margin + 5, startYSub);
+  
+  doc.text(`Condición IVA: ${EMISOR.condicionIva}`, margin + 5, startYSub + (domicilioLines.length * 5) + 2);
 
   // ─── Datos Comprobante (Derecha) ───
   doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
   doc.text('FACTURA', pageWidth - margin - 5, 22, { align: 'right' });
   
   doc.setFontSize(11);
