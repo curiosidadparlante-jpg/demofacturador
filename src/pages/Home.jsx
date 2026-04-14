@@ -4,7 +4,8 @@ import StatsCards from '../components/StatsCards'
 import SalesTable from '../components/SalesTable'
 import EmitirFacturaBar from '../components/EmitirFacturaBar'
 import SummaryModal from '../components/SummaryModal'
-import { RefreshCw, Layout, Edit2 } from 'lucide-react'
+import Layout from '../components/Layout'
+import { RefreshCw, Edit2 } from 'lucide-react'
 import EditSaleModal from '../components/EditSaleModal'
 
 export default function Home() {
