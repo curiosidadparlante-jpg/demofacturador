@@ -83,5 +83,5 @@ export function useVentas() {
     if (deleteError) throw deleteError
   }, [])
 
-  return { ventas, loading, error, refetch: fetchVentas, updateVentaStatus, updateVenta, deleteVenta }
+  return { ventas, setVentas, loading, error, refetch: fetchVentas, updateVentaStatus, updateVenta, deleteVenta }
 }

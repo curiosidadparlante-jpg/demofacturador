@@ -9,7 +9,7 @@ import { RefreshCw, Edit2 } from 'lucide-react'
 import EditSaleModal from '../components/EditSaleModal'
 
 export default function Home() {
-  const { ventas, loading, error, refetch, updateVentaStatus, updateVenta, deleteVenta } = useVentas()
+  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, deleteVenta } = useVentas()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [toast, setToast] = useState(null)
   
@@ -79,25 +79,20 @@ export default function Home() {
 
   // ─── Emitir Factura handler ───
   const handleInvoice = async () => {
-    const n8nUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n.tudominio.com/webhook/test-afip'
-    const isMock = !n8nUrl || n8nUrl.includes('test-afip')
-
     const selectedVentas = ventas.filter(v => selectedIds.has(v.id) && v.status !== 'facturado')
     if (selectedVentas.length === 0) {
       showToast('No hay ventas pendientes o con error seleccionadas', 'error')
       return
     }
 
-    // Mark as 'procesando'
-    for (const venta of selectedVentas) {
-      try {
-        await updateVentaStatus(venta.id, 'procesando')
-      } catch (err) {
-        console.error(`Error actualizando status de venta ${venta.id}:`, err)
-      }
-    }
-
     try {
+      showToast('Emitiendo factura...', 'info')
+      
+      // 1. Actualización local al instante para feedback visual (procesando...) y evitamos 401
+      setVentas(prev => prev.map(v => 
+        selectedIds.has(v.id) ? { ...v, status: 'procesando' } : v
+      ))
+      
       const payload = {
         ventas: selectedVentas.map(v => ({
           id: v.id,
@@ -109,7 +104,6 @@ export default function Home() {
         })),
       }
 
-      console.log('Enviando a API AFIP interna...');
       const response = await fetch('/api/afip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -120,6 +114,31 @@ export default function Home() {
       const resultados = data.resultados || []
       const successCount = resultados.filter(r => r.success).length
       
+      // 2. Actualizamos solo las filas afectadas localmente con el resultado real
+      setVentas(prev => prev.map(v => {
+        const res = resultados.find(r => r.id === v.id)
+        if (res) {
+          if (res.success) {
+            return { 
+              ...v, 
+              status: 'facturado', 
+              cae: res.cae, 
+              nro_comprobante: res.nro 
+            }
+          } else {
+            return { 
+              ...v, 
+              status: 'error',
+              datos_fiscales: { 
+                ...v.datos_fiscales, 
+                error_detalle: res.error 
+              }
+            }
+          }
+        }
+        return v
+      }))
+
       setSelectedIds(new Set())
       
       if (successCount === resultados.length) {
@@ -127,9 +146,15 @@ export default function Home() {
       } else {
         showToast(`Se procesaron ${successCount} de ${resultados.length} correctamente.`, 'warning')
       }
+
     } catch (err) {
       console.error('[handleInvoice] Error:', err.message)
       showToast('Error al procesar facturas: ' + err.message, 'error')
+      
+      // Revertimos a pendiente localmente en caso de fallo general
+      setVentas(prev => prev.map(v => 
+        v.status === 'procesando' ? { ...v, status: 'pendiente' } : v
+      ))
     }
   }
 
