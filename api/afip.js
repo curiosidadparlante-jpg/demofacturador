@@ -101,14 +101,28 @@ export default async function handler(req, res) {
       access_token: sdkToken
     })
 
+    // Debug: mostrar info de diagnóstico
     console.log('AFIP SDK inicializado correctamente')
+    console.log(`Cert empieza con: ${cert.substring(0, 30)}...`)
+    console.log(`Key empieza con: ${key.substring(0, 30)}...`)
+    console.log(`Cert largo: ${cert.length} chars`)
+    console.log(`Key largo: ${key.length} chars`)
+    console.log(`Token (primeros 10): ${sdkToken.substring(0, 10)}...`)
 
     const resultados = []
 
     for (const v of ventas) {
       try {
         // Obtener último comprobante y calcular el siguiente
-        const lastVoucher = await afip.ElectronicBilling.getLastVoucher(ptoVta, 11)
+        let lastVoucher
+        try {
+          lastVoucher = await afip.ElectronicBilling.getLastVoucher(ptoVta, 11)
+        } catch (afipErr) {
+          console.error('❌ Error detallado de AFIP SDK:', JSON.stringify(afipErr, null, 2))
+          console.error('❌ afipErr.message:', afipErr.message)
+          console.error('❌ afipErr.response:', afipErr.response?.data || afipErr.response)
+          throw afipErr
+        }
         const nextVoucher = lastVoucher + 1
 
         console.log(`Venta ${v.id}: último comprobante=${lastVoucher}, siguiente=${nextVoucher}`)
