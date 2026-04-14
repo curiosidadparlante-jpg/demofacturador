@@ -116,55 +116,20 @@ export default function Home() {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || `Error API status ${response.status}`);
-      }
-
-      const { resultados } = data;
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const resItem of resultados) {
-        try {
-          if (resItem.status === 'error') {
-             const ventaOriginal = selectedVentas.find(v => v.id === resItem.id);
-             const nuevosDatos = { ...ventaOriginal?.datos_fiscales, error_detalle: resItem.error_detalle };
-             await updateVentaStatus(resItem.id, 'error', { datos_fiscales: nuevosDatos });
-             errorCount++;
-          } else if (resItem.status === 'facturado') {
-             const ventaOriginal = selectedVentas.find(v => v.id === resItem.id);
-             const nuevosDatos = { ...ventaOriginal?.datos_fiscales, comprobante_numero: resItem.comprobante_numero };
-             
-             await updateVentaStatus(resItem.id, 'facturado', {
-                cae: resItem.cae,
-                cae_vto: resItem.cae_vto,
-                datos_fiscales: nuevosDatos
-             });
-             successCount++;
-          }
-        } catch (updateErr) {
-          console.error(`Error de UI actualizando BD (Venta ${resItem.id}):`, updateErr);
-        }
-      }
-
-      if (errorCount > 0) {
-         showToast(`Proceso completado: ${successCount} ok, ${errorCount} errores.`, 'error');
-      } else if (successCount > 0) {
-         showToast(`${successCount} ${successCount === 1 ? 'factura procesada' : 'facturas procesadas'} con éxito`, 'success');
-      }
-
+      const data = await response.json()
+      const resultados = data.resultados || []
+      const successCount = resultados.filter(r => r.success).length
+      
       setSelectedIds(new Set())
       
-    } catch (err) {
-      console.error('[handleInvoice] Falló la emisión:', err.message)
-      showToast(err.message, 'error')
-
-      for (const venta of selectedVentas) {
-        const nuevosDatos = { ...venta.datos_fiscales, error_detalle: err.message }
-        await updateVentaStatus(venta.id, 'error', { datos_fiscales: nuevosDatos })
+      if (successCount === resultados.length) {
+        showToast(`Se emitieron ${successCount} comprobantes con éxito`, 'success')
+      } else {
+        showToast(`Se procesaron ${successCount} de ${resultados.length} correctamente.`, 'warning')
       }
+    } catch (err) {
+      console.error('[handleInvoice] Error:', err.message)
+      showToast('Error al procesar facturas: ' + err.message, 'error')
     }
   }
 
