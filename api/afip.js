@@ -85,12 +85,20 @@ export default async function handler(req, res) {
 
     const cert = Buffer.from(certBase64, 'base64').toString('ascii')
     const key = Buffer.from(keyBase64, 'base64').toString('ascii')
+    const sdkToken = process.env.AFIP_SDK_TOKEN
+
+    if (!sdkToken) {
+      return res.status(500).json({
+        error: 'Falta la variable AFIP_SDK_TOKEN en Vercel. Registrate en app.afipsdk.com para obtener tu token.'
+      })
+    }
 
     const afip = new Afip({
       CUIT: parseInt(cuit),
       cert: cert,
       key: key,
-      production: isProduction
+      production: isProduction,
+      access_token: sdkToken
     })
 
     console.log('AFIP SDK inicializado correctamente')
@@ -138,27 +146,50 @@ export default async function handler(req, res) {
         // Guardar resultado en Supabase
         const nroComprobante = `${String(ptoVta).padStart(4, '0')}-${String(nextVoucher).padStart(8, '0')}`
 
+        // ─── Generar PDF oficial con AFIP SDK ───
+        let pdfUrl = null
+        try {
+          const pdfRes = await afip.ElectronicBilling.createPDF({
+            html: `
+              <p><b>Razón Social:</b> ${v.cliente || 'Consumidor Final'}</p>
+              <p><b>CUIT:</b> ${v.datos_fiscales?.cuit || 'N/A'}</p>
+              <p><b>Forma de Pago:</b> ${v.datos_fiscales?.forma_pago || 'Contado'}</p>
+            `,
+            file_name: `Factura_${nroComprobante}.pdf`,
+            copy: 1,
+            voucher_info: {
+              PtoVta: ptoVta,
+              CbteTipo: 11,
+              CbteNro: nextVoucher
+            }
+          })
+          pdfUrl = pdfRes?.file || null
+          console.log(`📄 PDF generado: ${pdfUrl}`)
+        } catch (pdfErr) {
+          console.error(`⚠️ Error generando PDF (no fatal):`, pdfErr.message)
+        }
+
         const { error: upError } = await supabaseAdmin
           .from('ventas')
           .update({
             status: 'facturado',
             cae: resAFIP.CAE,
             nro_comprobante: nroComprobante,
-            vto_cae: resAFIP.CAEFchVto
+            vto_cae: resAFIP.CAEFchVto,
+            pdf_url: pdfUrl
           })
           .eq('id', v.id)
 
         if (upError) {
           console.error(`⚠️ Factura emitida pero error guardando en DB:`, upError.message)
-          // La factura YA se emitió ante AFIP, así que la marcamos como éxito
-          // pero logueamos el error de DB para revisión manual
         }
 
         resultados.push({
           id: v.id,
           success: true,
           nro: nroComprobante,
-          cae: resAFIP.CAE
+          cae: resAFIP.CAE,
+          pdf_url: pdfUrl
         })
 
       } catch (err) {
