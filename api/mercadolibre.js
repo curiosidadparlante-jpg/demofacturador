@@ -1,65 +1,89 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-  process.env.VITE_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-)
-
 export default async function handler(req, res) {
+  // Configuración de CORS básica para pruebas
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' })
   }
 
+  console.log('[Webhook MeLi] Nueva notificación recibida')
+
   try {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Variables de Supabase faltantes en el servidor (VITE_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)')
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey)
     const body = req.body
 
-    // ─── Mercado Libre manda validaciones de endpoint sin topic a veces ───
+    console.log('[Webhook MeLi] Body:', JSON.stringify(body))
+
     if (!body || !body.topic || !body.resource) {
-      // Retornar 200 rápido si es un ping o payload vacío
-      return res.status(200).json({ received: true, processed: false, reason: 'Invalid payload' })
+      return res.status(200).json({ 
+        received: true, 
+        processed: false, 
+        reason: 'Payload inválido o vacío (requiere topic y resource)' 
+      })
     }
 
-    // ─── Solo procesamos órdenes (ventas) ───
     if (body.topic !== 'orders_v2') {
-      return res.status(200).json({ received: true, processed: false, topic: body.topic })
+      return res.status(200).json({ 
+        received: true, 
+        processed: false, 
+        reason: `Tópico ignorado: ${body.topic}` 
+      })
     }
 
-    const orderResourceUrl = body.resource // ej: /orders/2000000000
+    const orderResourceUrl = body.resource
     const orderId = orderResourceUrl.split('/').pop()
+
+    console.log('[Webhook MeLi] Procesando Orden ID:', orderId)
     
-    // ─── Control de duplicados (Idempotencia) ───
-    const { data: existing } = await supabaseAdmin
+    // ─── Control de duplicados ───
+    const { data: existing, error: checkError } = await supabaseAdmin
       .from('ventas')
       .select('id')
-      .eq('mp_payment_id', orderId) // Podemos seguir usando esta columna o crear una meli_order_id. Por simpleza reciclo la existente.
+      .eq('mp_payment_id', orderId)
       .maybeSingle()
 
+    if (checkError) throw new Error(`Error consultando duplicados: ${checkError.message}`)
+
     if (existing) {
+      console.log('[Webhook MeLi] Orden duplicada:', orderId)
       return res.status(200).json({ received: true, duplicate: true })
     }
 
-    // ─── Obtener detalles de la orden desde MeLi API ───
+    // ─── Obtener detalles desde MeLi API ───
     const meliAccessToken = process.env.MELI_ACCESS_TOKEN
     let orderData = null
 
     if (meliAccessToken) {
       try {
+        console.log('[Webhook MeLi] Consultando API de Mercado Libre...')
         const response = await fetch(`https://api.mercadolibre.com${orderResourceUrl}`, {
-          headers: {
-            'Authorization': `Bearer ${meliAccessToken}`
-          }
+          headers: { 'Authorization': `Bearer ${meliAccessToken}` }
         })
         
         if (!response.ok) {
-          throw new Error(`MeLi API status: ${response.status} - ${await response.text()}`)
+          const errorText = await response.text()
+          console.error('[Webhook MeLi] Error API MeLi:', response.status, errorText)
+        } else {
+          orderData = await response.json()
         }
-        
-        orderData = await response.json()
-      } catch (meliErr) {
-        console.error('[Webhook MeLi] Error obteniendo orden:', orderId, meliErr.message)
+      } catch (meliFetchErr) {
+        console.error('[Webhook MeLi] Error fatal en fetch MeLi:', meliFetchErr.message)
       }
-    } else {
-      console.warn('[Webhook MeLi] No hay MELI_ACCESS_TOKEN configurado.')
     }
 
     // Construcción del registro
@@ -68,8 +92,6 @@ export default async function handler(req, res) {
       : orderData?.buyer?.nickname || `Venta MeLi #${orderId}`
 
     const monto = orderData?.total_amount || 0
-
-    // Extraemos el DNI/CUIT de billing_info
     const docNumber = orderData?.buyer?.billing_info?.doc_number || orderData?.buyer?.identification?.number || ''
 
     const ventaRecord = {
@@ -77,26 +99,36 @@ export default async function handler(req, res) {
       cliente: clienteNombre,
       monto: monto,
       status: 'pendiente',
-      mp_payment_id: orderId, // guardamos el orderId acá para reuso
+      mp_payment_id: orderId,
       datos_fiscales: {
         email: orderData?.buyer?.email,
         identification: {
            type: orderData?.buyer?.billing_info?.doc_type || 'DNI',
            number: docNumber
         },
-        cuit: docNumber, // Campo importante para la afip_api
+        cuit: docNumber,
         shipping_id: orderData?.shipping?.id,
         meli_status: orderData?.status
       },
     }
 
-    const { error } = await supabaseAdmin.from('ventas').insert([ventaRecord])
-    if (error) throw error
+    console.log('[Webhook MeLi] Insertando en Supabase...')
+    const { error: insertError } = await supabaseAdmin.from('ventas').insert([ventaRecord])
+    
+    if (insertError) {
+      throw new Error(`Error al insertar en Supabase: ${insertError.message}`)
+    }
 
-    return res.status(200).json({ received: true, processed: true })
+    console.log('[Webhook MeLi] Procesado con éxito')
+    return res.status(200).json({ received: true, processed: true, orderId })
 
   } catch (err) {
-    console.error('[Webhook MeLi] Error Crítico:', err)
-    return res.status(500).json({ error: err.message })
+    console.error('[Webhook MeLi] Error Crítico:', err.message)
+    return res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    })
   }
 }
+
