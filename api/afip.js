@@ -83,8 +83,8 @@ export default async function handler(req, res) {
       })
     }
 
-    const cert = Buffer.from(certBase64, 'base64').toString('ascii')
-    const key = Buffer.from(keyBase64, 'base64').toString('ascii')
+    const cert = Buffer.from(certBase64, 'base64').toString('utf8')
+    const key = Buffer.from(keyBase64, 'base64').toString('utf8')
     const sdkToken = process.env.AFIP_SDK_TOKEN
 
     if (!sdkToken) {
