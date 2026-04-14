@@ -151,7 +151,7 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-text-primary text-xs font-mono whitespace-nowrap">
-                      {venta.datos_fiscales?.comprobante_numero || <span className="text-text-muted">—</span>}
+                      {venta.nro_comprobante || venta.datos_fiscales?.comprobante_numero || <span className="text-text-muted">—</span>}
                     </div>
                   </td>
                   <td className="px-4 py-3">
