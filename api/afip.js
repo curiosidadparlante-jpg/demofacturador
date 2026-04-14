@@ -15,10 +15,12 @@ export default async function handler(req, res) {
     const cuit = process.env.AFIP_CUIT
     const certBase64 = process.env.AFIP_CERT_BASE64
     const keyBase64 = process.env.AFIP_KEY_BASE64
-    
-    // ─── SIMULADOR INTELIGENTE (Si no hay certs) ───
-    if (!cuit || !certBase64 || !keyBase64) {
-      console.log('Credenciales de AFIP no encontradas. Ejecutando Simulador de AFIP.');
+    const isProduction = process.env.AFIP_PRODUCTION === 'true'
+    const isSandbox = process.env.AFIP_SANDBOX === 'true'
+
+    // ─── MODO SANDBOX O SIN CREDENCIALES ───
+    if (isSandbox || !cuit || !certBase64 || !keyBase64) {
+      console.log(isSandbox ? 'MODO SANDBOX ACTIVADO: Generando factura de prueba...' : 'Credenciales no encontradas: Generando factura de prueba...');
       await new Promise(r => setTimeout(r, 1500)); // Delay simulado
       
       const resultadosMock = ventas.map(v => {
