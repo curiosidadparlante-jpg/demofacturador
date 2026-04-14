@@ -2,16 +2,26 @@ import { useState } from 'react';
 import Modal from './Modal';
 import { Plus, Loader2 } from 'lucide-react';
 
+const FORMAS_PAGO = [
+  'Contado - Efectivo',
+  'Transferencia Bancaria',
+  'Tarjeta de Débito',
+  'Tarjeta de Crédito',
+  'Mercado Pago',
+  'Otro',
+];
+
 export default function AddSaleModal({ isOpen, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cliente: '',
     cuit: '',
     monto: '',
+    formaPago: 'Contado - Efectivo',
   });
 
   const resetForm = () => {
-    setFormData({ cliente: '', cuit: '', monto: '' });
+    setFormData({ cliente: '', cuit: '', monto: '', formaPago: 'Contado - Efectivo' });
   };
 
   const handleClose = () => {
@@ -30,6 +40,7 @@ export default function AddSaleModal({ isOpen, onClose, onSave }) {
         status: 'pendiente',
         datos_fiscales: {
           cuit: formData.cuit.trim() || null,
+          forma_pago: formData.formaPago,
         },
       });
       resetForm();
@@ -88,6 +99,22 @@ export default function AddSaleModal({ isOpen, onClose, onSave }) {
               onChange={(e) => setFormData({ ...formData, monto: e.target.value })}
             />
           </div>
+        </div>
+
+        {/* Forma de Pago */}
+        <div>
+          <label className="block text-xs font-bold text-text-muted uppercase tracking-widest mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+            Forma de Pago
+          </label>
+          <select
+            value={formData.formaPago}
+            onChange={(e) => setFormData({ ...formData, formaPago: e.target.value })}
+            className="w-full bg-base border border-border rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-blue transition-colors cursor-pointer"
+          >
+            {FORMAS_PAGO.map(fp => (
+              <option key={fp} value={fp}>{fp}</option>
+            ))}
+          </select>
         </div>
 
         <div className="pt-4">

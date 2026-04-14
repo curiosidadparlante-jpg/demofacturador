@@ -94,6 +94,17 @@ export default async function handler(req, res) {
     const monto = orderData?.total_amount || 0
     const docNumber = orderData?.buyer?.billing_info?.doc_number || orderData?.buyer?.identification?.number || ''
 
+    // Extraer forma de pago de Mercado Pago
+    const firstPayment = orderData?.payments?.[0];
+    const paymentMap = {
+      'credit_card': 'Tarjeta de Crédito',
+      'debit_card': 'Tarjeta de Débito',
+      'account_money': 'Dinero en cuenta MP',
+      'ticket': 'Cupón (Pago Fácil/Rápipago)',
+      'bank_transfer': 'Transferencia'
+    };
+    const formaPago = paymentMap[firstPayment?.payment_type] || firstPayment?.payment_type || 'Mercado Pago';
+
     const ventaRecord = {
       fecha: orderData?.date_created || new Date().toISOString(),
       cliente: clienteNombre,
@@ -108,7 +119,8 @@ export default async function handler(req, res) {
         },
         cuit: docNumber,
         shipping_id: orderData?.shipping?.id,
-        meli_status: orderData?.status
+        meli_status: orderData?.status,
+        forma_pago: formaPago
       },
     }
 

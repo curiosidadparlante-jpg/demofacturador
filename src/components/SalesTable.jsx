@@ -1,5 +1,6 @@
 import StatusBadge from './StatusBadge'
-import { AlertCircle, Edit2 } from 'lucide-react'
+import { AlertCircle, Edit2, FileDown } from 'lucide-react'
+import { generateInvoicePdf } from '../utils/invoicePdf'
 
 export default function SalesTable({ ventas, selectedIds, onToggleSelect, onToggleAll, loading, onShowError, onEdit }) {
   const pendientes = ventas.filter(v => v.status !== 'facturado')
@@ -169,15 +170,26 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {venta.status !== 'facturado' && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onEdit(venta) }}
-                        className="p-2 text-text-muted hover:text-blue hover:bg-blue/10 rounded-lg transition-all"
-                        title="Editar datos fiscales"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                    )}
+                    <div className="flex items-center justify-end gap-1">
+                      {venta.status !== 'facturado' && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onEdit(venta) }}
+                          className="p-2 text-text-muted hover:text-blue hover:bg-blue/10 rounded-lg transition-all cursor-pointer"
+                          title="Editar datos fiscales"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      )}
+                      {venta.status === 'facturado' && venta.cae && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); generateInvoicePdf(venta) }}
+                          className="p-2 text-text-muted hover:text-green hover:bg-green/10 rounded-lg transition-all cursor-pointer"
+                          title="Descargar PDF"
+                        >
+                          <FileDown size={16} />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )

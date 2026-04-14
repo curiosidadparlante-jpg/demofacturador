@@ -2,12 +2,22 @@ import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { Save, Loader2 } from 'lucide-react';
 
+const FORMAS_PAGO = [
+  'Contado - Efectivo',
+  'Transferencia Bancaria',
+  'Tarjeta de Débito',
+  'Tarjeta de Crédito',
+  'Mercado Pago',
+  'Otro',
+];
+
 export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cliente: '',
     cuit: '',
-    monto: 0
+    monto: 0,
+    formaPago: 'Contado - Efectivo',
   });
 
   useEffect(() => {
@@ -15,7 +25,8 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
       setFormData({
         cliente: venta.cliente || '',
         cuit: venta.datos_fiscales?.cuit || '',
-        monto: venta.monto || 0
+        monto: venta.monto || 0,
+        formaPago: venta.datos_fiscales?.forma_pago || 'Contado - Efectivo',
       });
     }
   }, [venta]);
@@ -29,7 +40,8 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
         monto: parseFloat(formData.monto),
         datos_fiscales: {
           ...venta.datos_fiscales,
-          cuit: formData.cuit
+          cuit: formData.cuit,
+          forma_pago: formData.formaPago,
         }
       });
       onClose();
@@ -86,6 +98,22 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
               onChange={(e) => setFormData({ ...formData, monto: e.target.value })}
             />
           </div>
+        </div>
+
+        {/* Forma de Pago */}
+        <div>
+          <label className="block text-xs font-bold text-text-muted uppercase tracking-widest mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+            Forma de Pago
+          </label>
+          <select
+            value={formData.formaPago}
+            onChange={(e) => setFormData({ ...formData, formaPago: e.target.value })}
+            className="w-full bg-base border border-border rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-blue transition-colors cursor-pointer"
+          >
+            {FORMAS_PAGO.map(fp => (
+              <option key={fp} value={fp}>{fp}</option>
+            ))}
+          </select>
         </div>
 
         <div className="pt-4">
