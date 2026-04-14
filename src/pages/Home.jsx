@@ -5,13 +5,15 @@ import SalesTable from '../components/SalesTable'
 import EmitirFacturaBar from '../components/EmitirFacturaBar'
 import SummaryModal from '../components/SummaryModal'
 import Layout from '../components/Layout'
-import { RefreshCw, Edit2 } from 'lucide-react'
+import { RefreshCw, Plus } from 'lucide-react'
 import EditSaleModal from '../components/EditSaleModal'
+import AddSaleModal from '../components/AddSaleModal'
 
 export default function Home() {
-  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, deleteVenta } = useVentas()
+  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, createVenta, deleteVenta } = useVentas()
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [toast, setToast] = useState(null)
+  const [addModalOpen, setAddModalOpen] = useState(false)
   
   // ─── Modal State ───
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -168,6 +170,17 @@ export default function Home() {
     }
   }
 
+  const handleCreateVenta = async (payload) => {
+    try {
+      await createVenta(payload)
+      showToast('Venta agregada correctamente', 'success')
+    } catch (err) {
+      console.error('Error al crear venta:', err)
+      showToast('Error al crear venta: ' + err.message, 'error')
+      throw err
+    }
+  }
+
   const headerActions = (
     <button
       onClick={refetch}
@@ -207,7 +220,22 @@ export default function Home() {
           <h2 className="text-xl font-black text-text-secondary uppercase tracking-wider" style={{fontFamily: 'Montserrat'}}>
             Lista Facturas
           </h2>
-          <span className="text-xs text-text-muted">{ventas.length} registros</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-text-muted">{ventas.length} registros</span>
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="
+                flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                bg-black text-white text-xs font-bold uppercase tracking-wider
+                hover:-translate-y-0.5 hover:shadow-lg
+                transition-all duration-200 cursor-pointer
+              "
+              style={{ fontFamily: 'Space Grotesk' }}
+            >
+              <Plus size={14} />
+              Nueva Venta
+            </button>
+          </div>
         </div>
         <SalesTable
           ventas={ventas}
@@ -233,6 +261,13 @@ export default function Home() {
         onClose={() => setEditingVenta(null)}
         venta={editingVenta}
         onSave={handleEditVenta}
+      />
+
+      {/* ─── Add Sale Modal ─── */}
+      <AddSaleModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSave={handleCreateVenta}
       />
 
       {/* ─── Summary Modal ─── */}

@@ -1,50 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Modal from './Modal';
-import { Save, Loader2 } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 
-export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
+export default function AddSaleModal({ isOpen, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cliente: '',
     cuit: '',
-    monto: 0
+    monto: '',
   });
 
-  useEffect(() => {
-    if (venta) {
-      setFormData({
-        cliente: venta.cliente || '',
-        cuit: venta.datos_fiscales?.cuit || '',
-        monto: venta.monto || 0
-      });
-    }
-  }, [venta]);
+  const resetForm = () => {
+    setFormData({ cliente: '', cuit: '', monto: '' });
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await onSave(venta.id, {
-        cliente: formData.cliente,
+      await onSave({
+        fecha: new Date().toISOString(),
+        cliente: formData.cliente.trim(),
         monto: parseFloat(formData.monto),
+        status: 'pendiente',
         datos_fiscales: {
-          ...venta.datos_fiscales,
-          cuit: formData.cuit
-        }
+          cuit: formData.cuit.trim() || null,
+        },
       });
+      resetForm();
       onClose();
     } catch (err) {
       console.error(err);
-      alert('Error al guardar: ' + err.message);
+      alert('Error al crear venta: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!venta) return null;
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Editar Datos de Venta">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Agregar Venta Manual">
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-xs font-bold text-text-muted uppercase tracking-widest mb-2" style={{ fontFamily: 'Space Grotesk' }}>
@@ -53,6 +52,7 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
           <input
             type="text"
             required
+            placeholder="Ej: Juan Pérez"
             className="w-full bg-base border border-border rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-blue transition-colors"
             value={formData.cliente}
             onChange={(e) => setFormData({ ...formData, cliente: e.target.value })}
@@ -71,7 +71,7 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
               value={formData.cuit}
               onChange={(e) => setFormData({ ...formData, cuit: e.target.value })}
             />
-            <p className="text-[10px] text-text-muted mt-1">Si está vacío, AFIP lo tomará como Consumidor Final.</p>
+            <p className="text-[10px] text-text-muted mt-1">Opcional. Si está vacío, AFIP lo tomará como Consumidor Final.</p>
           </div>
           <div>
             <label className="block text-xs font-bold text-text-muted uppercase tracking-widest mb-2" style={{ fontFamily: 'Space Grotesk' }}>
@@ -81,6 +81,8 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
               type="number"
               required
               step="0.01"
+              min="1"
+              placeholder="0.00"
               className="w-full bg-base border border-border rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-blue transition-colors"
               value={formData.monto}
               onChange={(e) => setFormData({ ...formData, monto: e.target.value })}
@@ -95,8 +97,8 @@ export default function EditSaleModal({ isOpen, onClose, venta, onSave }) {
             className="w-full flex items-center justify-center gap-2 bg-black text-white py-4 rounded-lg font-black uppercase tracking-widest hover:-translate-y-1 transition-all shadow-xl disabled:opacity-50 disabled:transform-none cursor-pointer"
             style={{ fontFamily: 'Montserrat' }}
           >
-            {loading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
-            {loading ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+            {loading ? <Loader2 className="animate-spin" /> : <Plus size={18} />}
+            {loading ? 'CREANDO...' : 'AGREGAR VENTA'}
           </button>
         </div>
       </form>
