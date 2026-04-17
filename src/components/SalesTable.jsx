@@ -251,16 +251,21 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                       )}
                       {venta.status === 'facturado' && venta.cae && (
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
                             if (venta.pdf_url) {
-                              window.open(venta.pdf_url, '_blank');
-                            } else {
-                              generateInvoicePdf(venta);
+                              try {
+                                const check = await fetch(venta.pdf_url, { method: 'HEAD' });
+                                if (check.ok) {
+                                  window.open(venta.pdf_url, '_blank');
+                                  return;
+                                }
+                              } catch (_) { /* expired */ }
                             }
+                            generateInvoicePdf(venta);
                           }}
                           className="p-2 text-text-muted hover:text-green hover:bg-green/10 rounded-lg transition-all cursor-pointer"
-                          title={venta.pdf_url ? 'Descargar PDF oficial' : 'Generar PDF'}
+                          title="Descargar PDF"
                         >
                           <FileDown size={16} />
                         </button>

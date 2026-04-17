@@ -160,8 +160,8 @@ export default async function handler(req, res) {
         // Guardar resultado en Supabase
         const nroComprobante = `${String(ptoVta).padStart(4, '0')}-${String(nextVoucher).padStart(8, '0')}`
 
-        // ─── Generar PDF oficial con AFIP SDK ───
-        let pdfUrl = null
+        // ─── Generar y Guardar PDF Permanente ───
+        let finalPdfUrl = null
         try {
           const pdfRes = await afip.ElectronicBilling.createPDF({
             html: `
@@ -177,10 +177,38 @@ export default async function handler(req, res) {
               CbteNro: nextVoucher
             }
           })
-          pdfUrl = pdfRes?.file || null
-          console.log(`📄 PDF generado: ${pdfUrl}`)
+          
+          const s3Url = pdfRes?.file || null
+          console.log(`📄 PDF generado en S3 (temporal): ${s3Url}`)
+
+          if (s3Url) {
+            // Descargar PDF desde S3 temporal
+            const pdfResponse = await fetch(s3Url)
+            const arrayBuffer = await pdfResponse.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
+
+            // Subir a nuestro Supabase Storage (bucket "facturas")
+            const fileName = `${v.id}_${nroComprobante}.pdf`
+            const { error: uploadError } = await supabaseAdmin.storage
+              .from('facturas')
+              .upload(fileName, buffer, {
+                contentType: 'application/pdf',
+                upsert: true
+              })
+
+            if (uploadError) {
+              console.error(`⚠️ Error subiendo PDF a Supabase Storage:`, uploadError.message)
+              finalPdfUrl = s3Url // Fallback temporal si falla
+            } else {
+              const { data } = supabaseAdmin.storage
+                .from('facturas')
+                .getPublicUrl(fileName)
+              finalPdfUrl = data.publicUrl
+              console.log(`💾 PDF guardado permanentemente: ${finalPdfUrl}`)
+            }
+          }
         } catch (pdfErr) {
-          console.error(`⚠️ Error generando PDF (no fatal):`, pdfErr.message)
+          console.error(`⚠️ Error manejando PDF (no fatal):`, pdfErr.message)
         }
 
         const { error: upError } = await supabaseAdmin
@@ -190,7 +218,7 @@ export default async function handler(req, res) {
             cae: resAFIP.CAE,
             nro_comprobante: nroComprobante,
             vto_cae: resAFIP.CAEFchVto,
-            pdf_url: pdfUrl
+            pdf_url: finalPdfUrl
           })
           .eq('id', v.id)
 
@@ -203,7 +231,7 @@ export default async function handler(req, res) {
           success: true,
           nro: nroComprobante,
           cae: resAFIP.CAE,
-          pdf_url: pdfUrl
+          pdf_url: finalPdfUrl
         })
 
       } catch (err) {

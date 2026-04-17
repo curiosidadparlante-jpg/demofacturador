@@ -28,12 +28,18 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onEdit, onRet
   const formaPago = venta.datos_fiscales?.forma_pago || 'No especificada';
   const origen = venta.mp_payment_id ? 'Mercado Libre' : 'Manual';
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (venta.pdf_url) {
-      window.open(venta.pdf_url, '_blank');
-    } else {
-      generateInvoicePdf(venta);
+      try {
+        const check = await fetch(venta.pdf_url, { method: 'HEAD' });
+        if (check.ok) {
+          window.open(venta.pdf_url, '_blank');
+          return;
+        }
+      } catch (_) { /* URL expirada o inaccesible */ }
     }
+    // Fallback: generar PDF local
+    generateInvoicePdf(venta);
   };
 
   // Status timeline
