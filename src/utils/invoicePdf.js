@@ -136,7 +136,7 @@ export async function generateInvoicePdf(venta) {
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  doc.text('Comprobante emitido a través de Sistema de Facturación Comand', pageWidth / 2, pageHeight - 5, { align: 'center' });
+  doc.text('Comprobante emitido a través de Sistema de Facturación — Command Soluciones', pageWidth / 2, pageHeight - 5, { align: 'center' });
 
   // ─── Descarga ───
   const fileName = `Factura_${venta.nro_comprobante || 'sin-numero'}.pdf`;

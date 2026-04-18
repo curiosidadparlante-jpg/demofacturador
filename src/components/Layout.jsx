@@ -42,7 +42,7 @@ export default function Layout({ children, headerActions }) {
 
             {headerActions}
             <span className="hidden sm:block text-xs font-semibold text-text-secondary truncate max-w-[200px]" style={{fontFamily: 'Space Grotesk'}}>
-               {user?.email || 'admin@comand.app'}
+               {user?.email || 'usuario'}
             </span>
             <div className="w-[1px] h-4 bg-border hidden sm:block"></div>
             <button
