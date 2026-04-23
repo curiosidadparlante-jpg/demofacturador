@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────
+   COMAND — Design Tokens
+   Estética Agencia (Command) basándose en captura real.
+   ─────────────────────────────────────────── */
+
+@theme {
+  --color-base: #F9F7F2;  /* El marfil original de CMD Soluciones */
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1EFE9;
+  --color-border: #E2DDD1;
+  --color-border-subtle: #F1EFE9;
+
+  --color-text-primary: #121212;
+  --color-text-secondary: #3D3D3D;
+  --color-text-muted: #8E8A81;
+
+  /* Colores de Marca Command (Nuevos/Refinados) */
+  --color-cmd-red: #C0443C;
+  --color-cmd-blue: #3460A8;
+  --color-cmd-yellow: #FFE100;
+  --color-cmd-green: #2D8F5E;
+  --color-cmd-purple: #7C4DFF;
+  
+  /* Colores utilitarios para Tailwind */
+  --color-red: #C0443C;
+  --color-red-subtle: #FDF2F1;
+  --color-green: #2D8F5E;
+  --color-green-subtle: #F0F9F4;
+  --color-yellow: #FFE100;
+  --color-yellow-subtle: #FFFDE6;
+  --color-blue: #3460A8;
+  --color-blue-subtle: #F0F4FA;
+  --color-purple: #7C4DFF;
+  --color-purple-subtle: #F5EEFF;
+
+  --color-accent: #C0443C;
+  --color-accent-hover: #D64F46;
+
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+}
+
+/* ─── Base ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-space), sans-serif;
+  background-color: var(--color-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  letter-spacing: -0.015em;
+}
+
+/* ─── Typography Fluid Clamps ─── */
+h1, h2, h3, h4, h5, h6, .display-text {
+  font-family: var(--font-montserrat);
+  font-weight: 700; 
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); line-height: 1.1; font-weight: 800; }
+h2 { font-size: clamp(1.25rem, 2.5vw, 1.7rem); line-height: 1.2; font-weight: 700; }
+h3 { font-size: clamp(1.1rem, 2vw, 1.3rem); line-height: 1.3; font-weight: 600; }
+
+/* ─── Botones tipo Cápsula ─── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #121212;
+  color: #ffffff;
+  font-family: var(--font-space);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1.75rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Sombra moderna suave */
+  border: 1px solid #121212; /* Borde más fino */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  background-color: #2a2a2a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12); /* Elevación sutil */
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Botón Rojo Acertado (basado en el rojo) */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-cmd-red);
+  color: #ffffff;
+  font-family: var(--font-space);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1.75rem;
+  border-radius: 6px; /* Ajuste moderno, fino y no tan brutalista */
+  box-shadow: 0 4px 10px rgba(192, 68, 60, 0.2);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  text-transform: uppercase;
+  border: none;
+}
+
+.btn-accent:hover {
+  background-color: var(--color-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(192, 68, 60, 0.3);
+}
+
+/* ─── Componentes extraídos de la captura ─── */
+.card-rounded {
+  border-radius: 32px;
+  padding: 2.5rem;
+  color: white;
+}
+.card-green { background-color: var(--color-cmd-green); }
+.card-blue { background-color: var(--color-cmd-blue); }
+.card-red { background-color: var(--color-cmd-red); }
+.card-yellow { background-color: var(--color-cmd-yellow); }
+
+.input-soft {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  font-family: var(--font-space);
+  border-radius: 16px;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease-out;
+  outline: none;
+  box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.02);
+}
+
+.input-soft:focus {
+  border-color: var(--color-cmd-blue);
+  box-shadow: 0 0 0 3px rgba(52, 96, 168, 0.1); /* rgba del azul CMD real */
+}
+
+/* ─── Scrollbar Custom ─── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-base);
+}
+::-webkit-scrollbar-thumb {
+  background: #E8E2D5;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cmd-red);
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: var(--color-cmd-blue);
+  color: white;
+}
+
+/* ─── Utility animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.35s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drawerIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100px); }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-slide-down {
+  animation: slideDown 0.25s ease-out forwards;
+}
+
+.animate-drawer-in {
+  animation: drawerIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-toast-in {
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-toast-out {
+  animation: toastOut 0.3s ease-in forwards;
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 2s ease-in-out infinite;
+}
