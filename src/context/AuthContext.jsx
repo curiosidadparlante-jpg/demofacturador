@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState({ id: 'demo-user', email: 'demo@cmdsoluciones.com' })
+  const [user, setUser] = useState({ id: 'demo-user', email: 'hola@commandsoluciones.com.ar' })
   const [loading, setLoading] = useState(false)
 
   const signIn = async (email, password) => {

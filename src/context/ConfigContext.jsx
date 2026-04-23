@@ -19,7 +19,7 @@ export function ConfigProvider({ children }) {
         // Default demo emisor
         const defaultEmisor = {
           id: 'demo-emisor',
-          razon_social: 'Empresa Demo SRL',
+          razon_social: 'NOMBRE CONTRIBUYENTE',
           cuit: '30111111118',
           condicion_iva: 'IVA Responsable Inscripto',
           inicio_actividades: '2020-01-01',
