@@ -1,6 +1,6 @@
 {
-  "name": "Comand — Facturación",
-  "short_name": "Comand",
+  "name": "Command — Facturación",
+  "short_name": "Command",
   "description": "Dashboard de facturación y pagos.",
   "start_url": "/",
   "display": "standalone",
