@@ -36,7 +36,7 @@ export default function Layout({ children, headerActions }) {
           
           {/* Mobile Menu Toggle */}
           <button 
-            className="sm:hidden p-2 rounded-lg bg-white border border-border shadow-sm text-text-primary z-50"
+            className="lg:hidden p-2 rounded-lg bg-white border border-border shadow-sm text-text-primary z-50"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -44,11 +44,11 @@ export default function Layout({ children, headerActions }) {
 
           {/* Desktop/Tablet Menu */}
           <div className={`
-            absolute top-full right-0 mt-2 z-50 sm:static sm:mt-0 sm:z-auto
-            flex-col sm:flex-row items-stretch sm:items-center gap-4 
-            bg-white sm:px-5 sm:py-2.5 p-4 sm:p-0 rounded-2xl sm:rounded-full border border-border shadow-lg sm:shadow-sm
-            ${mobileMenuOpen ? 'flex' : 'hidden sm:flex'}
-            min-w-[200px] sm:min-w-0
+            absolute top-full right-0 mt-2 z-50 lg:static lg:mt-0 lg:z-auto
+            flex-col lg:flex-row items-stretch lg:items-center gap-4 
+            bg-white lg:px-5 lg:py-2.5 p-4 lg:p-0 rounded-2xl lg:rounded-full border border-border shadow-lg lg:shadow-sm
+            ${mobileMenuOpen ? 'flex' : 'hidden lg:flex'}
+            min-w-[200px] lg:min-w-0
           `}>
             {/* AFIP Status Indicator */}
             {afipStatus && (
