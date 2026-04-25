@@ -3,8 +3,33 @@ import StatusBadge from './StatusBadge';
 import { Trash2, Loader2, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 
-export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, selectedIds = new Set(), onToggleSelect, onInvoice }) {
-  const [deletingId, setDeletingId] = useState(null)
+export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, onInvoice }) {
+  const [deletingId, setDeletingId] = useState(null);
+  const [localSelectedIds, setLocalSelectedIds] = useState(new Set());
+
+  // Clear selection when modal closes
+  import { useEffect } from 'react';
+  useEffect(() => {
+    if (!isOpen) setLocalSelectedIds(new Set());
+  }, [isOpen]);
+
+  const handleToggleSelect = (id) => {
+    setLocalSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleToggleAll = () => {
+    if (localSelectedIds.size === ventas.length && ventas.length > 0) {
+      setLocalSelectedIds(new Set());
+    } else {
+      setLocalSelectedIds(new Set(ventas.map(v => v.id)));
+    }
+  };
+
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
@@ -65,14 +90,26 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
           {/* Total summary - Hidden for Trash */}
           {!isTrashView && (
             <div className="flex justify-between items-center p-4 bg-surface-alt rounded-lg border border-border">
-              <div>
+              <div className="flex items-center gap-3">
                 {title.toLowerCase().includes('facturado') && ventas.length > 0 && (
                   <button
                     onClick={() => onResetAll && onResetAll(ventas.map(v => v.id))}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-600 border border-orange-500/20 hover:bg-orange-500/20 transition-all text-xs font-bold uppercase tracking-wider"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-600 border border-orange-500/20 hover:bg-orange-500/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
                   >
                     <RefreshCw size={14} />
                     Reiniciar Todo
+                  </button>
+                )}
+                {localSelectedIds.size > 0 && onInvoice && (
+                  <button
+                    onClick={() => {
+                      onInvoice(Array.from(localSelectedIds));
+                      setLocalSelectedIds(new Set());
+                    }}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green text-white hover:bg-green/90 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm hover:shadow-md"
+                  >
+                    <CheckCircle2 size={14} />
+                    Facturar {localSelectedIds.size} {localSelectedIds.size === 1 ? 'seleccionado' : 'seleccionados'}
                   </button>
                 )}
               </div>
@@ -88,7 +125,12 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
               <thead className="bg-surface-alt">
                 <tr className="border-b border-border">
                   <th className="px-6 py-3 text-left w-12">
-                    {/* Placeholder for header checkbox if needed later */}
+                    <input
+                      type="checkbox"
+                      checked={ventas.length > 0 && localSelectedIds.size === ventas.length}
+                      onChange={handleToggleAll}
+                      className="w-4 h-4 rounded border-border bg-surface-alt accent-accent cursor-pointer"
+                    />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Fecha</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Cliente</th>
@@ -100,26 +142,26 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
               </thead>
               <tbody className="divide-y divide-border-subtle bg-surface">
                 {ventas.map((venta) => {
-                  const isSelected = selectedIds.has(venta.id);
+                  const isSelected = localSelectedIds.has(venta.id);
                   const isError = venta.status === 'error';
                   const canInvoice = venta.status === 'pendiente' || venta.status === 'error';
 
                   return (
                     <tr 
                       key={venta.id} 
-                      onClick={() => onToggleSelect && onToggleSelect(venta.id)}
+                      onClick={() => handleToggleSelect(venta.id)}
                       className={`
                         transition-colors cursor-pointer
                         ${!isSelected && !isError ? 'hover:bg-surface-hover' : ''}
-                        ${isError ? 'bg-red-subtle/50 hover:bg-red-subtle' : ''}
-                        ${isSelected ? 'bg-blue-subtle' : ''}
+                        ${isError && !isSelected ? 'bg-red-subtle/50 hover:bg-red-subtle' : ''}
+                        ${isSelected ? 'bg-blue-subtle/80' : ''}
                       `}
                     >
                       <td className="px-6 py-3">
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => onToggleSelect && onToggleSelect(venta.id)}
+                          onChange={() => handleToggleSelect(venta.id)}
                           onClick={(e) => e.stopPropagation()}
                           className="w-4 h-4 rounded border-border bg-surface-alt accent-accent cursor-pointer"
                         />
@@ -183,11 +225,12 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                         <div className="flex justify-end items-center gap-2">
                           {canInvoice && onInvoice && (
                             <button
-                              onClick={(e) => { e.stopPropagation(); onInvoice(venta.id) }}
-                              className="p-1.5 rounded-lg text-green bg-green/5 border border-green/10 hover:bg-green/20 hover:border-green/30 transition-all"
+                              onClick={(e) => { e.stopPropagation(); onInvoice([venta.id]) }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white bg-green hover:bg-green/90 transition-all font-bold text-[10px] uppercase tracking-wider cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
                               title="Facturar ahora"
                             >
-                              <CheckCircle2 size={16} />
+                              <CheckCircle2 size={14} />
+                              <span>Facturar</span>
                             </button>
                           )}
                           {venta.status === 'facturado' && (

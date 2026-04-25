@@ -753,9 +753,7 @@ export default function Home() {
         onReset={handleResetVenta}
         onResetAll={handleResetAllVentas}
         onShowError={(msg) => showToast(msg, 'error')}
-        selectedIds={selectedIds}
-        onToggleSelect={handleToggleSelect}
-        onInvoice={(id) => handleInvoice([id])}
+        onInvoice={(ids) => handleInvoice(ids)}
       />
 
       {/* ─── Toasts ─── */}
