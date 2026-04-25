@@ -37,27 +37,38 @@ export default function StatsCards({ ventas, onCardClick }) {
 
   return (
     <div className="space-y-4">
-      {/* Top Bar with Title & Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 md:mb-6">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 group cursor-pointer"
-          >
-            <h2 className="text-[11px] md:text-[13px] font-black text-text-primary uppercase tracking-[0.2em] group-hover:text-accent transition-colors">
-              Resumen
-            </h2>
-            <ChevronDown size={14} className={`text-text-muted group-hover:text-accent transition-all ${isExpanded ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <div className="w-px h-4 bg-border/40 hidden sm:block" />
-          
-          {/* Subtle Segmented Control */}
+      {/* Top Bar with Title & Toggle */}
+      <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 group cursor-pointer"
+        >
+          <h2 className="text-[11px] md:text-[13px] font-black text-text-primary uppercase tracking-[0.2em] group-hover:text-accent transition-colors">
+            Resumen
+          </h2>
+          <ChevronDown size={14} className={`text-text-muted group-hover:text-accent transition-all ${isExpanded ? 'rotate-180' : ''}`} />
+        </button>
+        
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-surface-alt cursor-pointer"
+        >
+          {isExpanded ? 'Ocultar' : 'Mostrar'}
+          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+
+      {/* Main Collapsible Content */}
+      <div className={`space-y-4 ${isExpanded ? 'block' : 'hidden'}`}>
+        
+        {/* Subtle Timeframe Toggle (Now inside) */}
+        <div className="flex justify-center md:justify-start mb-2">
           <div className="flex p-0.5 bg-surface-alt/50 rounded-lg border border-border/40">
             {[
               { id: 'all', label: 'Histórico' },
               { id: 'month', label: 'Mes' },
-              { id: 'week', label: 'Semana' }
+              { id: 'week', label: 'Semana' },
+              { id: 'day', label: 'Día' }
             ].map((option) => (
               <button
                 key={option.id}
@@ -75,29 +86,14 @@ export default function StatsCards({ ventas, onCardClick }) {
             ))}
           </div>
         </div>
-        
-        <div className="sm:ml-auto flex items-center gap-3">
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-surface-alt cursor-pointer"
-          >
-            {isExpanded ? 'Ocultar' : 'Mostrar'}
-            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-        </div>
-      </div>
 
-      {/* Main Grid Layout */}
-      <div className={`
-        flex-col lg:flex-row gap-4 lg:h-[200px]
-        ${isExpanded ? 'flex' : 'hidden'}
-      `}>
-        
-        {/* 1. FACTURADO (Hero Card) */}
-        <button
-          onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
-          className="lg:flex-[2] relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
-        >
+        {/* Grid Layout for Cards */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:h-[200px]">
+          {/* 1. FACTURADO (Hero Card) */}
+          <button
+            onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
+            className="lg:flex-[2] relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
+          >
           {/* Decorative Waves (Subtle) */}
           <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
             <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
