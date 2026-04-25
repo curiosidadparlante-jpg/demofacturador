@@ -5,15 +5,7 @@ import { filterVentasByTimeframe } from '../utils/dateUtils'
 export default function StatsCards({ ventas, onCardClick }) {
   const [timeframe, setTimeframe] = useState('all') // 'all', 'day', 'week', 'month'
   const [showValues, setShowValues] = useState(true)
-  const [isExpanded, setIsExpanded] = useState(window.innerWidth >= 768)
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) setIsExpanded(true)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  const [isExpanded, setIsExpanded] = useState(true)
 
   const filteredVentas = filterVentasByTimeframe(ventas, timeframe)
   const activas = filteredVentas.filter(v => v.status !== 'borrada')
@@ -49,10 +41,10 @@ export default function StatsCards({ ventas, onCardClick }) {
       <div className="flex items-center justify-between gap-4">
         <button 
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 text-lg sm:text-xl font-bold text-text-primary uppercase tracking-tight cursor-pointer md:cursor-default"
+          className="flex items-center gap-2 text-lg sm:text-xl font-bold text-text-primary uppercase tracking-tight cursor-pointer hover:text-accent transition-colors"
         >
           Resumen
-          <ChevronDown size={20} className={`md:hidden transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          <ChevronDown size={20} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
         </button>
         <div className="flex items-center gap-2 bg-surface border border-border rounded-lg pl-3 pr-2 py-1 focus-within:border-accent transition-colors">
           <select 
@@ -71,7 +63,7 @@ export default function StatsCards({ ventas, onCardClick }) {
       {/* Main Grid Layout */}
       <div className={`
         flex-col xl:flex-row gap-4 xl:h-[200px]
-        ${isExpanded ? 'flex' : 'hidden md:flex'}
+        ${isExpanded ? 'flex' : 'hidden'}
       `}>
         
         {/* 1. FACTURADO (Hero Card) */}
@@ -117,12 +109,12 @@ export default function StatsCards({ ventas, onCardClick }) {
 
         {/* 2. STACK OF 3 MINI CARDS */}
         <div className="xl:flex-[1] flex justify-center items-stretch h-auto xl:h-[200px]">
-          <div className="flex flex-col md:flex-row xl:flex-col gap-3 w-full h-full">
+          <div className="flex flex-col md:flex-row xl:flex-col justify-center items-center gap-3 w-full h-full">
             
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="flex-1 min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row xl:flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-full md:w-max xl:w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
@@ -141,7 +133,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="flex-1 min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row xl:flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-full md:w-max xl:w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
@@ -160,7 +152,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="flex-1 min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row xl:flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-full md:w-max xl:w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">

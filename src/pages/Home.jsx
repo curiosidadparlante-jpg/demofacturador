@@ -593,11 +593,11 @@ export default function Home() {
 
       {/* ─── Table section ─── */}
       <div>
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
+        <div className="flex flex-col mb-4 gap-4">
           <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
             Lista Facturas
           </h2>
-          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full">
             <button
               onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
               className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] sm:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
