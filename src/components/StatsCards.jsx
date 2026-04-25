@@ -109,12 +109,12 @@ export default function StatsCards({ ventas, onCardClick }) {
 
         {/* 2. STACK OF 3 MINI CARDS */}
         <div className="xl:flex-[1] flex justify-center items-center h-auto xl:h-[200px]">
-          <div className="flex flex-row flex-wrap justify-center items-center gap-3">
+          <div className="flex flex-col justify-center items-center gap-3 w-full sm:w-auto">
             
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="w-max min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
@@ -133,7 +133,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="w-max min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
@@ -152,7 +152,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="w-max min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
