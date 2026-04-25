@@ -1,4 +1,4 @@
-import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown } from 'lucide-react'
+import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { filterVentasByTimeframe } from '../utils/dateUtils'
 
@@ -54,7 +54,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             ].map((option) => (
               <button
                 key={option.id}
-                onClick={() => onTimeframeChange(option.id)}
+                onClick={() => setTimeframe(option.id)}
                 className={`
                   px-3 py-1 rounded-md text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer
                   ${timeframe === option.id 
@@ -71,7 +71,7 @@ export default function StatsCards({ ventas, onCardClick }) {
         
         <div className="sm:ml-auto flex items-center gap-3">
           <button 
-            onClick={onToggle}
+            onClick={() => setIsExpanded(!isExpanded)}
             className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-surface-alt cursor-pointer"
           >
             {isExpanded ? 'Ocultar resumen' : 'Mostrar resumen'}
