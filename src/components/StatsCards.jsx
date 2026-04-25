@@ -38,10 +38,10 @@ export default function StatsCards({ ventas, onCardClick }) {
   return (
     <div className="space-y-4">
       {/* Top Bar with Title & Filter */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col items-start gap-3 mb-2">
         <button 
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 text-lg sm:text-xl font-bold text-text-primary uppercase tracking-tight cursor-pointer hover:text-accent transition-colors"
+          className="flex items-center gap-2 text-xl font-bold text-text-primary uppercase tracking-tight cursor-pointer hover:text-accent transition-colors"
         >
           Resumen
           <ChevronDown size={20} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -52,7 +52,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             value={timeframe}
             onChange={(e) => setTimeframe(e.target.value)}
           >
-            <option value="all">Histórico (Todo)</option>
+            <option value="all">Histórico</option>
             <option value="day">Hoy</option>
             <option value="week">Esta Semana</option>
             <option value="month">Este Mes</option>
@@ -69,7 +69,7 @@ export default function StatsCards({ ventas, onCardClick }) {
         {/* 1. FACTURADO (Hero Card) */}
         <button
           onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
-          className="xl:flex-[2] relative bg-white border border-border rounded-2xl p-4 sm:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
+          className="w-full md:w-[80%] xl:w-[50%] mx-auto relative bg-white border border-border rounded-2xl p-4 sm:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
         >
           {/* Decorative Waves (Subtle) */}
           <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
