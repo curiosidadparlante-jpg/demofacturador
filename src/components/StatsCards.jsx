@@ -137,7 +137,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="flex-1 lg:w-[320px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="flex-1 lg:w-[256px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Total<br className="hidden md:block"/> Movim.</div>
               
@@ -159,7 +159,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="flex-1 lg:w-[320px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="flex-1 lg:w-[256px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Pendiente<br className="hidden md:block"/> Cobro</div>
               
@@ -181,7 +181,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="flex-1 lg:w-[320px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="flex-1 lg:w-[256px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Errores<br className="hidden md:block"/> AFIP</div>
               
