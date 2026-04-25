@@ -554,7 +554,7 @@ export default function Home() {
           title="Sincronizar ventas de Mercado Libre y Mercado Pago"
         >
           <RefreshCw size={10} className={isSyncing ? 'animate-spin' : ''} />
-          <span className="hidden sm:inline">{isSyncing ? 'Sincronizando...' : 'Sincronizar MP/ML'}</span>
+          <span className="hidden md:inline">{isSyncing ? 'Sincronizando...' : 'Sincronizar MP/ML'}</span>
         </button>
 
         <button
@@ -571,7 +571,7 @@ export default function Home() {
           title="Recuperar CAEs perdidos desde AFIP"
         >
           <ShieldCheck size={10} />
-          <span className="hidden sm:inline">RECUPERAR CAEs</span>
+          <span className="hidden md:inline">RECUPERAR CAEs</span>
         </button>
       </div>
     </div>
@@ -600,7 +600,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full">
             <button
               onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-              className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] sm:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
+              className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] md:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
             >
               <Trash2 size={14} />
               Papelera ({borradas.length})
@@ -610,7 +610,7 @@ export default function Home() {
             <div className="relative w-full md:w-auto">
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] sm:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
+                className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
               >
                 <Download size={14} className="text-text-muted" />
                 <span className="truncate md:hidden">Exportación</span>
@@ -644,7 +644,7 @@ export default function Home() {
               onClick={() => setBulkImportModalOpen(true)}
               className="
                 flex items-center justify-center md:justify-start gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
-                bg-accent/5 text-accent text-[10px] sm:text-[11px] font-bold uppercase tracking-widest
+                bg-accent/5 text-accent text-[10px] md:text-[11px] font-bold uppercase tracking-widest
                 border border-accent/10
                 hover:bg-accent/10 md:hover:-translate-y-1 md:hover:shadow-lg md:hover:shadow-accent/5
                 transition-all duration-300 cursor-pointer w-full md:w-auto
@@ -658,7 +658,7 @@ export default function Home() {
               onClick={() => setAddModalOpen(true)}
               className="
                 flex items-center justify-center md:justify-start gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
-                bg-text-primary text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-widest
+                bg-text-primary text-white text-[10px] md:text-[11px] font-bold uppercase tracking-widest
                 md:hover:-translate-y-1 hover:shadow-lg md:hover:shadow-xl hover:shadow-black/20
                 transition-all duration-300 cursor-pointer w-full md:w-auto
               "

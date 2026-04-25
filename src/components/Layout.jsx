@@ -22,14 +22,14 @@ export default function Layout({ children, headerActions }) {
   }, [])
 
   return (
-    <div className="min-h-screen bg-base pt-6 pb-5 px-4 sm:px-6 lg:px-8 flex flex-col">
+    <div className="min-h-screen bg-base pt-6 pb-5 px-4 md:px-8 flex flex-col">
       <div className="max-w-7xl mx-auto flex-1 w-full">
         
         {/* ─── Top Header ─── */}
         <header className="flex items-center justify-between mb-8 relative">
           <div className="flex items-center gap-2">
-            <img src="/logo-comand.png" alt="Command Logo" className="h-6 sm:h-8 w-auto object-contain" />
-            <span className="text-[10px] sm:text-xs font-black text-text-primary uppercase tracking-widest ml-1 border-l-2 border-border pl-2 sm:pl-3 hidden sm:inline-block">
+            <img src="/logo-comand.png" alt="Command Logo" className="h-6 md:h-8 w-auto object-contain" />
+            <span className="text-[10px] md:text-xs font-black text-text-primary uppercase tracking-widest ml-1 border-l-2 border-border pl-2 md:pl-3 hidden md:inline-block">
               Facturador
             </span>
           </div>
@@ -93,7 +93,7 @@ export default function Layout({ children, headerActions }) {
               <Settings size={12} className="text-text-muted group-hover:text-accent group-hover:rotate-90 transition-all duration-300" />
             </button>
 
-            <div className="w-full h-[1px] sm:w-[1px] sm:h-4 bg-border"></div>
+            <div className="w-full h-[1px] md:w-[1px] md:h-4 bg-border"></div>
             <a 
               href="https://wa.me/5491178959108" 
               target="_blank" 
@@ -102,7 +102,7 @@ export default function Layout({ children, headerActions }) {
             >
                {user?.email || 'usuario'}
             </a>
-            <div className="w-full h-[1px] sm:w-[1px] sm:h-4 bg-border"></div>
+            <div className="w-full h-[1px] md:w-[1px] md:h-4 bg-border"></div>
             <button
               onClick={signOut}
               className="text-text-muted hover:text-card-red transition-colors cursor-pointer flex items-center gap-2"

@@ -64,14 +64,14 @@ export default function StatsCards({ ventas, onCardClick }) {
 
       {/* Main Grid Layout */}
       <div className={`
-        flex-col xl:flex-row gap-4 xl:h-[200px]
+        flex-col lg:flex-row gap-4 lg:h-[200px]
         ${isExpanded ? 'flex' : 'hidden'}
       `}>
         
         {/* 1. FACTURADO (Hero Card) */}
         <button
           onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
-          className="xl:flex-[2] relative bg-white border border-border rounded-2xl p-4 sm:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
+          className="lg:flex-[2] relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
         >
           {/* Decorative Waves (Subtle) */}
           <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
@@ -96,11 +96,11 @@ export default function StatsCards({ ventas, onCardClick }) {
             <TrendingUp size={18} className="text-green" />
           </div>
           
-          <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] sm:text-[12px] text-text-primary/90 mb-1">
+          <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
             Facturado
           </h3>
           
-          <div className="font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter text-green mb-2 sm:mb-3 transition-all">
+          <div className="font-black text-3xl md:text-4xl lg:text-5xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
             {renderMoney(facturadasAmount)}
           </div>
           
@@ -110,18 +110,18 @@ export default function StatsCards({ ventas, onCardClick }) {
         </button>
 
         {/* 2. STACK OF 3 MINI CARDS */}
-        <div className="xl:flex-[1] flex justify-center items-center h-auto xl:h-[200px]">
-          <div className="flex flex-col justify-center items-center gap-3 w-full sm:w-auto">
+        <div className="lg:flex-[1] flex justify-center items-center h-auto lg:h-[200px]">
+          <div className="flex flex-col justify-center items-center gap-3 w-full md:w-auto">
             
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="w-[85%] max-w-[280px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] md:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
-              <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
-              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-center">{activas.length}</div>
+              <div className="font-bold uppercase text-[9px] md:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
+              <div className="font-black text-2xl md:text-3xl text-text-primary tracking-tighter text-center">{activas.length}</div>
               <div className="flex items-center gap-2 justify-end">
-                 <div className="font-medium text-[10px] sm:text-[11px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
+                 <div className="font-medium text-[10px] md:text-[11px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
                  <div className="bg-blue/10 p-2 rounded-lg shrink-0">
                    <Activity size={16} className="text-blue" />
                  </div>
@@ -131,12 +131,12 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="w-[85%] max-w-[280px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] md:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
-              <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
-              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
+              <div className="font-bold uppercase text-[9px] md:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
+              <div className="font-black text-2xl md:text-3xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
               <div className="flex items-center gap-2 justify-end">
-                 <div className="font-medium text-[10px] sm:text-[11px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
+                 <div className="font-medium text-[10px] md:text-[11px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
                  <div className="bg-yellow/20 p-2 rounded-lg shrink-0">
                    <Clock size={16} className="text-amber-500" />
                  </div>
@@ -146,12 +146,12 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="w-[85%] max-w-[280px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] md:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
-              <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
-              <div className="font-black text-2xl sm:text-3xl text-red tracking-tighter text-center">{conError.length}</div>
+              <div className="font-bold uppercase text-[9px] md:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
+              <div className="font-black text-2xl md:text-3xl text-red tracking-tighter text-center">{conError.length}</div>
               <div className="flex items-center gap-2 justify-end">
-                 <div className="font-medium text-[10px] sm:text-[11px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
+                 <div className="font-medium text-[10px] md:text-[11px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
                  <div className="bg-red/10 p-2 rounded-lg shrink-0">
                    <AlertCircle size={16} className="text-red" />
                  </div>
