@@ -39,13 +39,15 @@ export default function StatsCards({ ventas, onCardClick }) {
     <div className="space-y-4">
       {/* Top Bar with Title & Filter */}
       <div className="flex flex-col items-start gap-3 mb-2">
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 text-xl font-bold text-text-primary uppercase tracking-tight cursor-pointer hover:text-accent transition-colors"
-        >
-          Resumen
-          <ChevronDown size={20} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-        </button>
+        <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-2 cursor-pointer hover:text-accent transition-colors"
+          >
+            Resumen
+            <ChevronDown size={20} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        </h2>
         <div className="flex items-center gap-2 bg-surface border border-border rounded-lg pl-3 pr-2 py-1 focus-within:border-accent transition-colors">
           <select 
             className="text-sm text-text-primary bg-transparent focus:outline-none cursor-pointer pr-4"
@@ -69,7 +71,7 @@ export default function StatsCards({ ventas, onCardClick }) {
         {/* 1. FACTURADO (Hero Card) */}
         <button
           onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
-          className="w-full md:w-[80%] xl:w-[50%] mx-auto relative bg-white border border-border rounded-2xl p-4 sm:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
+          className="xl:flex-[2] relative bg-white border border-border rounded-2xl p-4 sm:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
         >
           {/* Decorative Waves (Subtle) */}
           <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
