@@ -40,10 +40,17 @@ export default function StatsCards({ ventas, onCardClick }) {
       {/* Top Bar with Title & Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 md:mb-6">
         <div className="flex items-center gap-4">
-          <h2 className="text-[11px] md:text-[13px] font-black text-text-primary uppercase tracking-[0.2em] flex items-center gap-2">
-            Resumen
-            <div className="w-1 h-1 rounded-full bg-border" />
-          </h2>
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-2 group cursor-pointer"
+          >
+            <h2 className="text-[11px] md:text-[13px] font-black text-text-primary uppercase tracking-[0.2em] group-hover:text-accent transition-colors">
+              Resumen
+            </h2>
+            <ChevronDown size={14} className={`text-text-muted group-hover:text-accent transition-all ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <div className="w-px h-4 bg-border/40 hidden sm:block" />
           
           {/* Subtle Segmented Control */}
           <div className="flex p-0.5 bg-surface-alt/50 rounded-lg border border-border/40">
@@ -74,7 +81,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-surface-alt cursor-pointer"
           >
-            {isExpanded ? 'Ocultar resumen' : 'Mostrar resumen'}
+            {isExpanded ? 'Ocultar' : 'Mostrar'}
             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
