@@ -1,14 +1,13 @@
 import Modal from './Modal';
 import StatusBadge from './StatusBadge';
 import { Trash2, Loader2, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, onInvoice }) {
   const [deletingId, setDeletingId] = useState(null);
   const [localSelectedIds, setLocalSelectedIds] = useState(new Set());
 
   // Clear selection when modal closes
-  import { useEffect } from 'react';
   useEffect(() => {
     if (!isOpen) setLocalSelectedIds(new Set());
   }, [isOpen]);
