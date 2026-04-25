@@ -597,30 +597,31 @@ export default function Home() {
           <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
             Lista Facturas
           </h2>
-          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-              className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] md:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
+              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] md:text-[11px] font-bold uppercase tracking-widest w-auto"
             >
               <Trash2 size={14} />
-              Papelera ({borradas.length})
+              <span className="hidden md:inline">Papelera</span>
+              <span className="md:hidden">Pape.</span> ({borradas.length})
             </button>
 
             {/* Export dropdown */}
-            <div className="relative w-full md:w-auto">
+            <div className="relative">
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
+                className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-auto"
               >
                 <Download size={14} className="text-text-muted" />
-                <span className="truncate md:hidden">Exportación</span>
+                <span className="truncate md:hidden">Export.</span>
                 <span className="hidden md:inline">Exportación Masiva</span>
                 <ChevronDown size={14} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {exportMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-                  <div className="absolute right-0 mt-2 bg-[#F9F7F2] border border-white/50 rounded-xl shadow-xl shadow-black/10 z-50 min-w-[160px] overflow-hidden animate-slide-down">
+                  <div className="absolute left-0 md:right-0 mt-2 bg-[#F9F7F2] border border-white/50 rounded-xl shadow-xl shadow-black/10 z-50 min-w-[160px] overflow-hidden animate-slide-down">
                     <button
                       onClick={() => handleExportAll('csv')}
                       className="w-full text-left px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-text-primary hover:bg-accent/5 hover:text-accent transition-colors cursor-pointer"
@@ -643,28 +644,30 @@ export default function Home() {
             <button
               onClick={() => setBulkImportModalOpen(true)}
               className="
-                flex items-center justify-center md:justify-start gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
+                flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
                 bg-accent/5 text-accent text-[10px] md:text-[11px] font-bold uppercase tracking-widest
                 border border-accent/10
                 hover:bg-accent/10 md:hover:-translate-y-1 md:hover:shadow-lg md:hover:shadow-accent/5
-                transition-all duration-300 cursor-pointer w-full md:w-auto
+                transition-all duration-300 cursor-pointer w-auto
               "
             >
               <Download size={14} />
-              Carga Masiva
+              <span className="hidden md:inline">Carga Masiva</span>
+              <span className="md:hidden">Carga</span>
             </button>
 
             <button
               onClick={() => setAddModalOpen(true)}
               className="
-                flex items-center justify-center md:justify-start gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
+                flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
                 bg-text-primary text-white text-[10px] md:text-[11px] font-bold uppercase tracking-widest
                 md:hover:-translate-y-1 hover:shadow-lg md:hover:shadow-xl hover:shadow-black/20
-                transition-all duration-300 cursor-pointer w-full md:w-auto
+                transition-all duration-300 cursor-pointer w-auto
               "
             >
               <Plus size={14} className="text-yellow" />
-              Nueva Venta
+              <span className="hidden md:inline">Nueva Venta</span>
+              <span className="md:hidden">Nueva</span>
             </button>
           </div>
         </div>
