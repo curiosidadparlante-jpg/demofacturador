@@ -1,34 +1,10 @@
 import Modal from './Modal';
 import StatusBadge from './StatusBadge';
-import { Trash2, Loader2, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Trash2, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 
-export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, onInvoice }) {
-  const [deletingId, setDeletingId] = useState(null);
-  const [localSelectedIds, setLocalSelectedIds] = useState(new Set());
-
-  // Clear selection when modal closes
-  useEffect(() => {
-    if (!isOpen) setLocalSelectedIds(new Set());
-  }, [isOpen]);
-
-  const handleToggleSelect = (id) => {
-    setLocalSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleToggleAll = () => {
-    if (localSelectedIds.size === ventas.length && ventas.length > 0) {
-      setLocalSelectedIds(new Set());
-    } else {
-      setLocalSelectedIds(new Set(ventas.map(v => v.id)));
-    }
-  };
-
+export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError }) {
+  const [deletingId, setDeletingId] = useState(null)
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
@@ -89,26 +65,14 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
           {/* Total summary - Hidden for Trash */}
           {!isTrashView && (
             <div className="flex justify-between items-center p-4 bg-surface-alt rounded-lg border border-border">
-              <div className="flex items-center gap-3">
+              <div>
                 {title.toLowerCase().includes('facturado') && ventas.length > 0 && (
                   <button
                     onClick={() => onResetAll && onResetAll(ventas.map(v => v.id))}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-600 border border-orange-500/20 hover:bg-orange-500/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-600 border border-orange-500/20 hover:bg-orange-500/20 transition-all text-xs font-bold uppercase tracking-wider"
                   >
                     <RefreshCw size={14} />
                     Reiniciar Todo
-                  </button>
-                )}
-                {localSelectedIds.size > 0 && onInvoice && (
-                  <button
-                    onClick={() => {
-                      onInvoice(Array.from(localSelectedIds));
-                      setLocalSelectedIds(new Set());
-                    }}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green text-white hover:bg-green/90 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm hover:shadow-md"
-                  >
-                    <CheckCircle2 size={14} />
-                    Facturar {localSelectedIds.size} {localSelectedIds.size === 1 ? 'seleccionado' : 'seleccionados'}
                   </button>
                 )}
               </div>
@@ -123,85 +87,54 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
             <table className="w-full text-sm">
               <thead className="bg-surface-alt">
                 <tr className="border-b border-border">
-                  <th className="px-6 py-3 text-left w-12">
-                    <input
-                      type="checkbox"
-                      checked={ventas.length > 0 && localSelectedIds.size === ventas.length}
-                      onChange={handleToggleAll}
-                      className="w-4 h-4 rounded border-border bg-surface-alt accent-accent cursor-pointer"
-                    />
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Fecha</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Cliente</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">Monto</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Factura</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Estado</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider"></th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Fecha</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Cliente</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider">Monto</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Factura</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Estado</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-subtle bg-surface">
-                {ventas.map((venta) => {
-                  const isSelected = localSelectedIds.has(venta.id);
-                  const isError = venta.status === 'error';
-                  const canInvoice = venta.status === 'pendiente' || venta.status === 'error';
-
-                  return (
-                    <tr 
-                      key={venta.id} 
-                      onClick={() => handleToggleSelect(venta.id)}
-                      className={`
-                        transition-colors cursor-pointer
-                        ${!isSelected && !isError ? 'hover:bg-surface-hover' : ''}
-                        ${isError && !isSelected ? 'bg-red-subtle/50 hover:bg-red-subtle' : ''}
-                        ${isSelected ? 'bg-blue-subtle/80' : ''}
-                      `}
-                    >
-                      <td className="px-6 py-3">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleToggleSelect(venta.id)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-4 h-4 rounded border-border bg-surface-alt accent-accent cursor-pointer"
-                        />
-                      </td>
-                      <td className="px-6 py-3 text-text-primary whitespace-nowrap">{formatDate(venta.fecha)}</td>
-                      <td className="px-6 py-3 text-text-primary">{venta.cliente}</td>
-                      <td className="px-6 py-3 text-right">
-                        {[3, 8, 13, 113].includes(venta.datos_fiscales?.tipo_cbte) ? (
-                          <div className="flex flex-col items-end">
-                            <span className="text-[#C0443C] font-semibold tabular-nums">- {formatCurrency(venta.monto)}</span>
-                            <span className="text-[9px] font-bold text-[#C0443C]/80 uppercase tracking-wider">Nota de Crédito</span>
-                          </div>
-                        ) : [2, 7, 12, 112].includes(venta.datos_fiscales?.tipo_cbte) ? (
-                          <div className="flex flex-col items-end">
-                            <span className="text-[#3460A8] font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
-                            <span className="text-[9px] font-bold text-[#3460A8]/80 uppercase tracking-wider">Nota de Débito</span>
-                          </div>
-                        ) : (
-                          <span className="text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-3 text-left">
-                        <span className="text-text-primary text-xs font-mono whitespace-nowrap">
-                          {venta.datos_fiscales?.comprobante_numero || <span className="text-text-muted">—</span>}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3">
-                        <div className="flex items-center gap-2">
-                          <StatusBadge status={venta.status} />
-                          {venta.status === 'error' && venta.datos_fiscales?.error_detalle && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); onShowError(venta.datos_fiscales.error_detalle) }}
-                              className="text-red hover:text-red-400 transition-colors p-1"
-                              title="Ver motivo de rechazo"
-                            >
-                              <AlertCircle size={15} />
-                            </button>
-                          )}
+                {ventas.map((venta) => (
+                  <tr key={venta.id} className="hover:bg-surface-hover transition-colors">
+                    <td className="px-4 py-3 text-text-primary whitespace-nowrap">{formatDate(venta.fecha)}</td>
+                    <td className="px-4 py-3 text-text-primary">{venta.cliente}</td>
+                    <td className="px-4 py-3 text-right">
+                      {[3, 8, 13, 113].includes(venta.datos_fiscales?.tipo_cbte) ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-[#C0443C] font-semibold tabular-nums">- {formatCurrency(venta.monto)}</span>
+                          <span className="text-[9px] font-bold text-[#C0443C]/80 uppercase tracking-wider">Nota de Crédito</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-3 text-right">
+                      ) : [2, 7, 12, 112].includes(venta.datos_fiscales?.tipo_cbte) ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-[#3460A8] font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                          <span className="text-[9px] font-bold text-[#3460A8]/80 uppercase tracking-wider">Nota de Débito</span>
+                        </div>
+                      ) : (
+                        <span className="text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-left">
+                      <span className="text-text-primary text-xs font-mono whitespace-nowrap">
+                        {venta.datos_fiscales?.comprobante_numero || <span className="text-text-muted">—</span>}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={venta.status} />
+                        {venta.status === 'error' && venta.datos_fiscales?.error_detalle && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onShowError(venta.datos_fiscales.error_detalle) }}
+                            className="text-red hover:text-red-400 transition-colors p-1"
+                            title="Ver motivo de rechazo"
+                          >
+                            <AlertCircle size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
                       {venta.status === 'borrada' ? (
                         <div className="flex justify-end gap-2">
                           <button
@@ -221,21 +154,10 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                           </button>
                         </div>
                       ) : (
-                        <div className="flex justify-end items-center gap-2">
-                          {canInvoice && onInvoice && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); onInvoice([venta.id]) }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white bg-green hover:bg-green/90 transition-all font-bold text-[10px] uppercase tracking-wider cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                              title="Facturar ahora"
-                            >
-                              <CheckCircle2 size={14} />
-                              <span>Facturar</span>
-                            </button>
-                          )}
+                        <div className="flex justify-end gap-2">
                           {venta.status === 'facturado' && (
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              onClick={() => {
                                 if (confirm('¿Quieres reiniciar esta venta a pendiente? Se borrará el CAE y número de factura.')) {
                                   onReset && onReset(venta.id)
                                 }
@@ -247,7 +169,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                             </button>
                           )}
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(venta.id) }}
+                            onClick={() => handleDelete(venta.id)}
                             disabled={deletingId === venta.id}
                             className="p-1.5 rounded-lg text-text-muted hover:text-red hover:bg-red-subtle/30 transition-colors disabled:opacity-50"
                             title="Mover a papelera"
@@ -258,8 +180,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                       )}
                     </td>
                   </tr>
-                );
-              })}
+                ))}
               </tbody>
             </table>
           </div>
