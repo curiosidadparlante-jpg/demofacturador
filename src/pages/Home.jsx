@@ -591,37 +591,29 @@ export default function Home() {
       {/* ─── Stats ─── */}
       <StatsCards ventas={ventas} onCardClick={handleCardClick} />
 
-      {/* ─── Filters ─── */}
-      <FilterBar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        totalCount={ventas.length}
-        filteredCount={filteredVentas.length}
-      />
-
       {/* ─── Table section ─── */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
           <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
             Lista Facturas
           </h2>
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
             <button
               onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer text-[11px] font-bold uppercase tracking-widest"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 transition-all cursor-pointer text-[10px] sm:text-[11px] font-bold uppercase tracking-widest w-full"
             >
               <Trash2 size={14} />
               Papelera ({borradas.length})
             </button>
 
             {/* Export dropdown */}
-            <div className="relative">
+            <div className="relative w-full">
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[11px] font-bold uppercase tracking-widest hover:-translate-y-1 hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full"
               >
                 <Download size={14} className="text-text-muted" />
-                Exportación Masiva
+                <span className="truncate">Exportación</span>
                 <ChevronDown size={14} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {exportMenuOpen && (
@@ -650,30 +642,40 @@ export default function Home() {
             <button
               onClick={() => setBulkImportModalOpen(true)}
               className="
-                flex items-center gap-2 px-6 py-3 rounded-xl
-                bg-accent/5 text-accent text-[11px] font-bold uppercase tracking-widest
+                flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl
+                bg-accent/5 text-accent text-[10px] sm:text-[11px] font-bold uppercase tracking-widest
                 border border-accent/10
-                hover:-translate-y-1 hover:bg-accent/10 hover:shadow-lg hover:shadow-accent/5
-                transition-all duration-300 cursor-pointer
+                hover:bg-accent/10
+                transition-all duration-300 cursor-pointer w-full
               "
             >
-              <Download size={16} />
+              <Download size={14} />
               Carga Masiva
             </button>
 
             <button
               onClick={() => setAddModalOpen(true)}
               className="
-                flex items-center gap-2 px-6 py-3 rounded-xl
-                bg-text-primary text-white text-[11px] font-bold uppercase tracking-widest
-                hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20
-                transition-all duration-300 cursor-pointer
+                flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl
+                bg-text-primary text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-widest
+                hover:shadow-lg hover:shadow-black/20
+                transition-all duration-300 cursor-pointer w-full
               "
             >
-              <Plus size={16} className="text-yellow" />
+              <Plus size={14} className="text-yellow" />
               Nueva Venta
             </button>
           </div>
+        </div>
+
+        {/* ─── Filters ─── */}
+        <div className="mb-4">
+          <FilterBar
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            totalCount={ventas.length}
+            filteredCount={filteredVentas.length}
+          />
         </div>
         <SalesTable
           ventas={filteredVentas}

@@ -1,4 +1,4 @@
-import { LogOut, Settings } from 'lucide-react'
+import { LogOut, Settings, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useConfig } from '../context/ConfigContext'
 import { useState, useEffect } from 'react'
@@ -10,6 +10,7 @@ export default function Layout({ children, headerActions }) {
   const { emisor, saveConfig } = useConfig()
   const [afipStatus, setAfipStatus] = useState(null)
   const [configOpen, setConfigOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     // Mock AFIP status for the demo
@@ -25,15 +26,30 @@ export default function Layout({ children, headerActions }) {
       <div className="max-w-7xl mx-auto flex-1 w-full">
         
         {/* ─── Top Header ─── */}
-        <header className="flex items-center justify-between mb-8">
+        <header className="flex items-center justify-between mb-8 relative">
           <div className="flex items-center gap-2">
-            <img src="/logo-comand.png" alt="Command Logo" className="h-8 w-auto object-contain" />
-            <span className="text-xs font-black text-text-primary uppercase tracking-widest ml-1 border-l-2 border-border pl-3">
-              Facturador Automático
+            <img src="/logo-comand.png" alt="Command Logo" className="h-6 sm:h-8 w-auto object-contain" />
+            <span className="text-[10px] sm:text-xs font-black text-text-primary uppercase tracking-widest ml-1 border-l-2 border-border pl-2 sm:pl-3 hidden sm:inline-block">
+              Facturador
             </span>
           </div>
           
-          <div className="flex items-center gap-4 bg-white px-5 py-2.5 rounded-full border border-border shadow-sm">
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="sm:hidden p-2 rounded-lg bg-white border border-border shadow-sm text-text-primary z-50"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+
+          {/* Desktop/Tablet Menu */}
+          <div className={`
+            absolute top-full right-0 mt-2 z-50 sm:static sm:mt-0 sm:z-auto
+            flex-col sm:flex-row items-stretch sm:items-center gap-4 
+            bg-white sm:px-5 sm:py-2.5 p-4 sm:p-0 rounded-2xl sm:rounded-full border border-border shadow-lg sm:shadow-sm
+            ${mobileMenuOpen ? 'flex' : 'hidden sm:flex'}
+            min-w-[200px] sm:min-w-0
+          `}>
             {/* AFIP Status Indicator */}
             {afipStatus && (
               <div className="flex items-center gap-2 pr-2 border-r border-border min-w-max">
@@ -69,7 +85,7 @@ export default function Layout({ children, headerActions }) {
             {/* Emisor name + config button */}
             <button
               onClick={() => setConfigOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-text-secondary hover:text-text-primary transition-colors cursor-pointer group"
+              className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary hover:text-text-primary transition-colors cursor-pointer group"
              
               title="Editar datos fiscales"
             >
@@ -77,22 +93,22 @@ export default function Layout({ children, headerActions }) {
               <Settings size={12} className="text-text-muted group-hover:text-accent group-hover:rotate-90 transition-all duration-300" />
             </button>
 
-            <div className="w-[1px] h-4 bg-border hidden sm:block"></div>
+            <div className="w-full h-[1px] sm:w-[1px] sm:h-4 bg-border"></div>
             <a 
               href="https://wa.me/5491178959108" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="hidden sm:block text-xs font-semibold text-text-secondary hover:text-accent transition-colors truncate max-w-[200px]"
+              className="text-xs font-semibold text-text-secondary hover:text-accent transition-colors truncate max-w-[200px]"
             >
                {user?.email || 'usuario'}
             </a>
-            <div className="w-[1px] h-4 bg-border hidden sm:block"></div>
+            <div className="w-full h-[1px] sm:w-[1px] sm:h-4 bg-border"></div>
             <button
               onClick={signOut}
               className="text-text-muted hover:text-card-red transition-colors cursor-pointer flex items-center gap-2"
               title="Cerrar sesión"
             >
-              <span className="hidden sm:inline text-xs font-bold uppercase tracking-widest">Salir</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Salir</span>
               <LogOut size={16} />
             </button>
           </div>
