@@ -203,6 +203,7 @@ export default function StatsCards({ ventas, onCardClick }) {
         </div>
 
       </div>
+      </div>
     </div>
   )
 }
