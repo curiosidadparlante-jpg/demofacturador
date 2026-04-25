@@ -38,27 +38,45 @@ export default function StatsCards({ ventas, onCardClick }) {
   return (
     <div className="space-y-4">
       {/* Top Bar with Title & Filter */}
-      <div className="flex items-center gap-4 mb-2">
-        <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 md:mb-6">
+        <div className="flex items-center gap-4">
+          <h2 className="text-[11px] md:text-[13px] font-black text-text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+            Resumen
+            <div className="w-1 h-1 rounded-full bg-border" />
+          </h2>
+          
+          {/* Subtle Segmented Control */}
+          <div className="flex p-0.5 bg-surface-alt/50 rounded-lg border border-border/40">
+            {[
+              { id: 'all', label: 'Histórico' },
+              { id: 'month', label: 'Mes' },
+              { id: 'week', label: 'Semana' }
+            ].map((option) => (
+              <button
+                key={option.id}
+                onClick={() => onTimeframeChange(option.id)}
+                className={`
+                  px-3 py-1 rounded-md text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer
+                  ${timeframe === option.id 
+                    ? 'bg-white text-text-primary shadow-sm ring-1 ring-black/5' 
+                    : 'text-text-muted hover:text-text-primary hover:bg-white/40'
+                  }
+                `}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="sm:ml-auto flex items-center gap-3">
           <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 cursor-pointer hover:text-accent transition-colors"
+            onClick={onToggle}
+            className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-surface-alt cursor-pointer"
           >
-            RESUMEN
-            <ChevronDown size={20} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            {isExpanded ? 'Ocultar resumen' : 'Mostrar resumen'}
+            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
-        </h2>
-        <div className="flex items-center gap-2 bg-surface border border-border rounded-lg pl-3 pr-2 py-1 focus-within:border-accent transition-colors">
-          <select 
-            className="text-sm text-text-primary bg-transparent focus:outline-none cursor-pointer pr-4"
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value)}
-          >
-            <option value="all">Histórico</option>
-            <option value="day">Hoy</option>
-            <option value="week">Esta Semana</option>
-            <option value="month">Este Mes</option>
-          </select>
         </div>
       </div>
 
