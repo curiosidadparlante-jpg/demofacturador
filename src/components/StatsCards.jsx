@@ -116,11 +116,11 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="w-[95%] max-w-[340px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[80px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
-              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-left">{activas.length}</div>
-              <div className="flex items-center gap-3 justify-end">
+              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-center">{activas.length}</div>
+              <div className="flex items-center gap-2 justify-end">
                  <div className="font-medium text-[10px] sm:text-[11px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
                  <div className="bg-blue/10 p-2 rounded-lg shrink-0">
                    <Activity size={16} className="text-blue" />
@@ -131,11 +131,11 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="w-[95%] max-w-[340px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[80px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
-              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-left">{pendientes.length}</div>
-              <div className="flex items-center gap-3 justify-end">
+              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
+              <div className="flex items-center gap-2 justify-end">
                  <div className="font-medium text-[10px] sm:text-[11px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
                  <div className="bg-yellow/20 p-2 rounded-lg shrink-0">
                    <Clock size={16} className="text-amber-500" />
@@ -146,11 +146,11 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="w-[95%] max-w-[340px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[80px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
-              <div className="font-black text-2xl sm:text-3xl text-red tracking-tighter text-left">{conError.length}</div>
-              <div className="flex items-center gap-3 justify-end">
+              <div className="font-black text-2xl sm:text-3xl text-red tracking-tighter text-center">{conError.length}</div>
+              <div className="flex items-center gap-2 justify-end">
                  <div className="font-medium text-[10px] sm:text-[11px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
                  <div className="bg-red/10 p-2 rounded-lg shrink-0">
                    <AlertCircle size={16} className="text-red" />
