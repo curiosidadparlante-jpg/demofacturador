@@ -38,13 +38,13 @@ export default function StatsCards({ ventas, onCardClick }) {
   return (
     <div className="space-y-4">
       {/* Top Bar with Title & Filter */}
-      <div className="flex flex-col items-start gap-3 mb-2">
+      <div className="flex items-center gap-4 mb-2">
         <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-2 cursor-pointer hover:text-accent transition-colors"
           >
-            Resumen
+            RESUMEN
             <ChevronDown size={20} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </button>
         </h2>
@@ -116,18 +116,14 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-full sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[80px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
-              {/* Left Box: Text + Principal Number (Quantity) */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
-                <div className="font-black text-xl sm:text-2xl text-text-primary tracking-tighter">{activas.length}</div>
-              </div>
-              {/* Right Box: Money + Icon */}
-              <div className="flex items-center gap-2">
+              <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
+              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-left">{activas.length}</div>
+              <div className="flex items-center gap-3 justify-end">
                  <div className="font-medium text-[10px] sm:text-[11px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
-                 <div className="bg-blue/10 p-1.5 sm:p-2 rounded-lg shrink-0">
-                   <Activity size={14} className="text-blue sm:w-4 sm:h-4" />
+                 <div className="bg-blue/10 p-2 rounded-lg shrink-0">
+                   <Activity size={16} className="text-blue" />
                  </div>
               </div>
             </button>
@@ -135,18 +131,14 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-full sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[80px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
-              {/* Left Box: Text + Principal Number (Quantity) */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
-                <div className="font-black text-xl sm:text-2xl text-text-primary tracking-tighter">{pendientes.length}</div>
-              </div>
-              {/* Right Box: Money + Icon */}
-              <div className="flex items-center gap-2">
+              <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
+              <div className="font-black text-2xl sm:text-3xl text-text-primary tracking-tighter text-left">{pendientes.length}</div>
+              <div className="flex items-center gap-3 justify-end">
                  <div className="font-medium text-[10px] sm:text-[11px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
-                 <div className="bg-yellow/20 p-1.5 sm:p-2 rounded-lg shrink-0">
-                   <Clock size={14} className="text-amber-500 sm:w-4 sm:h-4" />
+                 <div className="bg-yellow/20 p-2 rounded-lg shrink-0">
+                   <Clock size={16} className="text-amber-500" />
                  </div>
               </div>
             </button>
@@ -154,18 +146,14 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-full sm:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[80px_1fr_auto] items-center gap-2 sm:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
-              {/* Left Box: Text + Principal Number (Quantity) */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
-                <div className="font-black text-xl sm:text-2xl text-red tracking-tighter">{conError.length}</div>
-              </div>
-              {/* Right Box: Money + Icon */}
-              <div className="flex items-center gap-2">
+              <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
+              <div className="font-black text-2xl sm:text-3xl text-red tracking-tighter text-left">{conError.length}</div>
+              <div className="flex items-center gap-3 justify-end">
                  <div className="font-medium text-[10px] sm:text-[11px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
-                 <div className="bg-red/10 p-1.5 sm:p-2 rounded-lg shrink-0">
-                   <AlertCircle size={14} className="text-red sm:w-4 sm:h-4" />
+                 <div className="bg-red/10 p-2 rounded-lg shrink-0">
+                   <AlertCircle size={16} className="text-red" />
                  </div>
               </div>
             </button>
