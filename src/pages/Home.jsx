@@ -404,8 +404,9 @@ export default function Home() {
   }
 
   // ─── Emitir Factura handler ───
-  const handleInvoice = async () => {
-    const selectedVentasToInvoice = ventas.filter(v => selectedIds.has(v.id) && v.status !== 'facturado')
+  const handleInvoice = async (idsToInvoice = null) => {
+    const targetIds = idsToInvoice || Array.from(selectedIds)
+    const selectedVentasToInvoice = ventas.filter(v => targetIds.includes(v.id) && v.status !== 'facturado')
     if (selectedVentasToInvoice.length === 0) {
       showToast('No hay ventas pendientes o con error seleccionadas', 'error')
       return
@@ -415,7 +416,7 @@ export default function Home() {
       showToast('Emitiendo factura...', 'info')
       
       setVentas(prev => prev.map(v => 
-        selectedIds.has(v.id) ? { ...v, status: 'procesando' } : v
+        targetIds.includes(v.id) ? { ...v, status: 'procesando' } : v
       ))
       
       const payload = {
@@ -752,6 +753,9 @@ export default function Home() {
         onReset={handleResetVenta}
         onResetAll={handleResetAllVentas}
         onShowError={(msg) => showToast(msg, 'error')}
+        selectedIds={selectedIds}
+        onToggleSelect={handleToggleSelect}
+        onInvoice={(id) => handleInvoice([id])}
       />
 
       {/* ─── Toasts ─── */}
