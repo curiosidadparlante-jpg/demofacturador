@@ -111,12 +111,12 @@ export default function StatsCards({ ventas, onCardClick }) {
 
         {/* 2. STACK OF 3 MINI CARDS */}
         <div className="lg:flex-[1] flex justify-center items-center h-auto lg:h-[200px]">
-          <div className="flex flex-col justify-center items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-col md:flex-row lg:flex-col justify-center items-center gap-3 w-full md:w-full lg:w-auto">
             
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="w-[85%] max-w-[280px] md:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] md:max-w-none md:flex-1 lg:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[9px] md:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
               <div className="font-black text-2xl md:text-3xl text-text-primary tracking-tighter text-center">{activas.length}</div>
@@ -131,7 +131,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="w-[85%] max-w-[280px] md:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] md:max-w-none md:flex-1 lg:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[9px] md:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
               <div className="font-black text-2xl md:text-3xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
@@ -146,7 +146,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="w-[85%] max-w-[280px] md:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-[85%] max-w-[280px] md:max-w-none md:flex-1 lg:w-[320px] min-h-0 bg-white border border-border rounded-xl px-4 py-3 grid grid-cols-[70px_1fr_auto] items-center gap-2 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
               <div className="font-bold uppercase text-[9px] md:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
               <div className="font-black text-2xl md:text-3xl text-red tracking-tighter text-center">{conError.length}</div>
