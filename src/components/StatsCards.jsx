@@ -90,45 +90,45 @@ export default function StatsCards({ ventas, onCardClick }) {
         {/* Grid Layout for Cards */}
         <div className="flex flex-col lg:flex-row gap-4 lg:h-[200px]">
           {/* 1. FACTURADO (Hero Card) */}
-          <button
+          <div
             onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
             className="lg:flex-[2] relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
           >
-          {/* Decorative Waves (Subtle) */}
-          <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
-            <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
-            </svg>
-          </div>
-          <div className="absolute right-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
-            <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
-            </svg>
-          </div>
+            {/* Decorative Waves (Subtle) */}
+            <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
+              <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
+              </svg>
+            </div>
+            <div className="absolute right-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
+              <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
+              </svg>
+            </div>
 
-          <button 
-            onClick={handleToggleValues}
-            className="absolute top-4 right-4 text-text-muted/60 hover:text-text-primary transition-colors p-2 rounded-full hover:bg-surface-alt z-10 cursor-pointer"
-          >
-            {showValues ? <Eye size={16} /> : <EyeOff size={16} />}
-          </button>
-          
-          <div className="bg-green/10 w-10 h-10 flex items-center justify-center rounded-full mb-3 group-hover:scale-110 transition-transform">
-            <TrendingUp size={18} className="text-green" />
+            <button 
+              onClick={handleToggleValues}
+              className="absolute top-4 right-4 text-text-muted/60 hover:text-text-primary transition-colors p-2 rounded-full hover:bg-surface-alt z-10 cursor-pointer"
+            >
+              {showValues ? <Eye size={16} /> : <EyeOff size={16} />}
+            </button>
+            
+            <div className="bg-green/10 w-10 h-10 flex items-center justify-center rounded-full mb-3 group-hover:scale-110 transition-transform">
+              <TrendingUp size={18} className="text-green" />
+            </div>
+            
+            <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
+              Facturado
+            </h3>
+            
+            <div className="font-black text-3xl md:text-4xl lg:text-5xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
+              {renderMoney(facturadasAmount)}
+            </div>
+            
+            <div className="font-semibold text-[10px] text-green bg-green-subtle px-3 py-1 rounded-full uppercase tracking-wider">
+              {facturadas.length} {facturadas.length === 1 ? 'factura exitosa' : 'facturas exitosas'}
+            </div>
           </div>
-          
-          <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
-            Facturado
-          </h3>
-          
-          <div className="font-black text-3xl md:text-4xl lg:text-5xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
-            {renderMoney(facturadasAmount)}
-          </div>
-          
-          <div className="font-semibold text-[10px] text-green bg-green-subtle px-3 py-1 rounded-full uppercase tracking-wider">
-            {facturadas.length} {facturadas.length === 1 ? 'factura exitosa' : 'facturas exitosas'}
-          </div>
-        </button>
 
         {/* 2. STACK OF 3 MINI CARDS */}
         <div className="lg:flex-[1] flex justify-center items-center h-auto lg:h-[200px]">
