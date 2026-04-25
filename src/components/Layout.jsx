@@ -128,7 +128,7 @@ export default function Layout({ children, headerActions }) {
             <div className="flex-1 flex justify-start">
               <button 
                 className="px-4 py-1.5 rounded-lg border border-border bg-white text-text-secondary text-[10px] font-bold hover:bg-surface-alt hover:border-text-muted/30 transition-all shadow-sm cursor-pointer uppercase tracking-wider"
-                onClick={() => alert('¡Próximamente disponible para instalar!')}
+                onClick={() => alert('la versión DEMO no se puede descargar')}
               >
                 Instalar App
               </button>
@@ -167,7 +167,7 @@ export default function Layout({ children, headerActions }) {
             {/* Top: Install Button */}
             <button 
               className="px-4 py-1.5 rounded-lg border border-border bg-white text-text-secondary text-[10px] font-bold hover:bg-surface-alt transition-all shadow-sm cursor-pointer uppercase tracking-wider"
-              onClick={() => alert('¡Próximamente disponible para instalar!')}
+              onClick={() => alert('la versión DEMO no se puede descargar')}
             >
               Instalar App
             </button>
