@@ -600,20 +600,21 @@ export default function Home() {
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
             <button
               onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-              className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 transition-all cursor-pointer text-[10px] sm:text-[11px] font-bold uppercase tracking-widest w-full"
+              className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] sm:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
             >
               <Trash2 size={14} />
               Papelera ({borradas.length})
             </button>
 
             {/* Export dropdown */}
-            <div className="relative w-full">
+            <div className="relative w-full md:w-auto">
               <button
                 onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full"
+                className="flex items-center justify-center md:justify-start gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] sm:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
               >
                 <Download size={14} className="text-text-muted" />
-                <span className="truncate">Exportación</span>
+                <span className="truncate md:hidden">Exportación</span>
+                <span className="hidden md:inline">Exportación Masiva</span>
                 <ChevronDown size={14} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {exportMenuOpen && (
@@ -642,11 +643,11 @@ export default function Home() {
             <button
               onClick={() => setBulkImportModalOpen(true)}
               className="
-                flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl
+                flex items-center justify-center md:justify-start gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
                 bg-accent/5 text-accent text-[10px] sm:text-[11px] font-bold uppercase tracking-widest
                 border border-accent/10
-                hover:bg-accent/10
-                transition-all duration-300 cursor-pointer w-full
+                hover:bg-accent/10 md:hover:-translate-y-1 md:hover:shadow-lg md:hover:shadow-accent/5
+                transition-all duration-300 cursor-pointer w-full md:w-auto
               "
             >
               <Download size={14} />
@@ -656,10 +657,10 @@ export default function Home() {
             <button
               onClick={() => setAddModalOpen(true)}
               className="
-                flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl
+                flex items-center justify-center md:justify-start gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
                 bg-text-primary text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-widest
-                hover:shadow-lg hover:shadow-black/20
-                transition-all duration-300 cursor-pointer w-full
+                md:hover:-translate-y-1 hover:shadow-lg md:hover:shadow-xl hover:shadow-black/20
+                transition-all duration-300 cursor-pointer w-full md:w-auto
               "
             >
               <Plus size={14} className="text-yellow" />
