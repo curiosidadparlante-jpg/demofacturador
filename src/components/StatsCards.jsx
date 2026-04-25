@@ -108,17 +108,17 @@ export default function StatsCards({ ventas, onCardClick }) {
         </button>
 
         {/* 2. STACK OF 3 MINI CARDS */}
-        <div className="xl:flex-[1] flex justify-center items-stretch h-auto xl:h-[200px]">
-          <div className="flex flex-col md:flex-row xl:flex-col justify-center items-center gap-3 w-full h-full">
+        <div className="xl:flex-[1] flex justify-center items-center h-auto xl:h-[200px]">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-3">
             
             {/* Total Ventas */}
             <button
               onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="w-full md:w-max xl:w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              className="w-max min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left w-16 sm:w-20">Total<br/>Movim.</div>
+                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Total<br/>Movim.</div>
                 <div className="font-black text-xl sm:text-2xl text-text-primary tracking-tighter">{activas.length}</div>
               </div>
               {/* Right Box: Money + Icon */}
@@ -133,11 +133,11 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Pendientes */}
             <button
               onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="w-full md:w-max xl:w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              className="w-max min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left w-16 sm:w-20">Pendiente<br/>Cobro</div>
+                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Pendiente<br/>Cobro</div>
                 <div className="font-black text-xl sm:text-2xl text-text-primary tracking-tighter">{pendientes.length}</div>
               </div>
               {/* Right Box: Money + Icon */}
@@ -152,11 +152,11 @@ export default function StatsCards({ ventas, onCardClick }) {
             {/* Con Error */}
             <button
               onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="w-full md:w-max xl:w-full min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-row items-center gap-3 sm:gap-8 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              className="w-max min-h-0 bg-white border border-border rounded-xl px-3 sm:px-4 py-2 flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
             >
               {/* Left Box: Text + Principal Number (Quantity) */}
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left w-16 sm:w-20">Errores<br/>AFIP</div>
+                <div className="font-bold uppercase text-[9px] sm:text-[10px] text-text-muted tracking-widest leading-tight text-left">Errores<br/>AFIP</div>
                 <div className="font-black text-xl sm:text-2xl text-red tracking-tighter">{conError.length}</div>
               </div>
               {/* Right Box: Money + Icon */}
