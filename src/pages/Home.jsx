@@ -631,50 +631,31 @@ export default function Home() {
             Lista Facturas
           </h2>
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
-            <div className="flex bg-white border border-border/60 rounded-xl p-1 w-full md:w-auto h-[42px]">
-              <button
-                onClick={() => setSecondaryView('archivo')}
-                className={`
-                  flex-1 flex items-center justify-center gap-2 px-3 rounded-lg transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest
-                  ${secondaryView === 'archivo' 
-                    ? 'bg-purple/10 text-purple shadow-sm ring-1 ring-purple/20' 
-                    : 'text-text-muted hover:bg-surface-alt'
-                  }
-                `}
-              >
-                <Archive size={14} />
-                <span className="md:hidden lg:inline">Archivo ({archivadas.length})</span>
-                <span className="hidden md:inline lg:hidden">({archivadas.length})</span>
-              </button>
-              <button
-                onClick={() => setSecondaryView('papelera')}
-                className={`
-                  flex-1 flex items-center justify-center gap-2 px-3 rounded-lg transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest
-                  ${secondaryView === 'papelera' 
-                    ? 'bg-red-subtle text-red shadow-sm ring-1 ring-red/20' 
-                    : 'text-text-muted hover:bg-surface-alt'
-                  }
-                `}
-              >
-                <Trash2 size={14} />
-                <span className="md:hidden lg:inline">Papelera ({borradas.length})</span>
-                <span className="hidden md:inline lg:hidden">({borradas.length})</span>
-              </button>
-              
-              <div className="w-px h-6 bg-border/40 mx-1 self-center" />
+            <div className="flex items-center gap-1 bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-auto">
+              {secondaryView === 'archivo' ? (
+                <button
+                  onClick={() => handleCardClick('Archivo', archivadas, 'all')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-purple/5 text-purple hover:bg-purple/10 transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest min-w-[140px]"
+                >
+                  <Archive size={14} />
+                  Archivo ({archivadas.length})
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-subtle text-red hover:bg-red/10 transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest min-w-[140px]"
+                >
+                  <Trash2 size={14} />
+                  Papelera ({borradas.length})
+                </button>
+              )}
               
               <button
-                onClick={() => {
-                  if (secondaryView === 'archivo') {
-                    handleCardClick('Archivo', archivadas, 'all')
-                  } else {
-                    handleCardClick('LISTADO_PAPELERA', borradas, 'all')
-                  }
-                }}
-                className="px-2 flex items-center justify-center text-text-primary hover:text-accent transition-colors cursor-pointer"
-                title={`Ver ${secondaryView === 'archivo' ? 'Archivo' : 'Papelera'}`}
+                onClick={() => setSecondaryView(prev => prev === 'archivo' ? 'papelera' : 'archivo')}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-alt text-text-muted transition-colors cursor-pointer"
+                title={`Cambiar a ${secondaryView === 'archivo' ? 'Papelera' : 'Archivo'}`}
               >
-                <Eye size={16} />
+                <RefreshCw size={14} className="rotate-90" />
               </button>
             </div>
 
