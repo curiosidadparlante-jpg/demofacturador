@@ -652,46 +652,49 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Export dropdown */}
-            <div className="relative w-full md:w-auto">
+            <div className="flex flex-col bg-white border border-border/60 rounded-xl w-full md:w-[180px] h-[42px] overflow-visible relative">
+              {/* Export Button (Top Half) */}
+              <div className="h-1/2 relative">
+                <button
+                  onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                  className="w-full h-full flex items-center justify-center gap-2 px-3 text-[9px] font-bold uppercase tracking-widest text-text-secondary hover:text-blue transition-colors cursor-pointer border-b border-border/40"
+                >
+                  <Download size={12} className="text-text-muted" />
+                  Exportar
+                  <ChevronDown size={10} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {exportMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-[#F9F7F2] border border-white/50 rounded-xl shadow-xl shadow-black/10 z-50 overflow-hidden animate-slide-down">
+                      <button
+                        onClick={() => handleExportAll('csv')}
+                        className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
+                      >
+                        CSV
+                      </button>
+                      <div className="h-px bg-border/40 mx-2" />
+                      <button
+                        onClick={() => handleExportAll('xlsx')}
+                        className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
+                      >
+                        Excel
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Import Button (Bottom Half) */}
               <button
-                onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
+                onClick={() => setBulkImportModalOpen(true)}
+                className="w-full h-1/2 flex items-center justify-center gap-2 px-3 text-[9px] font-bold uppercase tracking-widest text-text-secondary hover:text-blue transition-colors cursor-pointer"
               >
-                <Download size={14} className="text-text-muted" />
-                <span className="truncate">Exportación Masiva</span>
-                <ChevronDown size={14} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
+                <Plus size={12} className="text-text-muted" />
+                Carga Masiva
               </button>
-              {exportMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-                  <div className="absolute left-0 md:right-0 mt-2 bg-[#F9F7F2] border border-white/50 rounded-xl shadow-xl shadow-black/10 z-50 min-w-[160px] overflow-hidden animate-slide-down">
-                    <button
-                      onClick={() => handleExportAll('csv')}
-                      className="w-full text-left px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-text-primary hover:bg-accent/5 hover:text-accent transition-colors cursor-pointer"
-                    >
-                      Archivo CSV
-                    </button>
-                    <div className="h-px bg-border/40 mx-2" />
-                    <button
-                      onClick={() => handleExportAll('xlsx')}
-                      className="w-full text-left px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-text-primary hover:bg-accent/5 hover:text-accent transition-colors cursor-pointer"
-                    >
-                      Excel (.xlsx)
-                    </button>
-                  </div>
-                </>
-              )}
             </div>
-
-
-            <button
-              onClick={() => setBulkImportModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
-            >
-              <Download size={14} className="text-text-muted" />
-              Carga Masiva
-            </button>
 
             <button
               onClick={() => setAddModalOpen(true)}
