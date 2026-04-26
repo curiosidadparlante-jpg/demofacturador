@@ -694,15 +694,9 @@ export default function Home() {
 
             <button
               onClick={() => setBulkImportModalOpen(true)}
-              className="
-                flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
-                bg-blue-subtle text-blue text-[10px] md:text-[11px] font-bold uppercase tracking-widest
-                border border-blue/10
-                hover:bg-blue/20 md:hover:-translate-y-1 md:hover:shadow-lg md:hover:shadow-blue/5
-                transition-all duration-300 cursor-pointer w-full md:w-auto
-              "
+              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
             >
-              <Download size={14} />
+              <Download size={14} className="text-text-muted" />
               Carga Masiva
             </button>
 
