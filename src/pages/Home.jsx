@@ -635,7 +635,7 @@ export default function Home() {
               {secondaryView === 'archivo' ? (
                 <button
                   onClick={() => handleCardClick('Archivo', archivadas, 'all')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-purple/5 text-purple hover:bg-purple/10 transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest min-w-[140px]"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-subtle text-blue hover:bg-blue/10 transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest min-w-[140px]"
                 >
                   <Archive size={14} />
                   Archivo ({archivadas.length})
@@ -696,9 +696,9 @@ export default function Home() {
               onClick={() => setBulkImportModalOpen(true)}
               className="
                 flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
-                bg-accent/5 text-accent text-[10px] md:text-[11px] font-bold uppercase tracking-widest
-                border border-accent/10
-                hover:bg-accent/10 md:hover:-translate-y-1 md:hover:shadow-lg md:hover:shadow-accent/5
+                bg-blue-subtle text-blue text-[10px] md:text-[11px] font-bold uppercase tracking-widest
+                border border-blue/10
+                hover:bg-blue/20 md:hover:-translate-y-1 md:hover:shadow-lg md:hover:shadow-blue/5
                 transition-all duration-300 cursor-pointer w-full md:w-auto
               "
             >

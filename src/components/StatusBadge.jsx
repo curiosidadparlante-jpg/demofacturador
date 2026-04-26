@@ -32,9 +32,9 @@ export default function StatusBadge({ status }) {
     },
     archivada: {
       label: 'Archivada',
-      bg: 'bg-purple/10',
-      text: 'text-purple',
-      dot: 'bg-purple',
+      bg: 'bg-blue-subtle',
+      text: 'text-blue',
+      dot: 'bg-blue',
     },
   }
 

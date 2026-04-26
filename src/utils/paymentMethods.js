@@ -87,7 +87,7 @@ export function getPaymentBadgeStyle(method) {
   const category = simplifyPaymentMethod(method) // Usar la categoría AFIP para el estilo
 
   const styles = {
-    'Contado':                          { bg: 'bg-accent/10',       text: 'text-accent' },
+    'Contado':                          { bg: 'bg-green-subtle',    text: 'text-green' },
     'Transferencia Bancaria':           { bg: 'bg-[#7C4DFF]/10',    text: 'text-[#7C4DFF]' },
     'Tarjeta de Crédito':               { bg: 'bg-[#E8A34A]/10',    text: 'text-[#9A641A]' },
     'Tarjeta de Débito':                { bg: 'bg-[#E8A34A]/10',    text: 'text-[#9A641A]' },
