@@ -354,16 +354,18 @@ export default function Home() {
   }
 
   const handleBulkArchive = async () => {
-    const ids = Array.from(selectedIds)
-    if (ids.length === 0) {
+    const count = selectedIds.size
+    if (count === 0) {
       showToast('No hay ventas seleccionadas', 'error')
       return
     }
 
-    if (!confirm(`¿Archivar ${ids.length} venta(s)?`)) return
+    showToast(`Archivando ${count} venta(s)...`, 'info')
 
     let archived = 0
-    for (const id of ids) {
+    const idsToProcess = Array.from(selectedIds)
+    
+    for (const id of idsToProcess) {
       try {
         await archiveVenta(id)
         archived++
@@ -374,7 +376,7 @@ export default function Home() {
     
     setSelectedIds(new Set())
     showToast(`${archived} venta(s) archivada(s) correctamente`, 'success')
-    refetch() // Forzar recarga por si acaso
+    refetch()
   }
 
   // ─── Retry handler ───

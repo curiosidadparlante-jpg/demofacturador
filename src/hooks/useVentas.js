@@ -103,8 +103,14 @@ export function useVentas() {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const stored = localStorage.getItem('demo_ventas');
-      if (stored) {
-        setVentas(JSON.parse(stored));
+      if (stored && stored !== 'undefined' && stored !== 'null') {
+        try {
+          const parsed = JSON.parse(stored);
+          setVentas(Array.isArray(parsed) ? parsed : DUMMY_VENTAS);
+        } catch (e) {
+          console.error('[useVentas] Parse error, resetting to dummy:', e);
+          setVentas(DUMMY_VENTAS);
+        }
       } else {
         localStorage.setItem('demo_ventas', JSON.stringify(DUMMY_VENTAS));
         setVentas(DUMMY_VENTAS);
@@ -121,25 +127,25 @@ export function useVentas() {
     fetchVentas()
   }, [fetchVentas])
 
-  const saveToLocal = (newVentas) => {
-    setVentas(newVentas);
-    localStorage.setItem('demo_ventas', JSON.stringify(newVentas));
-  }
-
-  const updateVentaStatus = useCallback(async (id, status, extraFields = {}) => {
+  const saveToLocal = (update) => {
     setVentas(prev => {
-      const next = prev.map(v => v.id === id ? { ...v, status, ...extraFields } : v);
+      const next = typeof update === 'function' ? update(prev) : update;
       localStorage.setItem('demo_ventas', JSON.stringify(next));
       return next;
     });
+  }
+
+  // Debug helper
+  useEffect(() => {
+    window.VentasDebug = { ventas, setVentas: saveToLocal };
+  }, [ventas]);
+
+  const updateVentaStatus = useCallback(async (id, status, extraFields = {}) => {
+    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, status, ...extraFields } : v));
   }, [])
 
   const updateVenta = useCallback(async (id, payload) => {
-    setVentas(prev => {
-      const next = prev.map(v => v.id === id ? { ...v, ...payload } : v);
-      localStorage.setItem('demo_ventas', JSON.stringify(next));
-      return next;
-    });
+    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, ...payload } : v));
   }, [])
 
   const createVenta = useCallback(async (payload) => {
@@ -168,19 +174,11 @@ export function useVentas() {
   }, [])
 
   const hardDeleteVenta = useCallback(async (id) => {
-    setVentas(prev => {
-      const next = prev.filter(v => v.id !== id);
-      localStorage.setItem('demo_ventas', JSON.stringify(next));
-      return next;
-    });
+    saveToLocal(prev => prev.filter(v => String(v.id) !== String(id)));
   }, [])
 
   const archiveVenta = useCallback(async (id) => {
-    setVentas(prev => {
-      const next = prev.map(v => String(v.id) === String(id) ? { ...v, status: 'archivada' } : v);
-      localStorage.setItem('demo_ventas', JSON.stringify(next));
-      return next;
-    });
+    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, status: 'archivada' } : v));
   }, [])
 
   const bulkCreateVentas = useCallback(async (payloads) => {
