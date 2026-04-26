@@ -41,10 +41,10 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
             disabled={loading}
             className="
               flex items-center gap-2 px-4 py-2 rounded-xl
-              bg-accent hover:bg-accent-hover text-white text-xs font-bold
+              bg-red-subtle border border-red/20 text-red text-xs font-bold
               uppercase tracking-wider transition-all duration-200
-              hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/25
-              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0
+              hover:bg-red/10 active:scale-95
+              disabled:opacity-50 disabled:cursor-not-allowed
               cursor-pointer
             "
           >
@@ -90,7 +90,11 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
         {onBulkDelete && (
           <button
             onClick={onBulkDelete}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-subtle border border-red/20 text-red text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+            className="
+              flex items-center gap-2 px-4 py-2 rounded-xl
+              bg-accent hover:bg-accent-hover text-white text-xs font-bold
+              uppercase tracking-wider active:scale-95 transition-all cursor-pointer
+            "
           >
             <Trash2 size={14} />
             <span className="hidden sm:inline">Eliminar</span>
