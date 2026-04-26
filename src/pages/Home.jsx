@@ -130,7 +130,7 @@ export default function Home() {
 
   // ─── Selected ventas data ───
   const selectedVentas = useMemo(() =>
-    ventas.filter(v => selectedIds.has(v.id.toString()) || selectedIds.has(Number(v.id))),
+    ventas.filter(v => selectedIds.has(String(v.id))),
     [ventas, selectedIds]
   )
 
@@ -341,11 +341,11 @@ export default function Home() {
   // ─── Archive handler ───
   const handleArchiveVenta = async (id) => {
     try {
-      await archiveVenta(id)
+      await archiveVenta(String(id))
       showToast('Venta archivada correctamente', 'success')
       setModalData(prev => ({
         ...prev,
-        ventas: prev.ventas.filter(v => v.id !== id)
+        ventas: prev.ventas.filter(v => String(v.id) !== String(id))
       }))
     } catch (err) {
       console.error('Error al archivar:', err)
@@ -354,25 +354,27 @@ export default function Home() {
   }
 
   const handleBulkArchive = async () => {
-    const count = selectedVentas.length
-    if (count === 0) {
-      showToast('No hay ventas seleccionadas para archivar', 'error')
+    const ids = Array.from(selectedIds)
+    if (ids.length === 0) {
+      showToast('No hay ventas seleccionadas', 'error')
       return
     }
 
-    if (!confirm(`¿Archivar ${count} venta(s)?`)) return
+    if (!confirm(`¿Archivar ${ids.length} venta(s)?`)) return
 
     let archived = 0
-    for (const v of selectedVentas) {
+    for (const id of ids) {
       try {
-        await archiveVenta(v.id)
+        await archiveVenta(id)
         archived++
       } catch (err) {
-        console.error(`Error archivando ${v.id}:`, err)
+        console.error(`Error archivando ${id}:`, err)
       }
     }
+    
     setSelectedIds(new Set())
     showToast(`${archived} venta(s) archivada(s) correctamente`, 'success')
+    refetch() // Forzar recarga por si acaso
   }
 
   // ─── Retry handler ───
