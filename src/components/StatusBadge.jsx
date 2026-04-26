@@ -30,6 +30,12 @@ export default function StatusBadge({ status }) {
       text: 'text-text-secondary',
       dot: 'bg-text-secondary',
     },
+    archivada: {
+      label: 'Archivada',
+      bg: 'bg-purple/10',
+      text: 'text-purple',
+      dot: 'bg-purple',
+    },
   }
 
   const c = config[status] || config.pendiente

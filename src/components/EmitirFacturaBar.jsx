@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { FileText, Loader2, X, Download, Trash2, RotateCcw } from 'lucide-react'
+import { FileText, Loader2, X, Download, Trash2, RotateCcw, Archive } from 'lucide-react'
 
-export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], onEmitir, onClear, onExport, onBulkDelete, onBulkRetry }) {
+export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], onEmitir, onClear, onExport, onBulkDelete, onBulkRetry, onBulkArchive }) {
   const [loading, setLoading] = useState(false)
 
   const handleEmitir = async () => {
@@ -72,6 +72,17 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
           >
             <Download size={14} />
             <span className="hidden sm:inline">Exportar</span>
+          </button>
+        )}
+
+        {/* Archive */}
+        {onBulkArchive && (
+          <button
+            onClick={onBulkArchive}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            <Archive size={14} />
+            <span className="hidden sm:inline">Archivar</span>
           </button>
         )}
 

@@ -1,9 +1,9 @@
 import Modal from './Modal';
 import StatusBadge from './StatusBadge';
-import { Trash2, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Trash2, Loader2, AlertCircle, RefreshCw, Archive } from 'lucide-react';
 import { useState } from 'react';
 
-export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError }) {
+export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, onArchive }) {
   const [deletingId, setDeletingId] = useState(null)
 
   const formatDate = (dateStr) => {
@@ -31,6 +31,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
   };
   const totalMonto = ventas.reduce((s, v) => s + getAmount(v), 0);
   const isTrashView = ventas.length > 0 && ventas.every(v => v.status === 'borrada');
+  const isArchiveView = ventas.length > 0 && ventas.every(v => v.status === 'archivada');
 
   const handleDelete = async (id) => {
     if (!onDelete) return;
@@ -62,8 +63,8 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Total summary - Hidden for Trash */}
-          {!isTrashView && (
+          {/* Total summary - Hidden for Trash and Archive */}
+          {!isTrashView && !isArchiveView && (
             <div className="flex justify-between items-center p-4 bg-surface-alt rounded-lg border border-border">
               <div>
                 {title.toLowerCase().includes('facturado') && ventas.length > 0 && (
@@ -153,6 +154,24 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                             {deletingId === venta.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                           </button>
                         </div>
+                      ) : venta.status === 'archivada' ? (
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => onRestore && onRestore(venta.id)}
+                            className="p-1.5 rounded-lg text-green bg-green/5 border border-green/10 hover:bg-green/20 hover:border-green/30 transition-all"
+                            title="Restaurar a pendiente"
+                          >
+                            <RefreshCw size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(venta.id)}
+                            disabled={deletingId === venta.id}
+                            className="p-1.5 rounded-lg text-text-muted hover:text-red hover:bg-red-subtle/30 transition-colors disabled:opacity-50"
+                            title="Mover a papelera"
+                          >
+                            {deletingId === venta.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                          </button>
+                        </div>
                       ) : (
                         <div className="flex justify-end gap-2">
                           {venta.status === 'facturado' && (
@@ -166,6 +185,15 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                               title="Reiniciar a pendiente"
                             >
                               <RefreshCw size={16} />
+                            </button>
+                          )}
+                          {onArchive && (
+                            <button
+                              onClick={() => onArchive(venta.id)}
+                              className="p-1.5 rounded-lg text-purple bg-purple/5 border border-purple/10 hover:bg-purple/20 hover:border-purple/30 transition-all"
+                              title="Archivar"
+                            >
+                              <Archive size={16} />
                             </button>
                           )}
                           <button

@@ -9,14 +9,14 @@ import Layout from '../components/Layout'
 import FilterBar from '../components/FilterBar'
 import SaleDetailDrawer from '../components/SaleDetailDrawer'
 import ToastContainer, { createToast } from '../components/ToastContainer'
-import { RefreshCw, Plus, Download, ChevronDown, Trash2, ShieldCheck } from 'lucide-react'
+import { RefreshCw, Plus, Download, ChevronDown, Trash2, ShieldCheck, Archive } from 'lucide-react'
 import AddSaleModal from '../components/AddSaleModal'
 import BulkImportModal from '../components/BulkImportModal'
 import { exportToCSV, exportToExcel } from '../utils/exportUtils'
 import { translatePaymentMethod } from '../utils/paymentMethods'
 
 export default function Home() {
-  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, createVenta, deleteVenta, hardDeleteVenta, bulkCreateVentas } = useVentas()
+  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, createVenta, deleteVenta, hardDeleteVenta, archiveVenta, bulkCreateVentas } = useVentas()
   const { search: searchClientes } = useClientes(ventas)
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [toasts, setToasts] = useState([])
@@ -58,10 +58,12 @@ export default function Home() {
 
   // ─── Filtered ventas ───
   const borradas = useMemo(() => ventas.filter(v => v.status === 'borrada'), [ventas])
+  const archivadas = useMemo(() => ventas.filter(v => v.status === 'archivada'), [ventas])
   const filteredVentas = useMemo(() => {
     return ventas.filter(v => {
-      // Exclude borradas globally from generic UI views
+      // Exclude borradas and archivadas globally from generic UI views
       if (v.status === 'borrada') return false
+      if (v.status === 'archivada') return false
 
       // Universal search across all fields
       if (debouncedSearch) {
@@ -332,6 +334,38 @@ export default function Home() {
     }
     setSelectedIds(new Set())
     showToast(`${deleted} venta(s) eliminada(s)`, 'success')
+  }
+
+  // ─── Archive handler ───
+  const handleArchiveVenta = async (id) => {
+    try {
+      await archiveVenta(id)
+      showToast('Venta archivada correctamente', 'success')
+      setModalData(prev => ({
+        ...prev,
+        ventas: prev.ventas.filter(v => v.id !== id)
+      }))
+    } catch (err) {
+      console.error('Error al archivar:', err)
+      showToast('Error al archivar: ' + err.message, 'error')
+    }
+  }
+
+  const handleBulkArchive = async () => {
+    if (selectedVentas.length === 0) return
+    if (!confirm(`¿Archivar ${selectedVentas.length} venta(s)?`)) return
+
+    let archived = 0
+    for (const v of selectedVentas) {
+      try {
+        await archiveVenta(v.id)
+        archived++
+      } catch (err) {
+        console.error(`Error archivando ${v.id}:`, err)
+      }
+    }
+    setSelectedIds(new Set())
+    showToast(`${archived} venta(s) archivada(s)`, 'success')
   }
 
   // ─── Retry handler ───
@@ -606,6 +640,14 @@ export default function Home() {
               Papelera ({borradas.length})
             </button>
 
+            <button
+              onClick={() => handleCardClick('Archivo', archivadas, 'all')}
+              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-purple hover:border-purple/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] md:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
+            >
+              <Archive size={14} />
+              Archivo ({archivadas.length})
+            </button>
+
             {/* Export dropdown */}
             <div className="relative w-full md:w-auto">
               <button
@@ -707,6 +749,7 @@ export default function Home() {
         onExport={handleExportSelection}
         onBulkDelete={handleBulkDelete}
         onBulkRetry={handleBulkRetry}
+        onBulkArchive={handleBulkArchive}
       />
 
       {/* ─── Detail Drawer ─── */}
@@ -752,6 +795,7 @@ export default function Home() {
         onReset={handleResetVenta}
         onResetAll={handleResetAllVentas}
         onShowError={(msg) => showToast(msg, 'error')}
+        onArchive={handleArchiveVenta}
       />
 
       {/* ─── Toasts ─── */}

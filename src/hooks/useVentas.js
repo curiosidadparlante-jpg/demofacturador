@@ -175,6 +175,14 @@ export function useVentas() {
     });
   }, [])
 
+  const archiveVenta = useCallback(async (id) => {
+    setVentas(prev => {
+      const next = prev.map(v => v.id === id ? { ...v, status: 'archivada' } : v);
+      localStorage.setItem('demo_ventas', JSON.stringify(next));
+      return next;
+    });
+  }, [])
+
   const bulkCreateVentas = useCallback(async (payloads) => {
     const newVentas = payloads.map(p => ({
       ...p,
@@ -203,6 +211,7 @@ export function useVentas() {
     createVenta, 
     deleteVenta, 
     hardDeleteVenta, 
+    archiveVenta,
     bulkCreateVentas 
   }
 }
