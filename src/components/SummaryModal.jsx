@@ -147,7 +147,19 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                     <td className="px-4 py-3 text-text-primary whitespace-nowrap">{formatDate(venta.fecha)}</td>
                     <td className="px-4 py-3 text-text-primary">{venta.cliente}</td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                      {[3, 8, 13, 113].includes(venta.datos_fiscales?.tipo_cbte) ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-[#C0443C] font-semibold tabular-nums">- {formatCurrency(venta.monto)}</span>
+                          <span className="text-[9px] font-bold text-[#C0443C]/80 uppercase tracking-wider">Nota de Crédito</span>
+                        </div>
+                      ) : [2, 7, 12, 112].includes(venta.datos_fiscales?.tipo_cbte) ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-[#3460A8] font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                          <span className="text-[9px] font-bold text-[#3460A8]/80 uppercase tracking-wider">Nota de Débito</span>
+                        </div>
+                      ) : (
+                        <span className="text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                      )}
                     </td>
                     {!isSpecialView && (
                       <>
@@ -162,7 +174,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                             {venta.status === 'error' && venta.datos_fiscales?.error_detalle && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); onShowError(venta.datos_fiscales.error_detalle) }}
-                                className="text-red hover:text-red-400 transition-colors p-1"
+                                className="text-red hover:text-red-400 transition-colors p-1 cursor-pointer"
                                 title="Ver motivo de rechazo"
                               >
                                 <AlertCircle size={15} />
@@ -226,7 +238,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                           )}
                           {onArchive && (
                             <button
-                              onClick={() => onArchive(venta.id)}
+                              onClick={(e) => { e.stopPropagation(); onArchive(venta.id); }}
                               className="p-1.5 rounded-lg text-purple bg-purple/5 border border-purple/10 hover:bg-purple/20 hover:border-purple/30 transition-all cursor-pointer"
                               title="Archivar"
                             >
@@ -234,7 +246,7 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                             </button>
                           )}
                           <button
-                            onClick={() => handleDelete(venta.id)}
+                            onClick={(e) => { e.stopPropagation(); handleDelete(venta.id); }}
                             disabled={deletingId === venta.id}
                             className="p-1.5 rounded-lg text-text-muted hover:text-red hover:bg-red-subtle/30 transition-colors disabled:opacity-50 cursor-pointer"
                             title="Mover a papelera"

@@ -1,5 +1,5 @@
 import StatusBadge from './StatusBadge'
-import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye } from 'lucide-react'
+import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, Archive } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef } from 'react'
 import { useConfig } from '../context/ConfigContext'
@@ -56,7 +56,19 @@ const PaymentBadge = ({ method }) => {
   )
 }
 
-export default function SalesTable({ ventas, selectedIds, onToggleSelect, onToggleAll, loading, onShowError, onEdit, onRowClick, onRetry, onSaveEdit }) {
+export default function SalesTable({ 
+  ventas, 
+  selectedIds, 
+  onToggleSelect, 
+  onToggleAll, 
+  loading, 
+  onShowError, 
+  onRowClick, 
+  onEdit, 
+  onSaveEdit, 
+  onRetry,
+  onArchive 
+}) {
   const { emisor } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
   const [sortDir, setSortDir] = useState('desc')
@@ -580,6 +592,15 @@ export default function SalesTable({ ventas, selectedIds, onToggleSelect, onTogg
                             title="Reintentar facturación"
                           >
                             <RotateCcw size={16} />
+                          </button>
+                        )}
+                        {onArchive && venta.status !== 'archivada' && venta.status !== 'borrada' && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onArchive(venta.id) }}
+                            className="p-2 text-text-muted hover:text-purple hover:bg-purple/10 rounded-lg transition-all cursor-pointer"
+                            title="Archivar"
+                          >
+                            <Archive size={16} />
                           </button>
                         )}
                         {venta.status === 'facturado' && venta.cae && (

@@ -737,6 +737,7 @@ export default function Home() {
           }}
           onSaveEdit={handleEditVenta}
           onRetry={handleRetry}
+          onArchive={handleArchiveVenta}
         />
       </div>
 
