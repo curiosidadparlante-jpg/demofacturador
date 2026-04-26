@@ -24,7 +24,6 @@ export default function Home() {
   const [bulkImportModalOpen, setBulkImportModalOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
-  const [secondaryView, setSecondaryView] = useState('archivo') // 'archivo' o 'papelera'
   
   // ─── Modal State ───
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -631,31 +630,25 @@ export default function Home() {
             Lista Facturas
           </h2>
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
-            <div className="flex items-center gap-1 bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-auto">
-              {secondaryView === 'archivo' ? (
-                <button
-                  onClick={() => handleCardClick('Archivo', archivadas, 'all')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-subtle text-blue hover:bg-blue/10 transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest min-w-[140px]"
-                >
-                  <Archive size={14} />
-                  Archivo ({archivadas.length})
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-subtle text-red hover:bg-red/10 transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest min-w-[140px]"
-                >
-                  <Trash2 size={14} />
-                  Papelera ({borradas.length})
-                </button>
-              )}
+            <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-[180px]">
+              <button
+                onClick={() => handleCardClick('Archivo', archivadas, 'all')}
+                className="flex-1 flex items-center justify-center h-full rounded-lg hover:bg-blue-subtle text-text-muted hover:text-blue transition-all cursor-pointer group"
+                title="Ver Archivo"
+              >
+                <Archive size={16} />
+                <span className="ml-2 text-[11px] font-bold uppercase tracking-tight">{archivadas.length}</span>
+              </button>
+              
+              <div className="w-px h-6 bg-border/40" />
               
               <button
-                onClick={() => setSecondaryView(prev => prev === 'archivo' ? 'papelera' : 'archivo')}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-alt text-text-muted transition-colors cursor-pointer"
-                title={`Cambiar a ${secondaryView === 'archivo' ? 'Papelera' : 'Archivo'}`}
+                onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
+                className="flex-1 flex items-center justify-center h-full rounded-lg hover:bg-red-subtle text-text-muted hover:text-red transition-all cursor-pointer group"
+                title="Ver Papelera"
               >
-                <RefreshCw size={14} className="rotate-90" />
+                <Trash2 size={16} />
+                <span className="ml-2 text-[11px] font-bold uppercase tracking-tight">{borradas.length}</span>
               </button>
             </div>
 
