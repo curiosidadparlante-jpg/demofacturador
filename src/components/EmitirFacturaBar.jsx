@@ -57,7 +57,7 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
         {hasErrors && onBulkRetry && (
           <button
             onClick={onBulkRetry}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-subtle border border-yellow/20 text-yellow text-xs font-bold uppercase tracking-wider hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-subtle border border-yellow/20 text-yellow text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw size={14} />
             <span className="hidden sm:inline">Reintentar</span>
@@ -68,7 +68,7 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
         {onExport && (
           <button
             onClick={onExport}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider hover:-translate-y-0.5 hover:bg-white/20 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider active:scale-95 hover:bg-white/20 transition-all cursor-pointer"
           >
             <Download size={14} />
             <span className="hidden sm:inline">Exportar</span>
@@ -79,7 +79,7 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
         {onBulkArchive && (
           <button
             onClick={onBulkArchive}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
           >
             <Archive size={14} />
             <span className="hidden sm:inline">Archivar</span>
@@ -90,7 +90,7 @@ export default function EmitirFacturaBar({ selectedCount, selectedVentas = [], o
         {onBulkDelete && (
           <button
             onClick={onBulkDelete}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-subtle border border-red/20 text-red text-xs font-bold uppercase tracking-wider hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-subtle border border-red/20 text-red text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
           >
             <Trash2 size={14} />
             <span className="hidden sm:inline">Eliminar</span>

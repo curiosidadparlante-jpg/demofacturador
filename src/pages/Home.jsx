@@ -130,7 +130,7 @@ export default function Home() {
 
   // ─── Selected ventas data ───
   const selectedVentas = useMemo(() =>
-    ventas.filter(v => selectedIds.has(v.id)),
+    ventas.filter(v => selectedIds.has(v.id.toString()) || selectedIds.has(Number(v.id))),
     [ventas, selectedIds]
   )
 
@@ -319,9 +319,11 @@ export default function Home() {
 
   // ─── Bulk delete ───
   const handleBulkDelete = async () => {
-    if (selectedVentas.length === 0) return
-
-    if (!confirm(`¿Mover ${selectedVentas.length} venta(s) a la papelera?\nPodrás restaurarlas o eliminarlas definitivamente luego.`)) return
+    const count = selectedVentas.length
+    if (count === 0) {
+      showToast('No hay ventas seleccionadas válidas', 'error')
+      return
+    }
 
     let deleted = 0
     for (const v of selectedVentas) {
@@ -333,7 +335,7 @@ export default function Home() {
       }
     }
     setSelectedIds(new Set())
-    showToast(`${deleted} venta(s) eliminada(s)`, 'success')
+    showToast(`${deleted} venta(s) movida(s) a la papelera`, 'success')
   }
 
   // ─── Archive handler ───
@@ -352,8 +354,13 @@ export default function Home() {
   }
 
   const handleBulkArchive = async () => {
-    if (selectedVentas.length === 0) return
-    if (!confirm(`¿Archivar ${selectedVentas.length} venta(s)?`)) return
+    const count = selectedVentas.length
+    if (count === 0) {
+      showToast('No hay ventas seleccionadas para archivar', 'error')
+      return
+    }
+
+    if (!confirm(`¿Archivar ${count} venta(s)?`)) return
 
     let archived = 0
     for (const v of selectedVentas) {
@@ -365,7 +372,7 @@ export default function Home() {
       }
     }
     setSelectedIds(new Set())
-    showToast(`${archived} venta(s) archivada(s)`, 'success')
+    showToast(`${archived} venta(s) archivada(s) correctamente`, 'success')
   }
 
   // ─── Retry handler ───

@@ -161,7 +161,7 @@ export function useVentas() {
 
   const deleteVenta = useCallback(async (id) => {
     setVentas(prev => {
-      const next = prev.map(v => v.id === id ? { ...v, status: 'borrada' } : v);
+      const next = prev.map(v => String(v.id) === String(id) ? { ...v, status: 'borrada' } : v);
       localStorage.setItem('demo_ventas', JSON.stringify(next));
       return next;
     });
@@ -177,7 +177,7 @@ export function useVentas() {
 
   const archiveVenta = useCallback(async (id) => {
     setVentas(prev => {
-      const next = prev.map(v => v.id === id ? { ...v, status: 'archivada' } : v);
+      const next = prev.map(v => String(v.id) === String(id) ? { ...v, status: 'archivada' } : v);
       localStorage.setItem('demo_ventas', JSON.stringify(next));
       return next;
     });
