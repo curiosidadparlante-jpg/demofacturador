@@ -24,6 +24,7 @@ export default function Home() {
   const [bulkImportModalOpen, setBulkImportModalOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
+  const [secondaryView, setSecondaryView] = useState('archivo') // 'archivo' o 'papelera'
   
   // ─── Modal State ───
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -630,21 +631,52 @@ export default function Home() {
             Lista Facturas
           </h2>
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
-            <button
-              onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-red hover:border-red/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] md:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
-            >
-              <Trash2 size={14} />
-              Papelera ({borradas.length})
-            </button>
-
-            <button
-              onClick={() => handleCardClick('Archivo', archivadas, 'all')}
-              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-muted hover:text-purple hover:border-purple/20 md:hover:-translate-y-1 md:hover:shadow-lg transition-all cursor-pointer text-[10px] md:text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
-            >
-              <Archive size={14} />
-              Archivo ({archivadas.length})
-            </button>
+            <div className="flex bg-white border border-border/60 rounded-xl p-1 w-full md:w-auto h-[42px]">
+              <button
+                onClick={() => setSecondaryView('archivo')}
+                className={`
+                  flex-1 flex items-center justify-center gap-2 px-3 rounded-lg transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest
+                  ${secondaryView === 'archivo' 
+                    ? 'bg-purple/10 text-purple shadow-sm ring-1 ring-purple/20' 
+                    : 'text-text-muted hover:bg-surface-alt'
+                  }
+                `}
+              >
+                <Archive size={14} />
+                <span className="md:hidden lg:inline">Archivo ({archivadas.length})</span>
+                <span className="hidden md:inline lg:hidden">({archivadas.length})</span>
+              </button>
+              <button
+                onClick={() => setSecondaryView('papelera')}
+                className={`
+                  flex-1 flex items-center justify-center gap-2 px-3 rounded-lg transition-all cursor-pointer text-[10px] font-bold uppercase tracking-widest
+                  ${secondaryView === 'papelera' 
+                    ? 'bg-red-subtle text-red shadow-sm ring-1 ring-red/20' 
+                    : 'text-text-muted hover:bg-surface-alt'
+                  }
+                `}
+              >
+                <Trash2 size={14} />
+                <span className="md:hidden lg:inline">Papelera ({borradas.length})</span>
+                <span className="hidden md:inline lg:hidden">({borradas.length})</span>
+              </button>
+              
+              <div className="w-px h-6 bg-border/40 mx-1 self-center" />
+              
+              <button
+                onClick={() => {
+                  if (secondaryView === 'archivo') {
+                    handleCardClick('Archivo', archivadas, 'all')
+                  } else {
+                    handleCardClick('LISTADO_PAPELERA', borradas, 'all')
+                  }
+                }}
+                className="px-2 flex items-center justify-center text-text-primary hover:text-accent transition-colors cursor-pointer"
+                title={`Ver ${secondaryView === 'archivo' ? 'Archivo' : 'Papelera'}`}
+              >
+                <Eye size={16} />
+              </button>
+            </div>
 
             {/* Export dropdown */}
             <div className="relative w-full md:w-auto">
