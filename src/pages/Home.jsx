@@ -630,25 +630,25 @@ export default function Home() {
             Lista Facturas
           </h2>
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
-            <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-[180px]">
+            <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-auto">
               <button
                 onClick={() => handleCardClick('Archivo', archivadas, 'all')}
-                className="flex-1 flex items-center justify-center h-full rounded-lg hover:bg-blue-subtle text-text-muted hover:text-blue transition-all cursor-pointer group"
+                className="flex-1 flex items-center justify-center h-full px-3 rounded-lg hover:bg-blue-subtle text-text-muted hover:text-blue transition-all cursor-pointer group whitespace-nowrap"
                 title="Ver Archivo"
               >
-                <Archive size={16} />
-                <span className="ml-2 text-[11px] font-bold uppercase tracking-tight">{archivadas.length}</span>
+                <Archive size={14} />
+                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Archivo ({archivadas.length})</span>
               </button>
               
               <div className="w-px h-6 bg-border/40" />
               
               <button
                 onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-                className="flex-1 flex items-center justify-center h-full rounded-lg hover:bg-red-subtle text-text-muted hover:text-red transition-all cursor-pointer group"
+                className="flex-1 flex items-center justify-center h-full px-3 rounded-lg hover:bg-red-subtle text-text-muted hover:text-red transition-all cursor-pointer group whitespace-nowrap"
                 title="Ver Papelera"
               >
-                <Trash2 size={16} />
-                <span className="ml-2 text-[11px] font-bold uppercase tracking-tight">{borradas.length}</span>
+                <Trash2 size={14} />
+                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Papelera ({borradas.length})</span>
               </button>
             </div>
 
