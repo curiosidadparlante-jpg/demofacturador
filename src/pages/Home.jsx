@@ -630,7 +630,7 @@ export default function Home() {
             Lista Facturas
           </h2>
           <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
-            <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-auto">
+            <div className="col-span-2 md:col-span-1 flex items-center bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-auto">
               <button
                 onClick={() => handleCardClick('Archivo', archivadas, 'all')}
                 className="flex-1 flex items-center justify-center h-full px-3 rounded-lg hover:bg-blue-subtle text-text-muted hover:text-blue transition-all cursor-pointer group whitespace-nowrap"
