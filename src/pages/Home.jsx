@@ -317,7 +317,6 @@ export default function Home() {
     }
   }
 
-  // ─── Bulk delete ───
   const handleBulkDelete = async () => {
     const count = selectedVentas.length
     if (count === 0) {
@@ -325,17 +324,14 @@ export default function Home() {
       return
     }
 
-    let deleted = 0
-    for (const v of selectedVentas) {
-      try {
-        await deleteVenta(v.id)
-        deleted++
-      } catch (err) {
-        console.error(`Error eliminando ${v.id}:`, err)
-      }
-    }
+    const idsToProcess = selectedVentas.map(v => String(v.id))
+    
+    setVentas(prev => prev.map(v => 
+      idsToProcess.includes(String(v.id)) ? { ...v, status: 'borrada' } : v
+    ))
+
     setSelectedIds(new Set())
-    showToast(`${deleted} venta(s) movida(s) a la papelera`, 'success')
+    showToast(`${count} venta(s) movida(s) a la papelera`, 'success')
   }
 
   // ─── Archive handler ───
@@ -360,23 +356,14 @@ export default function Home() {
       return
     }
 
-    showToast(`Archivando ${count} venta(s)...`, 'info')
-
-    let archived = 0
-    const idsToProcess = Array.from(selectedIds)
+    const idsToProcess = Array.from(selectedIds).map(id => String(id))
     
-    for (const id of idsToProcess) {
-      try {
-        await archiveVenta(id)
-        archived++
-      } catch (err) {
-        console.error(`Error archivando ${id}:`, err)
-      }
-    }
+    setVentas(prev => prev.map(v => 
+      idsToProcess.includes(String(v.id)) ? { ...v, status: 'archivada' } : v
+    ))
     
     setSelectedIds(new Set())
-    showToast(`${archived} venta(s) archivada(s) correctamente`, 'success')
-    refetch()
+    showToast(`${count} venta(s) archivada(s) correctamente`, 'success')
   }
 
   // ─── Retry handler ───
