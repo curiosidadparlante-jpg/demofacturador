@@ -625,12 +625,14 @@ export default function Home() {
 
       {/* ─── Table section ─── */}
       <div>
-        <div className="flex flex-col mb-4 gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
             Lista Facturas
           </h2>
-          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
-            <div className="col-span-2 md:col-span-1 flex items-center bg-white border border-border/60 rounded-xl p-1 h-[42px] w-full md:w-auto">
+          
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+            {/* ─── Archive & Trash (Left) ─── */}
+            <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[38px] w-full md:w-auto">
               <button
                 onClick={() => handleCardClick('Archivo', archivadas, 'all')}
                 className="flex-1 flex items-center justify-center h-full px-3 rounded-lg hover:bg-blue-subtle text-text-muted hover:text-blue transition-all cursor-pointer group whitespace-nowrap"
@@ -640,7 +642,7 @@ export default function Home() {
                 <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Archivo ({archivadas.length})</span>
               </button>
               
-              <div className="w-px h-6 bg-border/40" />
+              <div className="w-px h-5 bg-border/40" />
               
               <button
                 onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
@@ -652,59 +654,62 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Export dropdown */}
-            <div className="relative w-full md:w-auto">
+            {/* ─── Actions (Right) ─── */}
+            <div className="grid grid-cols-2 md:flex items-center gap-2 w-full md:w-auto">
+              {/* Export dropdown */}
+              <div className="relative w-full md:w-auto">
+                <button
+                  onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white border border-border/60 text-text-secondary text-[9px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-blue/30 hover:text-blue transition-all cursor-pointer w-full md:w-auto h-[38px]"
+                >
+                  <Download size={13} className="text-text-muted" />
+                  <span className="truncate">Exportar</span>
+                  <ChevronDown size={12} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {exportMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
+                    <div className="absolute right-0 mt-2 bg-white border border-border/40 rounded-xl shadow-xl z-50 min-w-[140px] overflow-hidden animate-slide-down">
+                      <button
+                        onClick={() => handleExportAll('csv')}
+                        className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
+                      >
+                        Archivo CSV
+                      </button>
+                      <div className="h-px bg-border/20 mx-2" />
+                      <button
+                        onClick={() => handleExportAll('xlsx')}
+                        className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
+                      >
+                        Excel (.xlsx)
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
               <button
-                onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
+                onClick={() => setBulkImportModalOpen(true)}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white border border-border/60 text-text-secondary text-[9px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-blue/30 hover:text-blue transition-all cursor-pointer w-full md:w-auto h-[38px]"
               >
-                <Download size={14} className="text-text-muted" />
-                <span className="truncate">Exportación Masiva</span>
-                <ChevronDown size={14} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
+                <Download size={13} className="text-text-muted" />
+                Carga Masiva
               </button>
-              {exportMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-                  <div className="absolute left-0 md:right-0 mt-2 bg-[#F9F7F2] border border-white/50 rounded-xl shadow-xl shadow-black/10 z-50 min-w-[160px] overflow-hidden animate-slide-down">
-                    <button
-                      onClick={() => handleExportAll('csv')}
-                      className="w-full text-left px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
-                    >
-                      Archivo CSV
-                    </button>
-                    <div className="h-px bg-border/40 mx-2" />
-                    <button
-                      onClick={() => handleExportAll('xlsx')}
-                      className="w-full text-left px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
-                    >
-                      Excel (.xlsx)
-                    </button>
-                  </div>
-                </>
-              )}
+
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="
+                  flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+                  bg-text-primary text-white text-[9px] font-bold uppercase tracking-widest
+                  md:hover:-translate-y-1 hover:shadow-lg md:hover:shadow-xl hover:shadow-black/20
+                  transition-all duration-300 cursor-pointer w-full md:w-auto h-[38px]
+                  col-span-2 md:col-span-1
+                "
+              >
+                <Plus size={13} className="text-yellow" />
+                Nueva Venta
+              </button>
             </div>
-
-
-            <button
-              onClick={() => setBulkImportModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-3 md:px-4 py-2.5 rounded-xl bg-white border border-border/60 text-text-secondary text-[10px] md:text-[11px] font-bold uppercase tracking-widest md:hover:-translate-y-1 md:hover:shadow-lg hover:border-[var(--color-cmd-blue)]/30 hover:text-[var(--color-cmd-blue)] transition-all cursor-pointer w-full md:w-auto"
-            >
-              <Download size={14} className="text-text-muted" />
-              Carga Masiva
-            </button>
-
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="
-                flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl
-                bg-text-primary text-white text-[10px] md:text-[11px] font-bold uppercase tracking-widest
-                md:hover:-translate-y-1 hover:shadow-lg md:hover:shadow-xl hover:shadow-black/20
-                transition-all duration-300 cursor-pointer w-full md:w-auto
-              "
-            >
-              <Plus size={14} className="text-yellow" />
-              Nueva Venta
-            </button>
           </div>
         </div>
 
