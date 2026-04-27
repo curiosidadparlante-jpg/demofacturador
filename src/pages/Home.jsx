@@ -625,12 +625,12 @@ export default function Home() {
 
       {/* ─── Table section ─── */}
       <div>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-          <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight mb-4">
             Lista Facturas
           </h2>
           
-          <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* ─── Archive & Trash (Left) ─── */}
             <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[38px] w-full md:w-auto">
               <button
