@@ -597,7 +597,7 @@ export default function SalesTable({
                         {onEmit && (venta.status === 'pendiente' || venta.status === 'error') && (
                           <button
                             onClick={(e) => { e.stopPropagation(); onEmit(venta.id) }}
-                            className="p-2 text-text-muted hover:text-red hover:bg-red-subtle rounded-lg transition-all cursor-pointer"
+                            className="p-2 text-text-muted hover:text-green hover:bg-green/10 rounded-lg transition-all cursor-pointer"
                             title="Facturar ahora"
                           >
                             <FileText size={16} />
