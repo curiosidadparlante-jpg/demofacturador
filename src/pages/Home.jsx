@@ -435,7 +435,41 @@ export default function Home() {
     setExportMenuOpen(false)
   }
 
-  // ─── Emitir Factura handler ───
+  // ─── Emitir Factura handler (Single) ───
+  const handleEmitSingleInvoice = async (id) => {
+    const ventaTarget = ventas.find(v => String(v.id) === String(id))
+    if (!ventaTarget || ventaTarget.status === 'facturado') return
+
+    try {
+      showToast('Emitiendo factura...', 'info')
+      setVentas(prev => prev.map(v => String(v.id) === String(id) ? { ...v, status: 'procesando' } : v))
+      
+      await new Promise(r => setTimeout(r, 2000))
+      
+      const isSuccess = Math.random() > 0.1
+      if (isSuccess) {
+        setVentas(prev => prev.map(v => String(v.id) === String(id) ? { 
+          ...v, 
+          status: 'facturado', 
+          cae: '73' + Math.floor(100000000000 + Math.random() * 900000000000), 
+          nro_comprobante: '0003-' + String(Math.floor(Math.random() * 100000)).padStart(8, '0') 
+        } : v))
+        showToast(`✓ Comprobante emitido con éxito`, 'success')
+      } else {
+        setVentas(prev => prev.map(v => String(v.id) === String(id) ? { 
+          ...v, 
+          status: 'error', 
+          datos_fiscales: { ...v.datos_fiscales, error_detalle: 'Demo: Simulacro de error AFIP aleatorio.' } 
+        } : v))
+        showToast(`Error al emitir factura`, 'error')
+      }
+    } catch (err) {
+      setVentas(prev => prev.map(v => String(v.id) === String(id) ? { ...v, status: 'error' } : v))
+      showToast('Error: ' + err.message, 'error')
+    }
+  }
+
+  // ─── Emitir Factura handler (Bulk) ───
   const handleInvoice = async () => {
     const selectedVentasToInvoice = ventas.filter(v => selectedIds.has(v.id) && v.status !== 'facturado')
     if (selectedVentasToInvoice.length === 0) {
@@ -740,7 +774,7 @@ export default function Home() {
           }}
           onSaveEdit={handleEditVenta}
           onRetry={handleRetry}
-          onArchive={handleArchiveVenta}
+          onEmit={handleEmitSingleInvoice}
         />
       </div>
 

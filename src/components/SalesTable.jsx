@@ -1,5 +1,5 @@
 import StatusBadge from './StatusBadge'
-import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, Archive } from 'lucide-react'
+import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef } from 'react'
 import { useConfig } from '../context/ConfigContext'
@@ -67,7 +67,7 @@ export default function SalesTable({
   onEdit, 
   onSaveEdit, 
   onRetry,
-  onArchive 
+  onEmit 
 }) {
   const { emisor } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
@@ -594,13 +594,13 @@ export default function SalesTable({
                             <RotateCcw size={16} />
                           </button>
                         )}
-                        {onArchive && venta.status !== 'archivada' && venta.status !== 'borrada' && (
+                        {onEmit && (venta.status === 'pendiente' || venta.status === 'error') && (
                           <button
-                            onClick={(e) => { e.stopPropagation(); onArchive(venta.id) }}
-                            className="p-2 text-text-muted hover:text-purple hover:bg-purple/10 rounded-lg transition-all cursor-pointer"
-                            title="Archivar"
+                            onClick={(e) => { e.stopPropagation(); onEmit(venta.id) }}
+                            className="p-2 text-text-muted hover:text-red hover:bg-red-subtle rounded-lg transition-all cursor-pointer"
+                            title="Facturar ahora"
                           >
-                            <Archive size={16} />
+                            <FileText size={16} />
                           </button>
                         )}
                         {venta.status === 'facturado' && venta.cae && (
