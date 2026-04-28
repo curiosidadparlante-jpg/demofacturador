@@ -78,6 +78,9 @@ export default function Home() {
           v.datos_fiscales?.forma_pago,
           v.mp_payment_id ? `MeLi #${v.mp_payment_id.replace(/^order-/, '')}` : '',
           v.mp_payment_id ? `MP #${v.mp_payment_id.replace(/^order-/, '')}` : '',
+          // Comprobante asociado
+          v.datos_fiscales?.cbte_asoc?.nro ? `Asoc #${v.datos_fiscales.cbte_asoc.nro}` : '',
+          v.datos_fiscales?.cbte_asoc?.pto_vta ? `${String(v.datos_fiscales.cbte_asoc.pto_vta).padStart(4, '0')}` : '',
         ].filter(Boolean).join(' ').toLowerCase()
         if (!searchable.includes(q)) return false
       }
@@ -491,6 +494,7 @@ export default function Home() {
           cliente: v.cliente,
           monto: v.monto,
           datos_fiscales: v.datos_fiscales || {},
+          cbte_asoc: v.datos_fiscales?.cbte_asoc || null,
           mp_payment_id: v.mp_payment_id,
         })),
       }

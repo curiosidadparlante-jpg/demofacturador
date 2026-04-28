@@ -132,6 +132,21 @@ export async function generateInvoicePdf(venta, emisor) {
     receptorY += 5;
   }
 
+  // Comprobantes asociados (NC / ND)
+  if (df.cbte_asoc && (df.cbte_asoc.nro > 0 || df.cbte_asoc.nro_comprobante)) {
+    doc.setFont('helvetica', 'bold');
+    const asocLabel = CBTE_LABELS[df.cbte_asoc.tipo]?.name || 'COMPROBANTE';
+    const asocNro = df.cbte_asoc.nro_comprobante || 
+      `${String(df.cbte_asoc.pto_vta || 0).padStart(4, '0')}-${String(df.cbte_asoc.nro || 0).padStart(8, '0')}`;
+    
+    doc.text(`Comprobante Asociado: ${asocLabel} ${asocNro}`, margin + 5, receptorY);
+    if (df.cbte_asoc.fecha) {
+      doc.setFont('helvetica', 'normal');
+      doc.text(` (Fecha: ${new Date(df.cbte_asoc.fecha + 'T12:00:00').toLocaleDateString('es-AR')})`, margin + 110, receptorY);
+    }
+    receptorY += 5;
+  }
+
   const lineAfterReceptor = receptorY + 2;
   doc.line(margin, lineAfterReceptor, pageWidth - margin, lineAfterReceptor);
 
