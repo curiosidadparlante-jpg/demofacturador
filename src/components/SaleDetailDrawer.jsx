@@ -1,13 +1,14 @@
-import { X, FileDown, Edit2, RotateCcw, Calendar, CreditCard, User, ShieldCheck, Clock, Save, Loader2, Mail, MapPin, Package, FileText, Link2 } from 'lucide-react';
+import { X, FileDown, Edit2, RotateCcw, Calendar, CreditCard, User, ShieldCheck, Clock, Save, Loader2, Mail, MapPin, Package, FileText, Link2, Percent } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { generateInvoicePdf } from '../utils/invoicePdf';
 import { useEffect, useState } from 'react';
 import { useConfig } from '../context/ConfigContext';
 import { translatePaymentMethod, simplifyPaymentMethod } from '../utils/paymentMethods';
-import SaleFormFields, { CONCEPTOS, UNIDADES_MEDIDA, TIPOS_COMPROBANTE } from './SaleFormFields';
+import SaleFormFields, { CONCEPTOS, UNIDADES_MEDIDA } from './SaleFormFields';
+import { getTiposComprobante, calcularIVA, getAlicuotaById, needsCbteAsociado } from '../utils/ivaHelpers';
 
 export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRetry, initialEditMode = false }) {
-  const { emisor } = useConfig();
+  const { emisor, isRI } = useConfig();
   const conceptoDefault = emisor?.concepto_default || 1;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -47,6 +48,8 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
         cbteAsocPtoVta: asoc.pto_vta || 0,
         cbteAsocNro: asoc.nro || 0,
         cbteAsocFecha: asoc.fecha || '',
+        // IVA
+        ivaAlicuota: df.iva_alicuota_id || 5,
       });
       
       // Auto-open in editing if it's pending
@@ -132,7 +135,11 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
     setSaving(true);
     try {
       const needsService = editForm.concepto === 2 || editForm.concepto === 3;
-      const needsCbteAsoc = editForm.tipoCbte === 13 || editForm.tipoCbte === 12;
+      const needsCbteAsoc = needsCbteAsociado(editForm.tipoCbte);
+
+      // IVA data for RI
+      const ivaInfo = isRI ? calcularIVA(parseFloat(editForm.monto), editForm.ivaAlicuota || 5) : null;
+      const alicuota = isRI ? getAlicuotaById(editForm.ivaAlicuota || 5) : null;
 
       if (onSave) {
         await onSave(venta.id, {
@@ -161,6 +168,12 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                 nro: editForm.cbteAsocNro || 0,
                 fecha: editForm.cbteAsocFecha || '',
               }
+            } : {}),
+            ...(isRI && ivaInfo ? {
+              iva_alicuota_id: editForm.ivaAlicuota || 5,
+              iva_porcentaje: alicuota?.rate || 0.21,
+              neto_gravado: ivaInfo.netoGravado,
+              iva_monto: ivaInfo.ivaMonto,
             } : {}),
             forma_pago: editForm.formaPago,
             fecha_emision: editForm.fechaEmision,
@@ -221,6 +234,8 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                 lookingUp={lookingUp}
                 afipLocked={afipLocked}
                 conceptoDefault={conceptoDefault}
+                isRI={isRI}
+                emisor={emisor}
               />
 
               <div className="pt-3 flex items-center gap-3">
@@ -272,7 +287,7 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                   <Section title="Comprobante Asociado" icon={Link2}>
                     <InfoRow
                       label="Tipo"
-                      value={TIPOS_COMPROBANTE.find(t => t.value === df.cbte_asoc.tipo)?.label || `Tipo ${df.cbte_asoc.tipo}`}
+                      value={getTiposComprobante(emisor).find(t => t.value === df.cbte_asoc.tipo)?.label || `Tipo ${df.cbte_asoc.tipo}`}
                     />
                     <InfoRow
                       label="Número"
@@ -292,6 +307,15 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                     <InfoRow label="Vencimiento" value={formatDate(venta.vto_cae)} />
                   </Section>
                 )}
+
+                {isRI && df.neto_gravado != null && (
+                  <Section title="IVA" icon={Percent}>
+                    <InfoRow label="Neto Gravado" value={formatCurrency(df.neto_gravado)} />
+                    <InfoRow label="Alícuota" value={getAlicuotaById(df.iva_alicuota_id || 5)?.label || '21%'} />
+                    <InfoRow label="IVA" value={formatCurrency(df.iva_monto)} highlight="accent" />
+                  </Section>
+                )}
+
               </div>
 
               {/* ─── Timeline ─── */}

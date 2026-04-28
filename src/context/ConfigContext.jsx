@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { isResponsableInscripto } from '../utils/ivaHelpers'
 
 const ConfigContext = createContext(null)
 
@@ -16,14 +17,15 @@ export function ConfigProvider({ children }) {
       if (stored) {
         setEmisor(JSON.parse(stored))
       } else {
-        // Default demo emisor
+        // Default demo emisor — Monotributo
         const defaultEmisor = {
           id: 'demo-emisor',
           razon_social: 'NOMBRE CONTRIBUYENTE',
           cuit: '30111111118',
-          condicion_iva: 'IVA Responsable Inscripto',
+          condicion_iva: 'Responsable Monotributo',
           inicio_actividades: '2020-01-01',
           pto_vta: 3,
+          tipo_cbte: 11,
           certificado_crt: 'demo.crt',
           certificado_key: 'demo.key',
           env: 'production'
@@ -44,9 +46,12 @@ export function ConfigProvider({ children }) {
     return true
   }
 
+  const isRI = isResponsableInscripto(emisor)
+
   const value = {
     emisor,
     loading,
+    isRI,
     needsSetup: !emisor || !emisor.pto_vta || !emisor.certificado_crt || !emisor.certificado_key,
     saveConfig
   }

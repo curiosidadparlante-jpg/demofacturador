@@ -69,7 +69,7 @@ export default function SalesTable({
   onRetry,
   onEmit 
 }) {
-  const { emisor } = useConfig()
+  const { emisor, isRI } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
   const [sortDir, setSortDir] = useState('desc')
   const [page, setPage] = useState(0)
@@ -488,6 +488,11 @@ export default function SalesTable({
                           </div>
                         ) : (
                           <span className="text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                        )}
+                        {isRI && venta.datos_fiscales?.neto_gravado != null && (
+                          <div className="text-[9px] text-text-muted tabular-nums mt-0.5">
+                            Neto {formatCurrency(venta.datos_fiscales.neto_gravado)} + IVA {formatCurrency(venta.datos_fiscales.iva_monto)}
+                          </div>
                         )}
                       </td>
                     )}

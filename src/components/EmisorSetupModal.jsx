@@ -4,8 +4,6 @@ import { Building2, MapPin, FileText, Hash, Calendar, Receipt, X, Save, AlertCir
 const CONDICION_IVA_OPTIONS = [
   'Responsable Monotributo',
   'IVA Responsable Inscripto',
-  'IVA Sujeto Exento',
-  'Consumidor Final',
 ]
 
 const TIPO_CBTE_OPTIONS = [
@@ -288,9 +286,16 @@ export default function EmisorSetupModal({ isOpen, onClose, onSave, currentData,
                       <MinimalField 
                         label="Condición IVA" icon={Receipt} isSelect full
                         value={form.condicion_iva}
-                        onChange={(e) => setForm(p => ({ ...p, condicion_iva: e.target.value }))}
+                        onChange={(e) => {
+                          const newCond = e.target.value;
+                          const isRI = newCond.toLowerCase().includes('responsable inscripto');
+                          setForm(p => ({
+                            ...p,
+                            condicion_iva: newCond,
+                            tipo_cbte: isRI ? 1 : 11, // Auto-ajustar tipo comprobante
+                          }));
+                        }}
                         options={CONDICION_IVA_OPTIONS}
-                        locked={hasAfipData}
                       />
                     </div>
                     <div className="col-span-4">
