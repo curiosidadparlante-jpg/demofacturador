@@ -119,7 +119,7 @@ export default function StatsCards({ ventas, onCardClick }) {
           
           {/* 1. TERMÓMETRO (Izquierda) */}
           {!isRI && (
-            <div className="lg:flex-1 relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-between overflow-hidden min-h-[140px]">
+            <div className="lg:flex-1 relative bg-transparent p-4 md:p-5 flex flex-col justify-center gap-2 overflow-hidden min-h-[140px]">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
