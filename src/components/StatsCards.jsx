@@ -119,7 +119,7 @@ export default function StatsCards({ ventas, onCardClick }) {
           
           {/* 1. TERMÓMETRO (Izquierda) */}
           {!isRI && (
-            <div className="lg:flex-1 relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-between transition-all duration-300 hover:shadow-sm outline-none overflow-hidden min-h-[140px]">
+            <div className="lg:flex-1 relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-between overflow-hidden min-h-[140px]">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
@@ -183,7 +183,7 @@ export default function StatsCards({ ventas, onCardClick }) {
             </div>
             
             <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
-              Facturado ({timeframe})
+              Facturado {timeframe === 'all' ? '(Histórico)' : timeframe === 'month' ? '(Este Mes)' : timeframe === 'week' ? '(Esta Sem)' : '(Hoy)'}
             </h3>
             
             <div className="font-black text-2xl md:text-3xl lg:text-4xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
