@@ -3,7 +3,7 @@ import StatusBadge from './StatusBadge';
 import { Trash2, Loader2, AlertCircle, RefreshCw, Archive } from 'lucide-react';
 import { useState } from 'react';
 
-export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, onArchive }) {
+export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete, onRestore, onHardDelete, onReset, onResetAll, onShowError, onArchive, onUpdateEtiqueta }) {
   const [deletingId, setDeletingId] = useState(null)
 
   const formatDate = (dateStr) => {
@@ -138,6 +138,9 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                       <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Estado</th>
                     </>
                   )}
+                  {isArchiveView && (
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">Etiqueta</th>
+                  )}
                   <th className="px-4 py-3 text-right text-xs font-semibold text-text-secondary uppercase tracking-wider"></th>
                 </tr>
               </thead>
@@ -183,6 +186,21 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                           </div>
                         </td>
                       </>
+                    )}
+                    {isArchiveView && (
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          defaultValue={venta.etiqueta || ''}
+                          onBlur={(e) => {
+                            if (e.target.value !== (venta.etiqueta || '')) {
+                              onUpdateEtiqueta && onUpdateEtiqueta(venta.id, e.target.value);
+                            }
+                          }}
+                          placeholder="Sin etiqueta"
+                          className="px-2 py-1 bg-transparent border-b border-dashed border-border-subtle focus:border-purple focus:outline-none text-xs text-text-primary transition-colors placeholder:text-text-muted/50 w-full max-w-[120px]"
+                        />
+                      </td>
                     )}
                     <td className="px-4 py-3 text-right">
                       {venta.status === 'borrada' ? (

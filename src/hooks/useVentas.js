@@ -181,6 +181,10 @@ export function useVentas() {
     saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, status: 'archivada' } : v));
   }, [])
 
+  const updateVentaEtiqueta = useCallback(async (id, etiqueta) => {
+    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, etiqueta } : v));
+  }, [])
+
   const bulkCreateVentas = useCallback(async (payloads) => {
     const newVentas = payloads.map(p => ({
       ...p,
@@ -210,6 +214,7 @@ export function useVentas() {
     deleteVenta, 
     hardDeleteVenta, 
     archiveVenta,
+    updateVentaEtiqueta,
     bulkCreateVentas 
   }
 }

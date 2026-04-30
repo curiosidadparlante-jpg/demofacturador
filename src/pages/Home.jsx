@@ -16,7 +16,7 @@ import { exportToCSV, exportToExcel } from '../utils/exportUtils'
 import { translatePaymentMethod } from '../utils/paymentMethods'
 
 export default function Home() {
-  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, createVenta, deleteVenta, hardDeleteVenta, archiveVenta, bulkCreateVentas } = useVentas()
+  const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, createVenta, deleteVenta, hardDeleteVenta, archiveVenta, updateVentaEtiqueta, bulkCreateVentas } = useVentas()
   const { search: searchClientes } = useClientes(ventas)
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [toasts, setToasts] = useState([])
@@ -838,6 +838,7 @@ export default function Home() {
         onResetAll={handleResetAllVentas}
         onShowError={(msg) => showToast(msg, 'error')}
         onArchive={handleArchiveVenta}
+        onUpdateEtiqueta={updateVentaEtiqueta}
       />
 
       {/* ─── Toasts ─── */}
