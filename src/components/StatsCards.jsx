@@ -1,11 +1,15 @@
-import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { filterVentasByTimeframe } from '../utils/dateUtils'
+import { useConfig } from '../context/ConfigContext'
+import { getMonotributoLimit } from '../utils/afipConstants'
 
 export default function StatsCards({ ventas, onCardClick }) {
   const [timeframe, setTimeframe] = useState('all') // 'all', 'day', 'week', 'month'
   const [showValues, setShowValues] = useState(true)
   const [isExpanded, setIsExpanded] = useState(true)
+
+  const { emisor, isRI } = useConfig()
 
   const filteredVentas = filterVentasByTimeframe(ventas, timeframe)
   const activas = filteredVentas.filter(v => v.status !== 'borrada')
@@ -13,7 +17,6 @@ export default function StatsCards({ ventas, onCardClick }) {
   const facturadas = activas.filter(v => v.status === 'facturado')
   const conError = activas.filter(v => v.status === 'error')
   const pendientes = activas.filter(v => v.status === 'pendiente' || v.status === 'procesando')
-  const borradas = filteredVentas.filter(v => v.status === 'borrada')
 
   const getAmount = (v) => {
     const isCreditNote = [3, 8, 13, 113].includes(v.datos_fiscales?.tipo_cbte);
@@ -25,6 +28,30 @@ export default function StatsCards({ ventas, onCardClick }) {
   const facturadasAmount = facturadas.reduce((s, v) => s + getAmount(v), 0)
   const pendientesAmount = pendientes.reduce((s, v) => s + getAmount(v), 0)
   const conErrorAmount = conError.reduce((s, v) => s + getAmount(v), 0)
+
+  // ─── Lógica Termómetro Monotributo ───
+  // Calculamos la facturación anual (del año en curso) sin importar el timeframe seleccionado
+  const facturacionAnual = useMemo(() => {
+    if (isRI) return 0;
+    const currentYear = new Date().getFullYear();
+    const facturadasAnio = ventas.filter(v => 
+      v.status === 'facturado' && 
+      new Date(v.fecha).getFullYear() === currentYear
+    );
+    return facturadasAnio.reduce((s, v) => s + getAmount(v), 0);
+  }, [ventas, isRI]);
+
+  const category = emisor?.monotributo_categoria || 'A';
+  const limit = getMonotributoLimit(category);
+  const percentage = Math.min((facturacionAnual / limit) * 100, 100);
+  
+  // Colores para el termómetro
+  const getThermometerColor = (pct) => {
+    if (pct >= 90) return 'text-[#C0443C] bg-[#C0443C]'; // Rojo (Peligro)
+    if (pct >= 75) return 'text-[#F59E0B] bg-[#F59E0B]'; // Naranja (Advertencia)
+    return 'text-[#2D8F5E] bg-[#2D8F5E]'; // Verde (OK)
+  };
+  const colorClass = getThermometerColor(percentage);
 
   const handleToggleValues = (e) => {
     e.stopPropagation()
@@ -89,10 +116,53 @@ export default function StatsCards({ ventas, onCardClick }) {
 
         {/* Grid Layout for Cards */}
         <div className="flex flex-col lg:flex-row gap-4 lg:h-[200px]">
-          {/* 1. FACTURADO (Hero Card) */}
+          
+          {/* 1. TERMÓMETRO (Izquierda) */}
+          {!isRI && (
+            <div className="lg:flex-1 relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-between transition-all duration-300 hover:shadow-sm outline-none overflow-hidden min-h-[140px]">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
+                    Límite Cat. {category}
+                  </h3>
+                  <div className="font-black text-lg md:text-xl tracking-tight text-text-primary">
+                    {renderMoney(limit)}
+                  </div>
+                </div>
+                <div className={`p-2 rounded-lg bg-opacity-10 ${colorClass.split(' ')[1].replace('bg-', 'bg-')}/10`}>
+                  {percentage >= 90 ? <AlertTriangle size={18} className={colorClass.split(' ')[0]} /> : <Activity size={18} className={colorClass.split(' ')[0]} />}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                    Facturado Anual
+                  </span>
+                  <span className={`font-black text-sm ${colorClass.split(' ')[0]}`}>
+                    {percentage.toFixed(1)}%
+                  </span>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="h-3 w-full bg-surface-alt rounded-full overflow-hidden relative">
+                  <div 
+                    className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`}
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                
+                <div className="text-[9px] font-bold text-text-muted tracking-widest text-right">
+                  {renderMoney(facturacionAnual)}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2. FACTURADO (Centro) */}
           <div
             onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
-            className="lg:flex-[2] relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
+            className={`${isRI ? 'lg:flex-[2]' : 'lg:flex-1'} relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]`}
           >
             {/* Decorative Waves (Subtle) */}
             <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
@@ -100,12 +170,7 @@ export default function StatsCards({ ventas, onCardClick }) {
                 <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
               </svg>
             </div>
-            <div className="absolute right-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
-              <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
-              </svg>
-            </div>
-
+            
             <button 
               onClick={handleToggleValues}
               className="absolute top-4 right-4 text-text-muted/60 hover:text-text-primary transition-colors p-2 rounded-full hover:bg-surface-alt z-10 cursor-pointer"
@@ -118,91 +183,82 @@ export default function StatsCards({ ventas, onCardClick }) {
             </div>
             
             <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
-              Facturado
+              Facturado ({timeframe})
             </h3>
             
-            <div className="font-black text-3xl md:text-4xl lg:text-5xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
+            <div className="font-black text-2xl md:text-3xl lg:text-4xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
               {renderMoney(facturadasAmount)}
             </div>
             
             <div className="font-semibold text-[10px] text-green bg-green-subtle px-3 py-1 rounded-full uppercase tracking-wider">
-              {facturadas.length} {facturadas.length === 1 ? 'factura exitosa' : 'facturas exitosas'}
+              {facturadas.length} {facturadas.length === 1 ? 'exitosa' : 'exitosas'}
             </div>
           </div>
 
-        {/* 2. STACK OF 3 MINI CARDS */}
-        <div className="lg:flex-[1] flex justify-center items-center h-auto lg:h-[200px]">
-          <div className="flex flex-row lg:flex-col justify-center items-center gap-2 w-full lg:w-auto">
-            
-            {/* Total Ventas */}
-            <button
-              onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-              className="flex-1 lg:w-[256px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
-            >
-              <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Total<br className="hidden md:block"/> Movim.</div>
+          {/* 3. STACK OF 3 MINI CARDS (Derecha) */}
+          <div className="lg:flex-1 flex justify-center items-center h-auto lg:h-[200px]">
+            <div className="flex flex-row lg:flex-col justify-center items-center gap-2 w-full lg:w-full">
               
-              <div className="flex items-center justify-center gap-1.5 md:contents">
-                <div className="font-black text-xl md:text-3xl text-text-primary tracking-tighter text-center">{activas.length}</div>
-                <div className="md:hidden text-blue/60">
-                   <Activity size={10} />
+              {/* Total Ventas */}
+              <button
+                onClick={() => onCardClick('Total Ventas', activas, timeframe)}
+                className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              >
+                <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Total<br className="hidden md:block"/> Movim.</div>
+                
+                <div className="flex items-center justify-center gap-1.5 md:contents">
+                  <div className="font-black text-xl md:text-2xl text-text-primary tracking-tighter text-center">{activas.length}</div>
+                  <div className="md:hidden text-blue/60">
+                     <Activity size={10} />
+                  </div>
                 </div>
-              </div>
 
-              <div className="hidden md:flex items-center gap-2 justify-end">
-                 <div className="font-medium text-[10px] md:text-[11px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
-                 <div className="bg-blue/10 p-2 rounded-lg shrink-0">
-                   <Activity size={16} className="text-blue" />
-                 </div>
-              </div>
-            </button>
-
-            {/* Pendientes */}
-            <button
-              onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-              className="flex-1 lg:w-[256px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
-            >
-              <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Pendiente<br className="hidden md:block"/> Cobro</div>
-              
-              <div className="flex items-center justify-center gap-1.5 md:contents">
-                <div className="font-black text-xl md:text-3xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
-                <div className="md:hidden text-amber-500/60">
-                   <Clock size={10} />
+                <div className="hidden md:flex items-center gap-2 justify-end">
+                   <div className="font-medium text-[9px] md:text-[10px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
                 </div>
-              </div>
+              </button>
 
-              <div className="hidden md:flex items-center gap-2 justify-end">
-                 <div className="font-medium text-[10px] md:text-[11px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
-                 <div className="bg-yellow/20 p-2 rounded-lg shrink-0">
-                   <Clock size={16} className="text-amber-500" />
-                 </div>
-              </div>
-            </button>
-
-            {/* Con Error */}
-            <button
-              onClick={() => onCardClick('Con Error', conError, timeframe)}
-              className="flex-1 lg:w-[256px] min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
-            >
-              <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Errores<br className="hidden md:block"/> AFIP</div>
-              
-              <div className="flex items-center justify-center gap-1.5 md:contents">
-                <div className="font-black text-xl md:text-3xl text-red tracking-tighter text-center">{conError.length}</div>
-                <div className="md:hidden text-red/60">
-                   <AlertCircle size={10} />
+              {/* Pendientes */}
+              <button
+                onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
+                className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+              >
+                <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Pendiente<br className="hidden md:block"/> Cobro</div>
+                
+                <div className="flex items-center justify-center gap-1.5 md:contents">
+                  <div className="font-black text-xl md:text-2xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
+                  <div className="md:hidden text-amber-500/60">
+                     <Clock size={10} />
+                  </div>
                 </div>
-              </div>
 
-              <div className="hidden md:flex items-center gap-2 justify-end">
-                 <div className="font-medium text-[10px] md:text-[11px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
-                 <div className="bg-red/10 p-2 rounded-lg shrink-0">
-                   <AlertCircle size={16} className="text-red" />
-                 </div>
-              </div>
-            </button>
+                <div className="hidden md:flex items-center gap-2 justify-end">
+                   <div className="font-medium text-[9px] md:text-[10px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
+                </div>
+              </button>
+
+              {/* Con Error */}
+              <button
+                onClick={() => onCardClick('Con Error', conError, timeframe)}
+                className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+              >
+                <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Errores<br className="hidden md:block"/> AFIP</div>
+                
+                <div className="flex items-center justify-center gap-1.5 md:contents">
+                  <div className="font-black text-xl md:text-2xl text-red tracking-tighter text-center">{conError.length}</div>
+                  <div className="md:hidden text-red/60">
+                     <AlertCircle size={10} />
+                  </div>
+                </div>
+
+                <div className="hidden md:flex items-center gap-2 justify-end">
+                   <div className="font-medium text-[9px] md:text-[10px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
 
-      </div>
+        </div>
       </div>
     </div>
   )

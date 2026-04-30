@@ -26,6 +26,7 @@ export function ConfigProvider({ children }) {
           inicio_actividades: '2020-01-01',
           pto_vta: 3,
           tipo_cbte: 11,
+          monotributo_categoria: 'A',
           certificado_crt: 'demo.crt',
           certificado_key: 'demo.key',
           env: 'production'
