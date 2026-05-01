@@ -1,4 +1,4 @@
-import { X, FileDown, Edit2, RotateCcw, Calendar, CreditCard, User, ShieldCheck, Clock, Save, Loader2, Mail, MapPin, Package, FileText, Link2, Percent } from 'lucide-react';
+import { X, FileDown, Edit2, RotateCcw, Calendar, CreditCard, User, ShieldCheck, Clock, Save, Loader2, Mail, MapPin, Package, FileText, Link2, Percent, FolderKanban } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { generateInvoicePdf } from '../utils/invoicePdf';
 import { useEffect, useState } from 'react';
@@ -7,7 +7,7 @@ import { translatePaymentMethod, simplifyPaymentMethod } from '../utils/paymentM
 import SaleFormFields, { CONCEPTOS, UNIDADES_MEDIDA } from './SaleFormFields';
 import { getTiposComprobante, calcularIVA, getAlicuotaById, needsCbteAsociado } from '../utils/ivaHelpers';
 
-export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRetry, initialEditMode = false }) {
+export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRetry, initialEditMode = false, customFolders = [], labels = [] }) {
   const { emisor, isRI } = useConfig();
   const conceptoDefault = emisor?.concepto_default || 1;
 
@@ -50,6 +50,9 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
         cbteAsocFecha: asoc.fecha || '',
         // IVA
         ivaAlicuota: df.iva_alicuota_id || 5,
+        // Organization
+        folder: venta.folder || '',
+        etiqueta: venta.etiqueta || '',
       });
       
       // Auto-open in editing if it's pending
@@ -177,7 +180,9 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
             } : {}),
             forma_pago: editForm.formaPago,
             fecha_emision: editForm.fechaEmision,
-          }
+          },
+          folder: editForm.folder,
+          etiqueta: editForm.etiqueta,
         });
       }
       // After save, just close the drawer
@@ -315,6 +320,35 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                     <InfoRow label="IVA" value={formatCurrency(df.iva_monto)} highlight="accent" />
                   </Section>
                 )}
+
+                <Section title="Organización" icon={FolderKanban}>
+                  <div className="px-4 py-3 space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">Carpeta</label>
+                      <select 
+                        value={isEditing ? editForm.folder : (venta.folder || '')}
+                        onChange={(e) => isEditing && setEditForm(prev => ({ ...prev, folder: e.target.value }))}
+                        disabled={!isEditing}
+                        className="w-full bg-surface-alt border border-border rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-accent disabled:opacity-100 disabled:bg-transparent disabled:border-none disabled:px-0 cursor-pointer"
+                      >
+                        <option value="">Ninguna</option>
+                        {customFolders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">Etiqueta</label>
+                      <select 
+                        value={isEditing ? editForm.etiqueta : (venta.etiqueta || '')}
+                        onChange={(e) => isEditing && setEditForm(prev => ({ ...prev, etiqueta: e.target.value }))}
+                        disabled={!isEditing}
+                        className="w-full bg-surface-alt border border-border rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-accent disabled:opacity-100 disabled:bg-transparent disabled:border-none disabled:px-0 cursor-pointer"
+                      >
+                        <option value="">Sin etiqueta</option>
+                        {labels.map(l => <option key={l.id} value={l.name}>{l.name}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </Section>
 
               </div>
 

@@ -3,7 +3,7 @@ import {
   FileCheck, Clock, AlertCircle, Archive, Trash2, 
   FolderKanban, FolderPlus, Tag, X, Plus, ChevronRight
 } from 'lucide-react'
-import { LABEL_COLORS } from './Sidebar'
+import { LABEL_COLORS } from '../config/colors'
 
 export default function GestionView({ 
   ventas = [],

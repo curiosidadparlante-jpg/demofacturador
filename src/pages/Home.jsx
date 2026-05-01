@@ -605,6 +605,32 @@ export default function Home() {
     }
   }
 
+  const handleBulkMove = async (folderId) => {
+    try {
+      const ids = Array.from(selectedIds)
+      for (const id of ids) {
+        await updateVenta(id, { folder: folderId })
+      }
+      setSelectedIds(new Set())
+      showToast(`Movidas ${ids.length} ventas`, 'success')
+    } catch (err) {
+      showToast('Error al mover ventas', 'error')
+    }
+  }
+
+  const handleBulkTag = async (etiqueta) => {
+    try {
+      const ids = Array.from(selectedIds)
+      for (const id of ids) {
+        await updateVenta(id, { etiqueta })
+      }
+      setSelectedIds(new Set())
+      showToast(`Etiquetadas ${ids.length} ventas`, 'success')
+    } catch (err) {
+      showToast('Error al etiquetar ventas', 'error')
+    }
+  }
+
   const handleCreateVenta = async (payload) => {
     try {
       await createVenta(payload)
@@ -732,6 +758,7 @@ export default function Home() {
           onBulkImport={() => setBulkImportModalOpen(true)}
           onNewVenta={() => setAddModalOpen(true)}
           activeFilter={activeFilter}
+          labels={labels}
         />
       )}
 
@@ -762,6 +789,10 @@ export default function Home() {
         onBulkDelete={handleBulkDelete}
         onBulkRetry={handleBulkRetry}
         onBulkArchive={handleBulkArchive}
+        customFolders={customFolders}
+        labels={labels}
+        onBulkMove={handleBulkMove}
+        onBulkTag={handleBulkTag}
       />
 
       {/* ─── Detail Drawer ─── */}
@@ -775,6 +806,8 @@ export default function Home() {
         onRetry={handleRetry}
         onSave={handleEditVenta}
         initialEditMode={detailVentaEditMode}
+        customFolders={customFolders}
+        labels={labels}
       />
 
       {/* ─── Add Sale Modal ─── */}

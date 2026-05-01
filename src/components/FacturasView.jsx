@@ -23,6 +23,7 @@ export default function FacturasView({
   onBulkImport,
   onNewVenta,
   activeFilter,
+  labels = [],
 }) {
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
 
@@ -137,6 +138,7 @@ export default function FacturasView({
         onSaveEdit={onSaveEdit}
         onRetry={onRetry}
         onEmit={onEmit}
+        labels={labels}
       />
     </div>
   )

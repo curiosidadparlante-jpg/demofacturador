@@ -1,4 +1,5 @@
 import StatusBadge from './StatusBadge'
+import { LABEL_COLORS } from '../config/colors'
 import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef } from 'react'
@@ -29,6 +30,7 @@ const COLUMN_CONFIG = [
   { id: 'status', label: 'Status', default: true },
   { id: 'factura', label: 'Factura', default: true },
   { id: 'cae', label: 'CAE', default: true },
+  { id: 'etiqueta', label: 'Etiqueta', default: true },
   { id: 'fecha_facturacion', label: 'Fch. Facturación', default: false },
 ];
 
@@ -56,6 +58,19 @@ const PaymentBadge = ({ method }) => {
   )
 }
 
+const EtiquetaBadge = ({ name, labels }) => {
+  if (!name) return null;
+  const label = labels.find(l => l.name === name);
+  const colorObj = LABEL_COLORS.find(c => c.id === label?.colorId) || LABEL_COLORS[0];
+  const color = colorObj.color;
+  return (
+    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-alt border border-border/40 max-w-[120px]">
+      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+      <span className="text-[10px] font-bold text-text-primary truncate uppercase tracking-tighter">{name}</span>
+    </div>
+  )
+}
+
 export default function SalesTable({ 
   ventas, 
   selectedIds, 
@@ -67,7 +82,8 @@ export default function SalesTable({
   onEdit, 
   onSaveEdit, 
   onRetry,
-  onEmit 
+  onEmit,
+  labels = []
 }) {
   const { emisor, isRI } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
@@ -160,6 +176,10 @@ export default function SalesTable({
       case 'origen':
         valA = a.datos_fiscales?.origen || ''
         valB = b.datos_fiscales?.origen || ''
+        break
+      case 'etiqueta':
+        valA = a.etiqueta || ''
+        valB = b.etiqueta || ''
         break
       default:
         return 0
@@ -474,6 +494,7 @@ export default function SalesTable({
                 {isVisible('status') && <SortHeader label="Status" sortField="status" />}
                 {isVisible('factura') && <SortHeader label="Factura" sortField="factura" />}
                 {isVisible('cae') && <SortHeader label="CAE" sortField="cae" />}
+                {isVisible('etiqueta') && <SortHeader label="Etiqueta" sortField="etiqueta" />}
                 <th className="px-4 py-3 text-right bg-surface-alt/30"></th>
               </tr>
             </thead>
@@ -595,8 +616,13 @@ export default function SalesTable({
                             )}
                           </div>
                         ) : (
-                          <span className="text-text-muted text-xs">—</span>
+                          <span className="text-xs text-text-muted tabular-nums font-mono">{venta.cae || '—'}</span>
                         )}
+                      </td>
+                    )}
+                    {isVisible('etiqueta') && (
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <EtiquetaBadge name={venta.etiqueta} labels={labels} />
                       </td>
                     )}
                     {isVisible('fecha_facturacion') && (
