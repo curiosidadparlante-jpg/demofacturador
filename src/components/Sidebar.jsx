@@ -89,7 +89,7 @@ export default function Sidebar({
           <button
             onClick={() => onViewChange('facturas')}
             className={`p-2.5 rounded-lg transition-all cursor-pointer ${activeView === 'facturas' ? 'bg-blue/10 text-blue' : 'text-text-muted hover:bg-surface-alt hover:text-text-primary'}`}
-            title="Facturas"
+            title="Ventas Recibidas"
           >
             <FileText size={18} />
           </button>
@@ -139,7 +139,7 @@ export default function Sidebar({
       <nav className="px-2 mt-1">
         <SidebarItem
           icon={<FileText size={16} />}
-          label="Facturas"
+          label="Ventas Recibidas"
           active={isActive('facturas')}
           onClick={() => onViewChange('facturas')}
         />

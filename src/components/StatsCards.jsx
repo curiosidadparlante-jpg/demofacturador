@@ -5,9 +5,8 @@ import { useConfig } from '../context/ConfigContext'
 import { getMonotributoLimit } from '../utils/afipConstants'
 
 export default function StatsCards({ ventas, onCardClick }) {
-  const [timeframe, setTimeframe] = useState('all') // 'all', 'day', 'week', 'month'
+  const [timeframe, setTimeframe] = useState('all') // 'all', 'year', 'month', 'week', 'day'
   const [showValues, setShowValues] = useState(true)
-  const [isExpanded, setIsExpanded] = useState(true)
 
   const { emisor, isRI } = useConfig()
 
@@ -66,30 +65,7 @@ export default function StatsCards({ ventas, onCardClick }) {
 
   return (
     <div className="space-y-4">
-      {/* Top Bar with Title & Toggle */}
-      <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 group cursor-pointer"
-        >
-          <h2 className="text-[11px] md:text-[13px] font-black text-text-primary uppercase tracking-[0.2em] group-hover:text-accent transition-colors">
-            Resumen
-          </h2>
-          <ChevronDown size={14} className={`text-text-muted group-hover:text-accent transition-all ${isExpanded ? 'rotate-180' : ''}`} />
-        </button>
-        
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-all flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-surface-alt cursor-pointer"
-        >
-          {isExpanded ? 'Ocultar' : 'Mostrar'}
-          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
-      </div>
-
-      {/* Main Collapsible Content */}
-      <div className={`space-y-4 ${isExpanded ? 'block' : 'hidden'}`}>
-        <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
+      <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
           
           {/* Contenedor 1: TERMÓMETRO Y BOTONES (Izquierda) */}
           <div className="lg:w-1/3 flex flex-col justify-center gap-6 lg:pr-8 lg:border-r border-border/50 py-2 h-auto lg:h-[200px]">
@@ -130,26 +106,6 @@ export default function StatsCards({ ventas, onCardClick }) {
               </div>
             )}
 
-            {/* Sector Botones (Archivo / Papelera) */}
-            <div className="flex items-center justify-center gap-4">
-              <button
-                onClick={() => onCardClick('Archivo', archivadasAll, 'all')}
-                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-[#2f5c4d]/10 border border-[#2f5c4d]/20 text-[#2f5c4d] rounded-xl hover:bg-[#2f5c4d]/20 hover:border-[#2f5c4d]/40 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
-                title="Ver Archivo"
-              >
-                <Archive size={16} />
-                <span className="ml-0 sm:ml-2 mt-1 sm:mt-0 text-[10px] font-bold uppercase tracking-widest">Archivo ({archivadasAll.length})</span>
-              </button>
-              
-              <button
-                onClick={() => onCardClick('LISTADO_PAPELERA', borradasAll, 'all')}
-                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-[#c1433c]/10 border border-[#c1433c]/20 text-[#c1433c] rounded-xl hover:bg-[#c1433c]/20 hover:border-[#c1433c]/40 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
-                title="Ver Papelera"
-              >
-                <Trash2 size={16} />
-                <span className="ml-0 sm:ml-2 mt-1 sm:mt-0 text-[10px] font-bold uppercase tracking-widest">Papelera ({borradasAll.length})</span>
-              </button>
-            </div>
           </div>
 
           {/* Contenedor 2: Filtros + Facturado + Botones */}
@@ -160,6 +116,7 @@ export default function StatsCards({ ventas, onCardClick }) {
               <div className="flex p-0.5 bg-surface-alt/50 rounded-lg border border-border/40">
                 {[
                   { id: 'all', label: 'Histórico' },
+                  { id: 'year', label: 'Año Fiscal' },
                   { id: 'month', label: 'Mes' },
                   { id: 'week', label: 'Semana' },
                   { id: 'day', label: 'Día' }
@@ -283,11 +240,10 @@ export default function StatsCards({ ventas, onCardClick }) {
                 </div>
               </div>
 
-            </div>
-          </div>
         </div>
       </div>
     </div>
+  </div>
   )
 }
 

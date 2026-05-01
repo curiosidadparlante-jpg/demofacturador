@@ -29,11 +29,19 @@ export const isThisMonth = (dateString) => {
     date.getFullYear() === today.getFullYear();
 };
 
+export const isThisYear = (dateString) => {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const today = new Date();
+  return date.getFullYear() === today.getFullYear();
+};
+
 export const filterVentasByTimeframe = (ventas, timeframe) => {
   switch (timeframe) {
     case 'day': return ventas.filter(v => isToday(v.fecha));
     case 'week': return ventas.filter(v => isThisWeek(v.fecha));
     case 'month': return ventas.filter(v => isThisMonth(v.fecha));
+    case 'year': return ventas.filter(v => isThisYear(v.fecha));
     default: return ventas; // 'all'
   }
 };
