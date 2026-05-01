@@ -478,7 +478,7 @@ export default function SalesTable({
         </div>
 
         {/* Table Container */}
-        <div className="bg-white rounded-2xl border border-border/40 shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="bg-transparent overflow-hidden">
           <div className="overflow-x-auto min-h-[400px]">
           <table className="w-full text-sm">
             <thead>
