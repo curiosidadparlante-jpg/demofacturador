@@ -97,17 +97,12 @@ export default function StatsCards({ ventas, onCardClick }) {
             <div className="flex-1 flex flex-col justify-center gap-4">
               {!isRI && (
                 <>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
-                        Límite Cat. {category}
-                      </h3>
-                      <div className="font-black text-lg md:text-xl tracking-tight text-text-primary">
-                        {renderMoney(limit)}
-                      </div>
-                    </div>
-                    <div className={`p-2 rounded-lg bg-opacity-10 ${colorClass.split(' ')[1].replace('bg-', 'bg-')}/10`}>
-                      {percentage >= 90 ? <AlertTriangle size={18} className={colorClass.split(' ')[0]} /> : <Activity size={18} className={colorClass.split(' ')[0]} />}
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted">
+                      Límite Cat. {category}
+                    </h3>
+                    <div className="font-black text-[12px] md:text-sm tracking-tight text-text-primary">
+                      {renderMoney(limit)}
                     </div>
                   </div>
 
@@ -138,23 +133,23 @@ export default function StatsCards({ ventas, onCardClick }) {
             </div>
 
             {/* Sector Botones (Archivo / Papelera) */}
-            <div className="flex items-center gap-2 mt-4 shrink-0">
+            <div className="flex-1 flex items-center justify-center gap-4">
               <button
                 onClick={() => onCardClick('Archivo', archivadasAll, 'all')}
-                className="flex-1 flex items-center justify-center h-[38px] px-3 bg-white border border-border/60 rounded-xl hover:bg-blue-subtle text-text-muted hover:text-blue hover:border-blue/30 transition-all cursor-pointer group whitespace-nowrap"
+                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-white border border-border/60 rounded-xl hover:bg-blue-subtle text-text-muted hover:text-blue hover:border-blue/30 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
                 title="Ver Archivo"
               >
-                <Archive size={14} />
-                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Archivo ({archivadasAll.length})</span>
+                <Archive size={16} />
+                <span className="ml-0 sm:ml-2 mt-1 sm:mt-0 text-[10px] font-bold uppercase tracking-widest">Archivo ({archivadasAll.length})</span>
               </button>
               
               <button
                 onClick={() => onCardClick('LISTADO_PAPELERA', borradasAll, 'all')}
-                className="flex-1 flex items-center justify-center h-[38px] px-3 bg-white border border-border/60 rounded-xl hover:bg-red-subtle text-text-muted hover:text-red hover:border-red/30 transition-all cursor-pointer group whitespace-nowrap"
+                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-white border border-border/60 rounded-xl hover:bg-red-subtle text-text-muted hover:text-red hover:border-red/30 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
                 title="Ver Papelera"
               >
-                <Trash2 size={14} />
-                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Papelera ({borradasAll.length})</span>
+                <Trash2 size={16} />
+                <span className="ml-0 sm:ml-2 mt-1 sm:mt-0 text-[10px] font-bold uppercase tracking-widest">Papelera ({borradasAll.length})</span>
               </button>
             </div>
           </div>
