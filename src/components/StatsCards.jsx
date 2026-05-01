@@ -89,7 +89,7 @@ export default function StatsCards({ ventas, onCardClick }) {
 
       {/* Main Collapsible Content */}
       <div className={`space-y-4 ${isExpanded ? 'block' : 'hidden'}`}>
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
           
           {/* Contenedor 1: TERMÓMETRO Y BOTONES (Izquierda) */}
           <div className="lg:w-1/3 flex flex-col justify-center gap-6 lg:pr-8 lg:border-r border-border/50 py-2 h-auto lg:h-[200px]">
