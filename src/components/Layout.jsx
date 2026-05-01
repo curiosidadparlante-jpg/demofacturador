@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import EmisorSetupModal from './EmisorSetupModal'
 import { EMISOR } from '../config/emisor'
 
-export default function Layout({ children, headerActions }) {
+export default function Layout({ children, onSyncMeli, onRecoverCAEs }) {
   const { user, signOut } = useAuth()
   const { emisor, saveConfig } = useConfig()
   const [afipStatus, setAfipStatus] = useState(null)
@@ -52,36 +52,7 @@ export default function Layout({ children, headerActions }) {
             min-w-[200px] lg:min-w-0
           `}>
             {/* AFIP Status Indicator */}
-            {afipStatus && (
-              <div className="flex items-center gap-2 pr-2 border-r border-border min-w-max">
-                <div className={`w-2 h-2 rounded-full ${
-                  afipStatus.connected ? 'bg-green animate-pulse' : 
-                  (afipStatus.tests?.homologacion === 'EXITO' ? 'bg-yellow' : 'bg-red')
-                }`} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">
-                  {afipStatus.connected
-                    ? `AFIP ${afipStatus.mode === 'production' ? 'PROD' : 'HOM'}`
-                    : (afipStatus.tests?.homologacion === 'EXITO' && afipStatus.mode === 'production')
-                      ? 'CERT. PRUEBAS' 
-                      : afipStatus.mode === 'sandbox' ? 'SANDBOX' : 'SIN CONEXIÓN'
-                  }
-                </span>
-              </div>
-            )}
 
-            {/* MercadoLibre / MercadoPago Status Indicator */}
-            <div className="flex flex-col gap-1 pr-3 border-r border-border min-w-max justify-center">
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#FFE100]" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-text-secondary leading-none">M. LIBRE</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#009EE3]" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-text-secondary leading-none">M. PAGO</span>
-              </div>
-            </div>
-
-            {headerActions}
 
             {/* Emisor name + config button */}
             <button
@@ -112,22 +83,52 @@ export default function Layout({ children, headerActions }) {
               {userMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                  <div className="absolute right-0 mt-2 bg-white border border-border/40 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden animate-slide-down py-1">
-                    <button
-                      onClick={() => { alert('Sincronizando con Mercado Libre...'); setUserMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
-                    >
-                      <RefreshCw size={14} className="text-yellow" />
-                      Sincronizar Meli
-                    </button>
-                    
-                    <button
-                      onClick={() => { alert('Recuperando CAEs faltantes...'); setUserMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
-                    >
-                      <Database size={14} className="text-blue" />
-                      Recuperar CAEs
-                    </button>
+                  <div className="absolute right-0 mt-2 bg-white border border-border/40 rounded-xl shadow-xl z-50 min-w-[220px] overflow-hidden animate-slide-down py-1">
+                    {/* Status Indicators Section */}
+                    <div className="px-4 py-3 bg-surface-alt/30 border-b border-border/20">
+                      <h4 className="text-[8px] font-black uppercase tracking-[0.2em] text-text-muted mb-3">Conexiones</h4>
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${afipStatus?.connected ? 'bg-green animate-pulse' : 'bg-red'}`} />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-text-primary">AFIP</span>
+                          </div>
+                          <span className="text-[8px] font-bold text-text-muted uppercase">{afipStatus?.mode === 'production' ? 'Producción' : 'Pruebas'}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-[#FFE100]" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Mercado Libre</span>
+                          </div>
+                          <span className="text-[8px] font-bold text-green uppercase">Online</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-[#009EE3]" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-text-primary">Mercado Pago</span>
+                          </div>
+                          <span className="text-[8px] font-bold text-green uppercase">Online</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="py-1">
+                      <button
+                        onClick={() => { onSyncMeli?.(); setUserMenuOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+                      >
+                        <RefreshCw size={14} className="text-yellow" />
+                        Sincronizar Meli
+                      </button>
+                      
+                      <button
+                        onClick={() => { onRecoverCAEs?.(); setUserMenuOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+                      >
+                        <Database size={14} className="text-blue" />
+                        Recuperar CAEs
+                      </button>
+                    </div>
 
                     <div className="h-px bg-border/20 mx-2 my-1" />
 

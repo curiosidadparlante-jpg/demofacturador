@@ -607,48 +607,13 @@ export default function Home() {
     }
   }
 
-  const headerActions = (
-    <div className="flex items-center gap-2">
-      <div className="flex flex-col gap-1 w-[160px]">
-        <button
-          onClick={handleSync}
-          disabled={isSyncing}
-          className={`
-            flex items-center justify-center gap-1.5 px-3 py-1 rounded-md
-            bg-[#009EE3]/10 border border-[#009EE3]/30
-            text-[#009EE3] text-[9px] font-bold tracking-widest uppercase
-            hover:bg-[#009EE3]/20 hover:border-[#009EE3]/50 hover:shadow-sm
-            transition-all duration-200 cursor-pointer w-full
-            ${isSyncing ? 'opacity-70 cursor-not-allowed' : ''}
-          `}
-          title="Sincronizar ventas de Mercado Libre y Mercado Pago"
-        >
-          <RefreshCw size={10} className={isSyncing ? 'animate-spin' : ''} />
-          <span className="hidden md:inline">{isSyncing ? 'Sincronizando...' : 'Sincronizar MP/ML'}</span>
-        </button>
 
-        <button
-          onClick={handleRecoverAfip}
-          disabled={loading}
-          className="
-            flex items-center justify-center gap-1.5 px-3 py-1 rounded-md
-            bg-green/10 border border-green/30
-            text-green text-[9px] font-bold tracking-widest uppercase
-            hover:bg-green/20 hover:border-green/50 hover:shadow-sm
-            transition-all duration-200 w-full
-            disabled:opacity-50 cursor-pointer
-          "
-          title="Recuperar CAEs perdidos desde AFIP"
-        >
-          <ShieldCheck size={10} />
-          <span className="hidden md:inline">RECUPERAR CAEs</span>
-        </button>
-      </div>
-    </div>
-  )
 
   return (
-    <Layout headerActions={headerActions}>
+    <Layout 
+      onSyncMeli={handleSync}
+      onRecoverCAEs={handleRecoverAfip}
+    >
       <div className="space-y-6">
 
       {/* ─── Error banner ─── */}
