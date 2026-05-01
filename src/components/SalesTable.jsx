@@ -216,7 +216,7 @@ export default function SalesTable({
 
   if (loading) {
     return (
-      <div className="bg-surface border border-border rounded-xl overflow-hidden">
+      <div className="bg-transparent overflow-hidden">
         <div className="p-12 text-center">
           <div className="inline-block w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin mb-3" />
           <p className="text-text-muted text-sm">Cargando ventas...</p>
@@ -227,7 +227,7 @@ export default function SalesTable({
 
   if (!ventas.length) {
     return (
-      <div className="bg-surface border border-border rounded-xl overflow-hidden">
+      <div className="bg-transparent overflow-hidden">
         <div className="p-12 text-center">
           <div className="text-4xl mb-3 opacity-30">📋</div>
           <p className="text-text-secondary text-sm font-medium">No hay ventas que coincidan</p>
