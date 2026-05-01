@@ -1,19 +1,18 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useVentas } from '../hooks/useVentas'
 import { useClientes } from '../hooks/useClientes'
-import StatsCards from '../components/StatsCards'
-import SalesTable from '../components/SalesTable'
 import EmitirFacturaBar from '../components/EmitirFacturaBar'
 import SummaryModal from '../components/SummaryModal'
 import Layout from '../components/Layout'
-import FilterBar from '../components/FilterBar'
 import SaleDetailDrawer from '../components/SaleDetailDrawer'
 import ToastContainer, { createToast } from '../components/ToastContainer'
-import { RefreshCw, Plus, Download, ChevronDown, Trash2, ShieldCheck, Archive, Eye } from 'lucide-react'
 import AddSaleModal from '../components/AddSaleModal'
 import BulkImportModal from '../components/BulkImportModal'
 import { exportToCSV, exportToExcel } from '../utils/exportUtils'
 import { translatePaymentMethod } from '../utils/paymentMethods'
+import FacturasView from '../components/FacturasView'
+import ContableView from '../components/ContableView'
+import GestionView from '../components/GestionView'
 
 export default function Home() {
   const { ventas, setVentas, loading, error, refetch, updateVentaStatus, updateVenta, createVenta, deleteVenta, hardDeleteVenta, archiveVenta, updateVentaEtiqueta, bulkCreateVentas } = useVentas()
@@ -24,6 +23,16 @@ export default function Home() {
   const [bulkImportModalOpen, setBulkImportModalOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
+
+  // ─── View Navigation State ───
+  const [activeView, setActiveView] = useState('facturas')
+  const [activeFilter, setActiveFilter] = useState(null)
+  const [customFolders, setCustomFolders] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cmd_folders') || '[]') } catch { return [] }
+  })
+  const [labels, setLabels] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cmd_labels') || '[]') } catch { return [] }
+  })
   
   // ─── Modal State ───
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -608,100 +617,95 @@ export default function Home() {
   }
 
 
+  // ─── View Navigation ───
+  const handleViewChange = (view, filter = null) => {
+    setActiveView(view)
+    setActiveFilter(filter)
+    if (filter?.type === 'status') {
+      setFilters(prev => ({ ...prev, status: filter.value === 'pendiente' ? 'pendiente' : filter.value }))
+    } else if (!filter) {
+      setFilters(prev => ({ ...prev, status: '' }))
+    }
+  }
+
+  // ─── Filtered ventas for active filter ───
+  const viewFilteredVentas = useMemo(() => {
+    if (!activeFilter) return filteredVentas
+    if (activeFilter.type === 'status') {
+      const st = activeFilter.value
+      return ventas.filter(v => {
+        if (st === 'pendiente') return v.status === 'pendiente' || v.status === 'procesando'
+        if (st === 'archivada') return v.status === 'archivada' || v.status === 'archivado'
+        return v.status === st
+      })
+    }
+    if (activeFilter.type === 'folder') {
+      return ventas.filter(v => v.folder === activeFilter.value)
+    }
+    if (activeFilter.type === 'label') {
+      return ventas.filter(v => v.etiqueta === activeFilter.value)
+    }
+    return filteredVentas
+  }, [activeFilter, filteredVentas, ventas])
+
+  // ─── Folder CRUD ───
+  const handleCreateFolder = (name) => {
+    const folder = { id: Date.now().toString(), name }
+    const updated = [...customFolders, folder]
+    setCustomFolders(updated)
+    localStorage.setItem('cmd_folders', JSON.stringify(updated))
+  }
+  const handleDeleteFolder = (id) => {
+    const updated = customFolders.filter(f => f.id !== id)
+    setCustomFolders(updated)
+    localStorage.setItem('cmd_folders', JSON.stringify(updated))
+  }
+
+  // ─── Label CRUD ───
+  const handleCreateLabel = ({ name, colorId }) => {
+    const label = { id: Date.now().toString(), name, colorId }
+    const updated = [...labels, label]
+    setLabels(updated)
+    localStorage.setItem('cmd_labels', JSON.stringify(updated))
+  }
+  const handleDeleteLabel = (id) => {
+    const updated = labels.filter(l => l.id !== id)
+    setLabels(updated)
+    localStorage.setItem('cmd_labels', JSON.stringify(updated))
+  }
 
   return (
     <Layout 
       onSyncMeli={handleSync}
       onRecoverCAEs={handleRecoverAfip}
+      activeView={activeView}
+      onViewChange={handleViewChange}
+      ventas={ventas}
+      customFolders={customFolders}
+      labels={labels}
+      onCreateFolder={handleCreateFolder}
+      onDeleteFolder={handleDeleteFolder}
+      onCreateLabel={handleCreateLabel}
+      onDeleteLabel={handleDeleteLabel}
+      onNewVenta={() => setAddModalOpen(true)}
+      activeFilter={activeFilter}
     >
-      <div className="space-y-6">
+      <div>
 
       {/* ─── Error banner ─── */}
       {error && (
-        <div className="bg-red-subtle border border-red/20 rounded-xl px-4 py-3 text-red text-sm animate-slide-down">
+        <div className="bg-red-subtle border border-red/20 rounded-xl px-4 py-3 text-red text-sm animate-slide-down mb-6">
           Error cargando ventas: {error}
         </div>
       )}
 
-      {/* ─── Stats ─── */}
-      <StatsCards ventas={ventas} onCardClick={handleCardClick} />
-
-      {/* ─── Table section ─── */}
-      <div className="pt-10 mt-6 border-t border-border/50">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">
-            Lista Facturas
-          </h2>
-          
-          {/* ─── Actions (Right) ─── */}
-          <div className="grid grid-cols-2 md:flex items-center gap-2 w-full md:w-auto">
-              {/* Export dropdown */}
-              <div className="relative w-full md:w-auto">
-                <button
-                  onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#316973]/10 border border-[#316973]/20 text-[#316973] text-[9px] font-bold uppercase tracking-widest hover:bg-[#316973]/20 hover:border-[#316973]/40 transition-all cursor-pointer w-full md:w-auto h-[38px] shadow-sm"
-                >
-                  <Download size={13} />
-                  <span className="truncate">Exportar</span>
-                  <ChevronDown size={12} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {exportMenuOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-                    <div className="absolute right-0 mt-2 bg-white border border-border/40 rounded-xl shadow-xl z-50 min-w-[140px] overflow-hidden animate-slide-down">
-                      <button
-                        onClick={() => handleExportAll('csv')}
-                        className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
-                      >
-                        Archivo CSV
-                      </button>
-                      <div className="h-px bg-border/20 mx-2" />
-                      <button
-                        onClick={() => handleExportAll('xlsx')}
-                        className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
-                      >
-                        Excel (.xlsx)
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <button
-                onClick={() => setBulkImportModalOpen(true)}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#7a4bf0]/10 border border-[#7a4bf0]/20 text-[#7a4bf0] text-[9px] font-bold uppercase tracking-widest hover:bg-[#7a4bf0]/20 hover:border-[#7a4bf0]/40 transition-all cursor-pointer w-full md:w-auto h-[38px] shadow-sm"
-              >
-                <Download size={13} />
-                Carga Masiva
-              </button>
-
-              <button
-                onClick={() => setAddModalOpen(true)}
-                className="
-                  flex items-center justify-center gap-2 px-4 py-2 rounded-xl
-                  bg-[#cfad3b]/10 border border-[#cfad3b]/20 text-[#cfad3b] text-[9px] font-bold uppercase tracking-widest
-                  hover:bg-[#cfad3b]/20 hover:border-[#cfad3b]/40
-                  transition-all duration-300 cursor-pointer w-full md:w-auto h-[38px]
-                  col-span-2 md:col-span-1 shadow-sm
-                "
-              >
-                <Plus size={13} />
-                Nueva Venta
-              </button>
-            </div>
-          </div>
-
-        {/* ─── Filters ─── */}
-        <div className="mb-4">
-          <FilterBar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            totalCount={ventas.length}
-            filteredCount={filteredVentas.length}
-          />
-        </div>
-        <SalesTable
-          ventas={filteredVentas}
+      {/* ─── View Switch ─── */}
+      {activeView === 'facturas' && (
+        <FacturasView
+          ventas={ventas}
+          filteredVentas={viewFilteredVentas}
+          filters={filters}
+          onFilterChange={handleFilterChange}
           selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}
           onToggleAll={handleToggleAll}
@@ -713,14 +717,40 @@ export default function Home() {
           }}
           onEdit={(venta) => {
             setDetailVenta(venta)
-            // Solo entrar en modo edición si NO está facturada
             setDetailVentaEditMode(venta.status !== 'facturado')
           }}
           onSaveEdit={handleEditVenta}
           onRetry={handleRetry}
           onEmit={handleEmitSingleInvoice}
+          onExportAll={(format) => {
+            const data = viewFilteredVentas.length > 0 ? viewFilteredVentas : ventas
+            const filename = `ventas_${new Date().toISOString().split('T')[0]}`
+            if (format === 'csv') exportToCSV(data, filename)
+            else exportToExcel(data, filename)
+            showToast(`${data.length} ventas exportadas a ${format.toUpperCase()}`, 'success')
+          }}
+          onBulkImport={() => setBulkImportModalOpen(true)}
+          onNewVenta={() => setAddModalOpen(true)}
+          activeFilter={activeFilter}
         />
-      </div>
+      )}
+
+      {activeView === 'contable' && (
+        <ContableView ventas={ventas} onCardClick={handleCardClick} />
+      )}
+
+      {activeView === 'gestion' && (
+        <GestionView
+          ventas={ventas}
+          customFolders={customFolders}
+          labels={labels}
+          onCreateFolder={handleCreateFolder}
+          onDeleteFolder={handleDeleteFolder}
+          onCreateLabel={handleCreateLabel}
+          onDeleteLabel={handleDeleteLabel}
+          onNavigate={handleViewChange}
+        />
+      )}
 
       {/* ─── Floating action bar ─── */}
       <EmitirFacturaBar

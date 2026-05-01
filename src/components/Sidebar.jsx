@@ -1,0 +1,371 @@
+import { useState } from 'react'
+import { 
+  Plus, FileText, BarChart3, FolderKanban, 
+  FileCheck, Clock, AlertCircle, Archive, Trash2,
+  FolderPlus, Tag, X, ChevronDown, ChevronUp,
+  PanelLeftClose, PanelLeft
+} from 'lucide-react'
+
+const LABEL_COLORS = [
+  { id: 'red', color: '#C0443C', name: 'Rojo' },
+  { id: 'orange', color: '#E67E22', name: 'Naranja' },
+  { id: 'yellow', color: '#F1C40F', name: 'Amarillo' },
+  { id: 'green', color: '#2D8F5E', name: 'Verde' },
+  { id: 'blue', color: '#3460A8', name: 'Azul' },
+  { id: 'purple', color: '#7C4DFF', name: 'Púrpura' },
+]
+
+export { LABEL_COLORS }
+
+export default function Sidebar({ 
+  activeView, 
+  onViewChange, 
+  ventas = [],
+  customFolders = [],
+  labels = [],
+  onCreateFolder,
+  onDeleteFolder,
+  onCreateLabel,
+  onDeleteLabel,
+  onNewVenta,
+  collapsed,
+  onToggleCollapse,
+  activeFilter,
+}) {
+  const [showNewFolder, setShowNewFolder] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [showNewLabel, setShowNewLabel] = useState(false)
+  const [newLabelName, setNewLabelName] = useState('')
+  const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0].id)
+  const [foldersExpanded, setFoldersExpanded] = useState(true)
+  const [labelsExpanded, setLabelsExpanded] = useState(true)
+
+  // Counts
+  const counts = {
+    facturadas: ventas.filter(v => v.status === 'facturado').length,
+    pendientes: ventas.filter(v => v.status === 'pendiente' || v.status === 'procesando').length,
+    error: ventas.filter(v => v.status === 'error').length,
+    archivadas: ventas.filter(v => v.status === 'archivada' || v.status === 'archivado').length,
+    papelera: ventas.filter(v => v.status === 'borrada').length,
+  }
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      onCreateFolder?.(newFolderName.trim())
+      setNewFolderName('')
+      setShowNewFolder(false)
+    }
+  }
+
+  const handleCreateLabel = () => {
+    if (newLabelName.trim()) {
+      onCreateLabel?.({ name: newLabelName.trim(), colorId: newLabelColor })
+      setNewLabelName('')
+      setNewLabelColor(LABEL_COLORS[0].id)
+      setShowNewLabel(false)
+    }
+  }
+
+  const isActive = (view, filter) => {
+    if (filter) {
+      return activeView === view && activeFilter?.type === filter.type && activeFilter?.value === filter.value
+    }
+    return activeView === view && !activeFilter
+  }
+
+  if (collapsed) {
+    return (
+      <div className="hidden lg:flex flex-col items-center py-4 w-[60px] border-r border-border/40 bg-white/50 shrink-0">
+        <button
+          onClick={onToggleCollapse}
+          className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-alt transition-all cursor-pointer mb-4"
+          title="Expandir menú"
+        >
+          <PanelLeft size={18} />
+        </button>
+
+        <button
+          onClick={onNewVenta}
+          className="w-10 h-10 rounded-full bg-text-primary text-white flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer mb-6"
+          title="Nueva Venta"
+        >
+          <Plus size={18} />
+        </button>
+
+        <div className="flex flex-col items-center gap-1">
+          <button
+            onClick={() => onViewChange('facturas')}
+            className={`p-2.5 rounded-lg transition-all cursor-pointer ${activeView === 'facturas' ? 'bg-blue/10 text-blue' : 'text-text-muted hover:bg-surface-alt hover:text-text-primary'}`}
+            title="Facturas"
+          >
+            <FileText size={18} />
+          </button>
+          <button
+            onClick={() => onViewChange('contable')}
+            className={`p-2.5 rounded-lg transition-all cursor-pointer ${activeView === 'contable' ? 'bg-blue/10 text-blue' : 'text-text-muted hover:bg-surface-alt hover:text-text-primary'}`}
+            title="Contable"
+          >
+            <BarChart3 size={18} />
+          </button>
+          <button
+            onClick={() => onViewChange('gestion')}
+            className={`p-2.5 rounded-lg transition-all cursor-pointer ${activeView === 'gestion' ? 'bg-blue/10 text-blue' : 'text-text-muted hover:bg-surface-alt hover:text-text-primary'}`}
+            title="Gestión"
+          >
+            <FolderKanban size={18} />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-[240px] shrink-0 flex flex-col border-r border-border/40 bg-white/50 overflow-y-auto overflow-x-hidden">
+      
+      {/* Collapse toggle + Compose */}
+      <div className="p-3 flex items-center gap-2">
+        <button
+          onClick={onToggleCollapse}
+          className="hidden lg:flex p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-alt transition-all cursor-pointer"
+          title="Colapsar menú"
+        >
+          <PanelLeftClose size={18} />
+        </button>
+        
+        {/* Compose Button (Gmail style) */}
+        <button
+          onClick={onNewVenta}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-text-primary text-white text-[10px] font-bold uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+        >
+          <Plus size={14} />
+          Nueva Venta
+        </button>
+      </div>
+
+      {/* Main Navigation */}
+      <nav className="px-2 mt-1">
+        <SidebarItem
+          icon={<FileText size={16} />}
+          label="Facturas"
+          active={isActive('facturas')}
+          onClick={() => onViewChange('facturas')}
+        />
+        <SidebarItem
+          icon={<BarChart3 size={16} />}
+          label="Contable"
+          active={isActive('contable')}
+          onClick={() => onViewChange('contable')}
+        />
+        <SidebarItem
+          icon={<FolderKanban size={16} />}
+          label="Gestión"
+          active={isActive('gestion')}
+          onClick={() => onViewChange('gestion')}
+        />
+      </nav>
+
+      {/* Divider */}
+      <div className="h-px bg-border/40 mx-4 my-3" />
+
+      {/* System Folders */}
+      <div className="px-2">
+        <button 
+          onClick={() => setFoldersExpanded(!foldersExpanded)}
+          className="w-full flex items-center justify-between px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+        >
+          Carpetas
+          {foldersExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
+        
+        {foldersExpanded && (
+          <div className="mt-1 space-y-0.5">
+            <SidebarItem
+              icon={<FileCheck size={15} />}
+              label="Facturadas"
+              count={counts.facturadas}
+              active={isActive('facturas', { type: 'status', value: 'facturado' })}
+              onClick={() => onViewChange('facturas', { type: 'status', value: 'facturado' })}
+              color="#2D8F5E"
+            />
+            <SidebarItem
+              icon={<Clock size={15} />}
+              label="Pendientes"
+              count={counts.pendientes}
+              active={isActive('facturas', { type: 'status', value: 'pendiente' })}
+              onClick={() => onViewChange('facturas', { type: 'status', value: 'pendiente' })}
+              color="#F59E0B"
+            />
+            <SidebarItem
+              icon={<AlertCircle size={15} />}
+              label="Error"
+              count={counts.error}
+              active={isActive('facturas', { type: 'status', value: 'error' })}
+              onClick={() => onViewChange('facturas', { type: 'status', value: 'error' })}
+              color="#C0443C"
+              highlight={counts.error > 0}
+            />
+            <SidebarItem
+              icon={<Archive size={15} />}
+              label="Archivo"
+              count={counts.archivadas}
+              active={isActive('facturas', { type: 'status', value: 'archivada' })}
+              onClick={() => onViewChange('facturas', { type: 'status', value: 'archivada' })}
+            />
+            <SidebarItem
+              icon={<Trash2 size={15} />}
+              label="Papelera"
+              count={counts.papelera}
+              active={isActive('facturas', { type: 'status', value: 'borrada' })}
+              onClick={() => onViewChange('facturas', { type: 'status', value: 'borrada' })}
+            />
+
+            {/* Custom Folders */}
+            {customFolders.map(folder => (
+              <div key={folder.id} className="group relative">
+                <SidebarItem
+                  icon={<FolderKanban size={15} />}
+                  label={folder.name}
+                  count={ventas.filter(v => v.folder === folder.id).length}
+                  active={isActive('facturas', { type: 'folder', value: folder.id })}
+                  onClick={() => onViewChange('facturas', { type: 'folder', value: folder.id })}
+                />
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDeleteFolder?.(folder.id) }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 rounded text-text-muted hover:text-red transition-all cursor-pointer"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+
+            {/* Add Folder */}
+            {showNewFolder ? (
+              <div className="px-3 py-2 flex items-center gap-2">
+                <input
+                  autoFocus
+                  value={newFolderName}
+                  onChange={e => setNewFolderName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
+                  placeholder="Nombre..."
+                  className="flex-1 bg-surface-alt border border-border rounded-lg px-2 py-1 text-xs text-text-primary focus:outline-none focus:border-accent"
+                />
+                <button onClick={handleCreateFolder} className="text-green hover:text-green/80 cursor-pointer"><Plus size={14} /></button>
+                <button onClick={() => setShowNewFolder(false)} className="text-text-muted hover:text-red cursor-pointer"><X size={14} /></button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowNewFolder(true)}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold text-text-muted hover:text-text-primary hover:bg-surface-alt rounded-lg transition-all cursor-pointer"
+              >
+                <FolderPlus size={14} />
+                Nueva carpeta
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-border/40 mx-4 my-3" />
+
+      {/* Labels */}
+      <div className="px-2 pb-4">
+        <button 
+          onClick={() => setLabelsExpanded(!labelsExpanded)}
+          className="w-full flex items-center justify-between px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+        >
+          Etiquetas
+          {labelsExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
+
+        {labelsExpanded && (
+          <div className="mt-1 space-y-0.5">
+            {labels.map(label => {
+              const colorObj = LABEL_COLORS.find(c => c.id === label.colorId) || LABEL_COLORS[0]
+              return (
+                <div key={label.id} className="group relative">
+                  <SidebarItem
+                    icon={<div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorObj.color }} />}
+                    label={label.name}
+                    count={ventas.filter(v => v.etiqueta === label.name).length}
+                    active={isActive('facturas', { type: 'label', value: label.name })}
+                    onClick={() => onViewChange('facturas', { type: 'label', value: label.name })}
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDeleteLabel?.(label.id) }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 rounded text-text-muted hover:text-red transition-all cursor-pointer"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )
+            })}
+
+            {/* Add Label */}
+            {showNewLabel ? (
+              <div className="px-3 py-2 space-y-2">
+                <input
+                  autoFocus
+                  value={newLabelName}
+                  onChange={e => setNewLabelName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleCreateLabel()}
+                  placeholder="Nombre etiqueta..."
+                  className="w-full bg-surface-alt border border-border rounded-lg px-2 py-1 text-xs text-text-primary focus:outline-none focus:border-accent"
+                />
+                <div className="flex items-center gap-1.5">
+                  {LABEL_COLORS.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => setNewLabelColor(c.id)}
+                      className={`w-5 h-5 rounded-full transition-all cursor-pointer ${newLabelColor === c.id ? 'ring-2 ring-offset-1 ring-text-primary scale-110' : 'hover:scale-110'}`}
+                      style={{ backgroundColor: c.color }}
+                      title={c.name}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={handleCreateLabel} className="flex-1 text-[10px] font-bold text-white bg-text-primary rounded-lg py-1 cursor-pointer hover:bg-text-primary/90 transition-colors">Crear</button>
+                  <button onClick={() => setShowNewLabel(false)} className="text-[10px] font-bold text-text-muted hover:text-red cursor-pointer px-2">Cancelar</button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowNewLabel(true)}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold text-text-muted hover:text-text-primary hover:bg-surface-alt rounded-lg transition-all cursor-pointer"
+              >
+                <Tag size={14} />
+                Nueva etiqueta
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SidebarItem({ icon, label, count, active, onClick, color, highlight }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[12px] font-semibold transition-all cursor-pointer
+        ${active 
+          ? 'bg-blue/10 text-blue font-bold' 
+          : 'text-text-secondary hover:bg-surface-alt hover:text-text-primary'
+        }
+        ${highlight ? 'font-bold' : ''}
+      `}
+    >
+      <span className={active ? 'text-blue' : (color ? '' : 'text-text-muted')} style={color && !active ? { color } : {}}>
+        {icon}
+      </span>
+      <span className="flex-1 text-left truncate">{label}</span>
+      {count !== undefined && count > 0 && (
+        <span className={`text-[10px] font-bold tabular-nums ${active ? 'text-blue' : 'text-text-muted'}`}>
+          {count}
+        </span>
+      )}
+    </button>
+  )
+}
