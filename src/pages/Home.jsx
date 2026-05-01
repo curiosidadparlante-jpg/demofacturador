@@ -27,6 +27,7 @@ export default function Home() {
   // ─── View Navigation State ───
   const [activeView, setActiveView] = useState('facturas')
   const [activeFilter, setActiveFilter] = useState(null)
+  const [contableTableData, setContableTableData] = useState(null)
   const [customFolders, setCustomFolders] = useState(() => {
     try { return JSON.parse(localStorage.getItem('cmd_folders') || '[]') } catch { return [] }
   })
@@ -151,6 +152,7 @@ export default function Home() {
     if (timeframe === 'day') tfLabel = ' (Hoy)'
     if (timeframe === 'week') tfLabel = ' (Esta Sem)'
     if (timeframe === 'month') tfLabel = ' (Este Mes)'
+    if (timeframe === 'year') tfLabel = ' (Año Fiscal)'
     if (timeframe === 'all') tfLabel = ' (Histórico)'
 
     let mTitle = title;
@@ -158,6 +160,17 @@ export default function Home() {
 
     setModalData({ title: `${mTitle}${tfLabel}`, ventas: filteredVentas })
     setIsModalOpen(true)
+  }
+
+  const handleContableCardClick = (title, filteredVentas, timeframe) => {
+    let tfLabel = ''
+    if (timeframe === 'day') tfLabel = ' (Hoy)'
+    if (timeframe === 'week') tfLabel = ' (Esta Sem)'
+    if (timeframe === 'month') tfLabel = ' (Este Mes)'
+    if (timeframe === 'year') tfLabel = ' (Año Fiscal)'
+    if (timeframe === 'all') tfLabel = ' (Histórico)'
+
+    setContableTableData({ title: `${title}${tfLabel}`, ventas: filteredVentas })
   }
 
   // ─── Selection handlers ───
@@ -763,7 +776,35 @@ export default function Home() {
       )}
 
       {activeView === 'contable' && (
-        <ContableView ventas={ventas} onCardClick={handleCardClick} />
+        <ContableView 
+          ventas={ventas} 
+          onCardClick={handleContableCardClick} 
+          tableData={contableTableData}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onToggleAll={() => {
+            const seleccionables = contableTableData?.ventas || []
+            if (selectedIds.size === seleccionables.length && seleccionables.length > 0) {
+              setSelectedIds(new Set())
+            } else {
+              setSelectedIds(new Set(seleccionables.map(v => String(v.id))))
+            }
+          }}
+          loading={loading}
+          onShowError={(msg) => showToast(msg, 'error')}
+          onRowClick={(venta) => {
+            setDetailVenta(venta)
+            setDetailVentaEditMode(false)
+          }}
+          onEdit={(venta) => {
+            setDetailVenta(venta)
+            setDetailVentaEditMode(venta.status !== 'facturado')
+          }}
+          onSaveEdit={handleEditVenta}
+          onRetry={handleRetry}
+          onEmit={handleEmitSingleInvoice}
+          labels={labels}
+        />
       )}
 
       {activeView === 'gestion' && (
