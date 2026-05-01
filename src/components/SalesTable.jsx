@@ -356,7 +356,7 @@ export default function SalesTable({
       </div>
 
       {/* ─── Desktop Table View (md+) ─── */}
-      <div className="hidden md:block">
+      <div className="hidden md:block bg-white rounded-2xl border border-border/40 shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
         
         {/* Table Toolbar / Pagination & Column Picker (Gmail Style) */}
         <div className="flex items-center justify-between px-2 py-2 border-b border-border/60 gap-2 relative">
