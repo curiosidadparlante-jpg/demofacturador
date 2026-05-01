@@ -1,4 +1,4 @@
-import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle, Archive } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
@@ -17,6 +17,8 @@ export default function StatsCards({ ventas, onCardClick }) {
   const facturadas = activas.filter(v => v.status === 'facturado')
   const conError = activas.filter(v => v.status === 'error')
   const pendientes = activas.filter(v => v.status === 'pendiente' || v.status === 'procesando')
+  const archivadasAll = ventas.filter(v => v.status === 'archivado')
+  const borradasAll = ventas.filter(v => v.status === 'borrada')
 
   const getAmount = (v) => {
     const isCreditNote = [3, 8, 13, 113].includes(v.datos_fiscales?.tipo_cbte);
@@ -89,50 +91,76 @@ export default function StatsCards({ ventas, onCardClick }) {
       <div className={`space-y-4 ${isExpanded ? 'block' : 'hidden'}`}>
         <div className="flex flex-col lg:flex-row gap-6">
           
-          {/* Contenedor 1: TERMÓMETRO (Izquierda) */}
-          {!isRI && (
-            <div className="lg:w-1/3 flex flex-col justify-center gap-4 lg:pr-8 lg:border-r border-border/50 py-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
-                    Límite Cat. {category}
-                  </h3>
-                  <div className="font-black text-lg md:text-xl tracking-tight text-text-primary">
-                    {renderMoney(limit)}
+          {/* Contenedor 1: TERMÓMETRO Y BOTONES (Izquierda) */}
+          <div className="lg:w-1/3 flex flex-col justify-between lg:pr-8 lg:border-r border-border/50 py-2 h-auto lg:h-[200px]">
+            {/* Sector Termómetro (Oculto si es RI) */}
+            <div className="flex-1 flex flex-col justify-center gap-4">
+              {!isRI && (
+                <>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
+                        Límite Cat. {category}
+                      </h3>
+                      <div className="font-black text-lg md:text-xl tracking-tight text-text-primary">
+                        {renderMoney(limit)}
+                      </div>
+                    </div>
+                    <div className={`p-2 rounded-lg bg-opacity-10 ${colorClass.split(' ')[1].replace('bg-', 'bg-')}/10`}>
+                      {percentage >= 90 ? <AlertTriangle size={18} className={colorClass.split(' ')[0]} /> : <Activity size={18} className={colorClass.split(' ')[0]} />}
+                    </div>
                   </div>
-                </div>
-                <div className={`p-2 rounded-lg bg-opacity-10 ${colorClass.split(' ')[1].replace('bg-', 'bg-')}/10`}>
-                  {percentage >= 90 ? <AlertTriangle size={18} className={colorClass.split(' ')[0]} /> : <Activity size={18} className={colorClass.split(' ')[0]} />}
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
-                    Facturado Anual
-                  </span>
-                  <span className={`font-black text-sm ${colorClass.split(' ')[0]}`}>
-                    {percentage.toFixed(1)}%
-                  </span>
-                </div>
-                
-                {/* Progress Bar */}
-                <div className="h-3 w-full bg-surface-alt rounded-full overflow-hidden relative">
-                  <div 
-                    className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`}
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                
-                <div className="text-[9px] font-bold text-text-muted tracking-widest text-right">
-                  {renderMoney(facturacionAnual)}
-                </div>
-              </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-end">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                        Facturado Anual
+                      </span>
+                      <span className={`font-black text-sm ${colorClass.split(' ')[0]}`}>
+                        {percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="h-3 w-full bg-surface-alt rounded-full overflow-hidden relative">
+                      <div 
+                        className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`}
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    
+                    <div className="text-[9px] font-bold text-text-muted tracking-widest text-right">
+                      {renderMoney(facturacionAnual)}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-          )}
+
+            {/* Sector Botones (Archivo / Papelera) */}
+            <div className="flex items-center gap-2 mt-4 shrink-0">
+              <button
+                onClick={() => onCardClick('Archivo', archivadasAll, 'all')}
+                className="flex-1 flex items-center justify-center h-[38px] px-3 bg-white border border-border/60 rounded-xl hover:bg-blue-subtle text-text-muted hover:text-blue hover:border-blue/30 transition-all cursor-pointer group whitespace-nowrap"
+                title="Ver Archivo"
+              >
+                <Archive size={14} />
+                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Archivo ({archivadasAll.length})</span>
+              </button>
+              
+              <button
+                onClick={() => onCardClick('LISTADO_PAPELERA', borradasAll, 'all')}
+                className="flex-1 flex items-center justify-center h-[38px] px-3 bg-white border border-border/60 rounded-xl hover:bg-red-subtle text-text-muted hover:text-red hover:border-red/30 transition-all cursor-pointer group whitespace-nowrap"
+                title="Ver Papelera"
+              >
+                <Trash2 size={14} />
+                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Papelera ({borradasAll.length})</span>
+              </button>
+            </div>
+          </div>
 
           {/* Contenedor 2: Filtros + Facturado + Botones */}
-          <div className={`flex flex-col gap-4 ${!isRI ? 'lg:w-2/3' : 'w-full'}`}>
+          <div className="flex flex-col gap-4 lg:w-2/3">
             
             {/* Selector de Tiempo (Arriba de Facturado) */}
             <div className="flex justify-center lg:justify-start">

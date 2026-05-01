@@ -669,31 +669,8 @@ export default function Home() {
           </h2>
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* ─── Archive & Trash (Left) ─── */}
-            <div className="flex items-center bg-white border border-border/60 rounded-xl p-1 h-[38px] w-full md:w-auto">
-              <button
-                onClick={() => handleCardClick('Archivo', archivadas, 'all')}
-                className="flex-1 flex items-center justify-center h-full px-3 rounded-lg hover:bg-blue-subtle text-text-muted hover:text-blue transition-all cursor-pointer group whitespace-nowrap"
-                title="Ver Archivo"
-              >
-                <Archive size={14} />
-                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Archivo ({archivadas.length})</span>
-              </button>
-              
-              <div className="w-px h-5 bg-border/40" />
-              
-              <button
-                onClick={() => handleCardClick('LISTADO_PAPELERA', borradas, 'all')}
-                className="flex-1 flex items-center justify-center h-full px-3 rounded-lg hover:bg-red-subtle text-text-muted hover:text-red transition-all cursor-pointer group whitespace-nowrap"
-                title="Ver Papelera"
-              >
-                <Trash2 size={14} />
-                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest">Papelera ({borradas.length})</span>
-              </button>
-            </div>
-
             {/* ─── Actions (Right) ─── */}
-            <div className="grid grid-cols-2 md:flex items-center gap-2 w-full md:w-auto">
+            <div className="grid grid-cols-2 md:flex items-center gap-2 w-full md:w-auto ml-auto">
               {/* Export dropdown */}
               <div className="relative w-full md:w-auto">
                 <button
