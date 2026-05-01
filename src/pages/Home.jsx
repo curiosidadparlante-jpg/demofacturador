@@ -725,7 +725,6 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </div>
 
         {/* ─── Filters ─── */}
         <div className="mb-4">
