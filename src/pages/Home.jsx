@@ -170,7 +170,7 @@ export default function Home() {
     if (timeframe === 'year') tfLabel = ' (Año Fiscal)'
     if (timeframe === 'all') tfLabel = ' (Histórico)'
 
-    setContableTableData({ title: `${title}${tfLabel}`, ventas: filteredVentas })
+    setContableTableData({ title: `${title}${tfLabel}`, baseTitle: title, ventas: filteredVentas })
   }
 
   // ─── Selection handlers ───
