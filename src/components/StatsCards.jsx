@@ -92,48 +92,46 @@ export default function StatsCards({ ventas, onCardClick }) {
         <div className="flex flex-col lg:flex-row gap-6">
           
           {/* Contenedor 1: TERMÓMETRO Y BOTONES (Izquierda) */}
-          <div className="lg:w-1/3 flex flex-col justify-between lg:pr-8 lg:border-r border-border/50 py-2 h-auto lg:h-[200px]">
+          <div className="lg:w-1/3 flex flex-col justify-center gap-6 lg:pr-8 lg:border-r border-border/50 py-2 h-auto lg:h-[200px]">
             {/* Sector Termómetro (Oculto si es RI) */}
-            <div className="flex-1 flex flex-col justify-center gap-4">
-              {!isRI && (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted">
-                      Límite Cat. {category}
-                    </h3>
-                    <div className="font-black text-[12px] md:text-sm tracking-tight text-text-primary">
-                      {renderMoney(limit)}
-                    </div>
+            {!isRI && (
+              <div className="flex flex-col justify-center gap-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted">
+                    Límite Cat. {category}
+                  </h3>
+                  <div className="font-black text-[12px] md:text-sm tracking-tight text-text-primary">
+                    {renderMoney(limit)}
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
-                        Facturado Anual
-                      </span>
-                      <span className={`font-black text-sm ${colorClass.split(' ')[0]}`}>
-                        {percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="h-3 w-full bg-surface-alt rounded-full overflow-hidden relative">
-                      <div 
-                        className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    
-                    <div className="text-[9px] font-bold text-text-muted tracking-widest text-right">
-                      {renderMoney(facturacionAnual)}
-                    </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                      Facturado Anual
+                    </span>
+                    <span className={`font-black text-sm ${colorClass.split(' ')[0]}`}>
+                      {percentage.toFixed(1)}%
+                    </span>
                   </div>
-                </>
-              )}
-            </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="h-3 w-full bg-surface-alt rounded-full overflow-hidden relative">
+                    <div 
+                      className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`}
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  
+                  <div className="text-[9px] font-bold text-text-muted tracking-widest text-right">
+                    {renderMoney(facturacionAnual)}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Sector Botones (Archivo / Papelera) */}
-            <div className="flex-1 flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4">
               <button
                 onClick={() => onCardClick('Archivo', archivadasAll, 'all')}
                 className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-white border border-border/60 rounded-xl hover:bg-blue-subtle text-text-muted hover:text-blue hover:border-blue/30 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
