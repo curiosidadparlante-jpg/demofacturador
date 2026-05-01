@@ -1,10 +1,11 @@
 import StatusBadge from './StatusBadge'
 import { LABEL_COLORS } from '../config/colors'
-import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText } from 'lucide-react'
+import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef } from 'react'
 import { useConfig } from '../context/ConfigContext'
 import { translatePaymentMethod, getPaymentBadgeStyle } from '../utils/paymentMethods'
+import { exportToExcel } from '../utils/exportUtils'
 
 const PAGE_SIZES = [25, 50, 100]
 
@@ -382,7 +383,13 @@ export default function SalesTable({
         <div className="flex items-center justify-between px-2 py-2 border-b border-border/60 gap-2 relative">
           
           <div className="flex items-center gap-3">
-             {/* Future bulk actions can go here (Gmail top-left actions) */}
+            <button
+              onClick={() => exportToExcel(sortedVentas)}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#316973] hover:bg-[#316973]/10 transition-all cursor-pointer"
+            >
+              <Download size={14} />
+              Exportar
+            </button>
           </div>
 
           <div className="flex items-center gap-6">
