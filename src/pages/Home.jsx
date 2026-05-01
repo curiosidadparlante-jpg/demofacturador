@@ -627,7 +627,7 @@ export default function Home() {
       <StatsCards ventas={ventas} onCardClick={handleCardClick} />
 
       {/* ─── Table section ─── */}
-      <div className="pt-12">
+      <div className="pt-10 mt-6 border-t border-border/50">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">
             Lista Facturas
