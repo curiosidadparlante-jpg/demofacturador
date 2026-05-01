@@ -1,4 +1,4 @@
-import { LogOut, Settings, Menu, X } from 'lucide-react'
+import { LogOut, Settings, Menu, X, ChevronDown, RefreshCw, Database, User } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useConfig } from '../context/ConfigContext'
 import { useState, useEffect } from 'react'
@@ -11,6 +11,7 @@ export default function Layout({ children, headerActions }) {
   const [afipStatus, setAfipStatus] = useState(null)
   const [configOpen, setConfigOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   useEffect(() => {
     // Mock AFIP status for the demo
@@ -94,23 +95,53 @@ export default function Layout({ children, headerActions }) {
             </button>
 
             <div className="w-full h-[1px] md:w-[1px] md:h-4 bg-border"></div>
-            <a 
-              href="https://wa.me/5491178959108" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs font-semibold text-text-secondary hover:text-accent transition-colors truncate max-w-[200px]"
-            >
-               {user?.email || 'usuario'}
-            </a>
-            <div className="w-full h-[1px] md:w-[1px] md:h-4 bg-border"></div>
-            <button
-              onClick={signOut}
-              className="text-text-muted hover:text-card-red transition-colors cursor-pointer flex items-center gap-2"
-              title="Cerrar sesión"
-            >
-              <span className="text-xs font-bold uppercase tracking-widest">Salir</span>
-              <LogOut size={16} />
-            </button>
+            
+            {/* User Dropdown Menu */}
+            <div className="relative">
+              <button 
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 text-xs font-semibold text-text-secondary hover:text-accent transition-colors cursor-pointer group py-1"
+              >
+                <div className="w-6 h-6 rounded-full bg-surface-alt flex items-center justify-center text-text-muted group-hover:bg-accent/10 group-hover:text-accent transition-all">
+                  <User size={14} />
+                </div>
+                <span className="truncate max-w-[150px]">{user?.email || 'Usuario'}</span>
+                <ChevronDown size={12} className={`transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {userMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                  <div className="absolute right-0 mt-2 bg-white border border-border/40 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden animate-slide-down py-1">
+                    <button
+                      onClick={() => { alert('Sincronizando con Mercado Libre...'); setUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+                    >
+                      <RefreshCw size={14} className="text-yellow" />
+                      Sincronizar Meli
+                    </button>
+                    
+                    <button
+                      onClick={() => { alert('Recuperando CAEs faltantes...'); setUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+                    >
+                      <Database size={14} className="text-blue" />
+                      Recuperar CAEs
+                    </button>
+
+                    <div className="h-px bg-border/20 mx-2 my-1" />
+
+                    <button
+                      onClick={() => { setUserMenuOpen(false); signOut(); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-card-red hover:bg-red-subtle transition-colors cursor-pointer"
+                    >
+                      <LogOut size={14} />
+                      Salir
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
