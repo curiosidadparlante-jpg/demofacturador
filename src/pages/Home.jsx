@@ -662,15 +662,14 @@ export default function Home() {
       <StatsCards ventas={ventas} onCardClick={handleCardClick} />
 
       {/* ─── Table section ─── */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-text-primary uppercase tracking-tight mb-4">
+      <div className="pt-12">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">
             Lista Facturas
           </h2>
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* ─── Actions (Right) ─── */}
-            <div className="grid grid-cols-2 md:flex items-center gap-2 w-full md:w-auto ml-auto">
+          {/* ─── Actions (Right) ─── */}
+          <div className="grid grid-cols-2 md:flex items-center gap-2 w-full md:w-auto">
               {/* Export dropdown */}
               <div className="relative w-full md:w-auto">
                 <button
