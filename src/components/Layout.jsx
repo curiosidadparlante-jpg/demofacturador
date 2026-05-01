@@ -201,7 +201,7 @@ export default function Layout({
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto px-4 md:px-8 py-6 pb-20">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             {children}
           </div>
 
