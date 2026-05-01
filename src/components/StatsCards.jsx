@@ -134,19 +134,19 @@ export default function StatsCards({ ventas, onCardClick }) {
             <div className="flex items-center justify-center gap-4">
               <button
                 onClick={() => onCardClick('Archivo', archivadasAll, 'all')}
-                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-[#2f5c4d] text-white rounded-xl hover:bg-[#2f5c4d]/90 hover:-translate-y-0.5 transition-all cursor-pointer group whitespace-nowrap shadow-md"
+                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-[#2f5c4d]/10 border border-[#2f5c4d]/20 text-[#2f5c4d] rounded-xl hover:bg-[#2f5c4d]/20 hover:border-[#2f5c4d]/40 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
                 title="Ver Archivo"
               >
-                <Archive size={16} className="text-white/90" />
+                <Archive size={16} />
                 <span className="ml-0 sm:ml-2 mt-1 sm:mt-0 text-[10px] font-bold uppercase tracking-widest">Archivo ({archivadasAll.length})</span>
               </button>
               
               <button
                 onClick={() => onCardClick('LISTADO_PAPELERA', borradasAll, 'all')}
-                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-[#c1433c] text-white rounded-xl hover:bg-[#c1433c]/90 hover:-translate-y-0.5 transition-all cursor-pointer group whitespace-nowrap shadow-md"
+                className="flex flex-col sm:flex-row items-center justify-center h-[44px] px-5 bg-[#c1433c]/10 border border-[#c1433c]/20 text-[#c1433c] rounded-xl hover:bg-[#c1433c]/20 hover:border-[#c1433c]/40 transition-all cursor-pointer group whitespace-nowrap shadow-sm"
                 title="Ver Papelera"
               >
-                <Trash2 size={16} className="text-white/90" />
+                <Trash2 size={16} />
                 <span className="ml-0 sm:ml-2 mt-1 sm:mt-0 text-[10px] font-bold uppercase tracking-widest">Papelera ({borradasAll.length})</span>
               </button>
             </div>

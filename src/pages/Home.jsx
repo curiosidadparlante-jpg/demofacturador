@@ -639,11 +639,11 @@ export default function Home() {
               <div className="relative w-full md:w-auto">
                 <button
                   onClick={() => setExportMenuOpen(!exportMenuOpen)}
-                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#316973] text-white text-[9px] font-bold uppercase tracking-widest md:hover:-translate-y-0.5 md:hover:shadow-md hover:bg-[#316973]/90 transition-all cursor-pointer w-full md:w-auto h-[38px] shadow-sm border-none"
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#316973]/10 border border-[#316973]/20 text-[#316973] text-[9px] font-bold uppercase tracking-widest hover:bg-[#316973]/20 hover:border-[#316973]/40 transition-all cursor-pointer w-full md:w-auto h-[38px] shadow-sm"
                 >
-                  <Download size={13} className="text-white/90" />
+                  <Download size={13} />
                   <span className="truncate">Exportar</span>
-                  <ChevronDown size={12} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''} text-white/90`} />
+                  <ChevronDown size={12} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {exportMenuOpen && (
                   <>
@@ -669,9 +669,9 @@ export default function Home() {
 
               <button
                 onClick={() => setBulkImportModalOpen(true)}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#7a4bf0] text-white text-[9px] font-bold uppercase tracking-widest md:hover:-translate-y-0.5 md:hover:shadow-md hover:bg-[#7a4bf0]/90 transition-all cursor-pointer w-full md:w-auto h-[38px] shadow-sm border-none"
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#7a4bf0]/10 border border-[#7a4bf0]/20 text-[#7a4bf0] text-[9px] font-bold uppercase tracking-widest hover:bg-[#7a4bf0]/20 hover:border-[#7a4bf0]/40 transition-all cursor-pointer w-full md:w-auto h-[38px] shadow-sm"
               >
-                <Download size={13} className="text-white/90" />
+                <Download size={13} />
                 Carga Masiva
               </button>
 
@@ -679,13 +679,13 @@ export default function Home() {
                 onClick={() => setAddModalOpen(true)}
                 className="
                   flex items-center justify-center gap-2 px-4 py-2 rounded-xl
-                  bg-[#cfad3b] text-white text-[9px] font-bold uppercase tracking-widest
-                  md:hover:-translate-y-0.5 hover:shadow-md hover:bg-[#cfad3b]/90
+                  bg-[#cfad3b]/10 border border-[#cfad3b]/20 text-[#cfad3b] text-[9px] font-bold uppercase tracking-widest
+                  hover:bg-[#cfad3b]/20 hover:border-[#cfad3b]/40
                   transition-all duration-300 cursor-pointer w-full md:w-auto h-[38px]
-                  col-span-2 md:col-span-1 shadow-sm border-none
+                  col-span-2 md:col-span-1 shadow-sm
                 "
               >
-                <Plus size={13} className="text-white/90" />
+                <Plus size={13} />
                 Nueva Venta
               </button>
             </div>
