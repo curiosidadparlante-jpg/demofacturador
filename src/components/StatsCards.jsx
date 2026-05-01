@@ -87,39 +87,11 @@ export default function StatsCards({ ventas, onCardClick }) {
 
       {/* Main Collapsible Content */}
       <div className={`space-y-4 ${isExpanded ? 'block' : 'hidden'}`}>
-        
-        {/* Subtle Timeframe Toggle (Now inside) */}
-        <div className="flex justify-center md:justify-start mb-2">
-          <div className="flex p-0.5 bg-surface-alt/50 rounded-lg border border-border/40">
-            {[
-              { id: 'all', label: 'Histórico' },
-              { id: 'month', label: 'Mes' },
-              { id: 'week', label: 'Semana' },
-              { id: 'day', label: 'Día' }
-            ].map((option) => (
-              <button
-                key={option.id}
-                onClick={() => setTimeframe(option.id)}
-                className={`
-                  px-3 py-1 rounded-md text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer
-                  ${timeframe === option.id 
-                    ? 'bg-white text-text-primary shadow-sm ring-1 ring-black/5' 
-                    : 'text-text-muted hover:text-text-primary hover:bg-white/40'
-                  }
-                `}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Grid Layout for Cards */}
-        <div className="flex flex-col lg:flex-row gap-4 lg:h-[200px]">
+        <div className="flex flex-col lg:flex-row gap-6">
           
-          {/* 1. TERMÓMETRO (Izquierda) */}
+          {/* Contenedor 1: TERMÓMETRO (Izquierda) */}
           {!isRI && (
-            <div className="lg:flex-1 flex flex-col justify-center gap-4 lg:pr-8 lg:border-r border-border/50 py-2">
+            <div className="lg:w-1/3 flex flex-col justify-center gap-4 lg:pr-8 lg:border-r border-border/50 py-2">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-bold uppercase tracking-[0.1em] text-[10px] text-text-muted mb-1">
@@ -159,105 +131,139 @@ export default function StatsCards({ ventas, onCardClick }) {
             </div>
           )}
 
-          {/* 2. FACTURADO (Centro) */}
-          <div
-            onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
-            className={`${isRI ? 'lg:flex-[2]' : 'lg:flex-1'} relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]`}
-          >
-            {/* Decorative Waves (Subtle) */}
-            <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
-              <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
-              </svg>
+          {/* Contenedor 2: Filtros + Facturado + Botones */}
+          <div className={`flex flex-col gap-4 ${!isRI ? 'lg:w-2/3' : 'w-full'}`}>
+            
+            {/* Selector de Tiempo (Arriba de Facturado) */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="flex p-0.5 bg-surface-alt/50 rounded-lg border border-border/40">
+                {[
+                  { id: 'all', label: 'Histórico' },
+                  { id: 'month', label: 'Mes' },
+                  { id: 'week', label: 'Semana' },
+                  { id: 'day', label: 'Día' }
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => setTimeframe(option.id)}
+                    className={`
+                      px-3 py-1 rounded-md text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer
+                      ${timeframe === option.id 
+                        ? 'bg-white text-text-primary shadow-sm ring-1 ring-black/5' 
+                        : 'text-text-muted hover:text-text-primary hover:bg-white/40'
+                      }
+                    `}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            
-            <button 
-              onClick={handleToggleValues}
-              className="absolute top-4 right-4 text-text-muted/60 hover:text-text-primary transition-colors p-2 rounded-full hover:bg-surface-alt z-10 cursor-pointer"
-            >
-              {showValues ? <Eye size={16} /> : <EyeOff size={16} />}
-            </button>
-            
-            <div className="bg-green/10 w-10 h-10 flex items-center justify-center rounded-full mb-3 group-hover:scale-110 transition-transform">
-              <TrendingUp size={18} className="text-green" />
-            </div>
-            
-            <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
-              Facturado {timeframe === 'all' ? '(Histórico)' : timeframe === 'month' ? '(Este Mes)' : timeframe === 'week' ? '(Esta Sem)' : '(Hoy)'}
-            </h3>
-            
-            <div className="font-black text-2xl md:text-3xl lg:text-4xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
-              {renderMoney(facturadasAmount)}
-            </div>
-            
-            <div className="font-semibold text-[10px] text-green bg-green-subtle px-3 py-1 rounded-full uppercase tracking-wider">
-              {facturadas.length} {facturadas.length === 1 ? 'exitosa' : 'exitosas'}
-            </div>
-          </div>
 
-          {/* 3. STACK OF 3 MINI CARDS (Derecha) */}
-          <div className="lg:flex-1 flex justify-center items-center h-auto lg:h-[200px]">
-            <div className="flex flex-row lg:flex-col justify-center items-center gap-2 w-full lg:w-full">
+            {/* Layout Interno: Facturado y 3 Minibotones */}
+            <div className="flex flex-col lg:flex-row gap-4 lg:h-[200px]">
               
-              {/* Total Ventas */}
-              <button
-                onClick={() => onCardClick('Total Ventas', activas, timeframe)}
-                className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+              {/* FACTURADO (Centro-Izquierda) */}
+              <div
+                onClick={() => onCardClick('Facturadas', facturadas, timeframe)}
+                className="lg:flex-[2] relative bg-white border border-border rounded-2xl p-4 md:p-5 flex flex-col justify-center items-center text-center transition-all duration-300 hover:border-green hover:shadow-sm outline-none group cursor-pointer overflow-hidden min-h-[140px]"
               >
-                <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Total<br className="hidden md:block"/> Movim.</div>
+                {/* Decorative Waves (Subtle) */}
+                <div className="absolute left-8 bottom-6 w-24 h-12 opacity-10 pointer-events-none hidden md:block">
+                  <svg viewBox="0 0 100 50" className="w-full h-full stroke-green fill-green/20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M0,50 L20,50 L30,10 L40,50 L50,50 L60,10 L70,50 L100,50" />
+                  </svg>
+                </div>
                 
-                <div className="flex items-center justify-center gap-1.5 md:contents">
-                  <div className="font-black text-xl md:text-2xl text-text-primary tracking-tighter text-center">{activas.length}</div>
-                  <div className="md:hidden text-blue/60">
-                     <Activity size={10} />
-                  </div>
-                </div>
-
-                <div className="hidden md:flex items-center gap-2 justify-end">
-                   <div className="font-medium text-[9px] md:text-[10px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
-                </div>
-              </button>
-
-              {/* Pendientes */}
-              <button
-                onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
-                className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
-              >
-                <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Pendiente<br className="hidden md:block"/> Cobro</div>
+                <button 
+                  onClick={handleToggleValues}
+                  className="absolute top-4 right-4 text-text-muted/60 hover:text-text-primary transition-colors p-2 rounded-full hover:bg-surface-alt z-10 cursor-pointer"
+                >
+                  {showValues ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
                 
-                <div className="flex items-center justify-center gap-1.5 md:contents">
-                  <div className="font-black text-xl md:text-2xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
-                  <div className="md:hidden text-amber-500/60">
-                     <Clock size={10} />
-                  </div>
+                <div className="bg-green/10 w-10 h-10 flex items-center justify-center rounded-full mb-3 group-hover:scale-110 transition-transform">
+                  <TrendingUp size={18} className="text-green" />
                 </div>
-
-                <div className="hidden md:flex items-center gap-2 justify-end">
-                   <div className="font-medium text-[9px] md:text-[10px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
-                </div>
-              </button>
-
-              {/* Con Error */}
-              <button
-                onClick={() => onCardClick('Con Error', conError, timeframe)}
-                className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
-              >
-                <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Errores<br className="hidden md:block"/> AFIP</div>
                 
-                <div className="flex items-center justify-center gap-1.5 md:contents">
-                  <div className="font-black text-xl md:text-2xl text-red tracking-tighter text-center">{conError.length}</div>
-                  <div className="md:hidden text-red/60">
-                     <AlertCircle size={10} />
-                  </div>
+                <h3 className="font-bold uppercase tracking-[0.1em] text-[11px] md:text-[12px] text-text-primary/90 mb-1">
+                  Total Facturado
+                </h3>
+                
+                <div className="font-black text-2xl md:text-3xl lg:text-4xl tracking-tighter text-green mb-2 md:mb-3 transition-all">
+                  {renderMoney(facturadasAmount)}
                 </div>
+                
+                <div className="font-semibold text-[10px] text-green bg-green-subtle px-3 py-1 rounded-full uppercase tracking-wider">
+                  {facturadas.length} {facturadas.length === 1 ? 'exitosa' : 'exitosas'}
+                </div>
+              </div>
 
-                <div className="hidden md:flex items-center gap-2 justify-end">
-                   <div className="font-medium text-[9px] md:text-[10px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
+              {/* 3 MINI CARDS (Centro-Derecha) */}
+              <div className="lg:flex-1 flex justify-center items-center h-auto lg:h-[200px]">
+                <div className="flex flex-row lg:flex-col justify-center items-center gap-2 w-full lg:w-full">
+                  
+                  {/* Total Ventas */}
+                  <button
+                    onClick={() => onCardClick('Total Ventas', activas, timeframe)}
+                    className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-blue outline-none cursor-pointer group"
+                  >
+                    <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Total<br className="hidden md:block"/> Movim.</div>
+                    
+                    <div className="flex items-center justify-center gap-1.5 md:contents">
+                      <div className="font-black text-xl md:text-2xl text-text-primary tracking-tighter text-center">{activas.length}</div>
+                      <div className="md:hidden text-blue/60">
+                         <Activity size={10} />
+                      </div>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-2 justify-end">
+                       <div className="font-medium text-[9px] md:text-[10px] text-text-secondary tracking-tight">{renderMoney(totalActivasAmount)}</div>
+                    </div>
+                  </button>
+
+                  {/* Pendientes */}
+                  <button
+                    onClick={() => onCardClick('Pendientes', pendientes, timeframe)}
+                    className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-amber-400 outline-none cursor-pointer group"
+                  >
+                    <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Pendiente<br className="hidden md:block"/> Cobro</div>
+                    
+                    <div className="flex items-center justify-center gap-1.5 md:contents">
+                      <div className="font-black text-xl md:text-2xl text-text-primary tracking-tighter text-center">{pendientes.length}</div>
+                      <div className="md:hidden text-amber-500/60">
+                         <Clock size={10} />
+                      </div>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-2 justify-end">
+                       <div className="font-medium text-[9px] md:text-[10px] text-text-secondary tracking-tight">{renderMoney(pendientesAmount)}</div>
+                    </div>
+                  </button>
+
+                  {/* Con Error */}
+                  <button
+                    onClick={() => onCardClick('Con Error', conError, timeframe)}
+                    className="flex-1 w-full min-h-0 bg-white border border-border rounded-xl px-2 md:px-4 py-2 md:py-3 flex flex-col md:grid md:grid-cols-[70px_1fr_auto] items-center gap-1 md:gap-4 transition-all duration-300 hover:shadow-sm hover:border-red outline-none cursor-pointer group"
+                  >
+                    <div className="font-bold uppercase text-[8px] md:text-[10px] text-text-muted tracking-widest leading-tight text-center md:text-left">Errores<br className="hidden md:block"/> AFIP</div>
+                    
+                    <div className="flex items-center justify-center gap-1.5 md:contents">
+                      <div className="font-black text-xl md:text-2xl text-red tracking-tighter text-center">{conError.length}</div>
+                      <div className="md:hidden text-red/60">
+                         <AlertCircle size={10} />
+                      </div>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-2 justify-end">
+                       <div className="font-medium text-[9px] md:text-[10px] text-red opacity-80 tracking-tight">{renderMoney(conErrorAmount)}</div>
+                    </div>
+                  </button>
                 </div>
-              </button>
+              </div>
+
             </div>
           </div>
-
         </div>
       </div>
     </div>
