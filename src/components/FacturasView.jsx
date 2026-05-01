@@ -24,6 +24,7 @@ export default function FacturasView({
   onNewVenta,
   activeFilter,
   labels = [],
+  customFolders = [],
 }) {
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
 
@@ -139,6 +140,7 @@ export default function FacturasView({
         onRetry={onRetry}
         onEmit={onEmit}
         labels={labels}
+        customFolders={customFolders}
       />
     </div>
   )

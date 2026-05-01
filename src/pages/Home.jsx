@@ -772,6 +772,7 @@ export default function Home() {
           onNewVenta={() => setAddModalOpen(true)}
           activeFilter={activeFilter}
           labels={labels}
+          customFolders={customFolders}
         />
       )}
 
@@ -804,6 +805,7 @@ export default function Home() {
           onRetry={handleRetry}
           onEmit={handleEmitSingleInvoice}
           labels={labels}
+          customFolders={customFolders}
         />
       )}
 

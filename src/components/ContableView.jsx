@@ -15,7 +15,8 @@ export default function ContableView({
   onSaveEdit,
   onRetry,
   onEmit,
-  labels
+  labels,
+  customFolders = [],
 }) {
   return (
     <div className="space-y-6">
@@ -45,6 +46,7 @@ export default function ContableView({
             onRetry={onRetry}
             onEmit={onEmit}
             labels={labels}
+            customFolders={customFolders}
           />
         </div>
       )}

@@ -1,8 +1,8 @@
 import StatusBadge from './StatusBadge'
 import { LABEL_COLORS } from '../config/colors'
-import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download } from 'lucide-react'
+import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download, Archive, Tag, FolderInput, ChevronRight as ChevronRightSub } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
-import { useState, Fragment, useEffect, useRef } from 'react'
+import { useState, Fragment, useEffect, useRef, useCallback } from 'react'
 import { useConfig } from '../context/ConfigContext'
 import { translatePaymentMethod, getPaymentBadgeStyle } from '../utils/paymentMethods'
 import { exportToExcel } from '../utils/exportUtils'
@@ -84,7 +84,8 @@ export default function SalesTable({
   onSaveEdit, 
   onRetry,
   onEmit,
-  labels = []
+  labels = [],
+  customFolders = [],
 }) {
   const { emisor, isRI } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
@@ -108,19 +109,87 @@ export default function SalesTable({
   const [showColumnPicker, setShowColumnPicker] = useState(false);
   const pickerRef = useRef(null);
 
+  // ─── Context Menu State ───
+  const [ctxMenu, setCtxMenu] = useState(null); // { x, y, venta }
+  const [ctxSub, setCtxSub] = useState(null); // 'labels' | 'folders' | null
+  const longPressTimer = useRef(null);
+  const ctxMenuRef = useRef(null);
+
+  const closeCtxMenu = useCallback(() => {
+    setCtxMenu(null);
+    setCtxSub(null);
+  }, []);
+
+  // Desktop: right-click
+  const handleContextMenu = useCallback((e, venta) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCtxMenu({ x: e.clientX, y: e.clientY, venta });
+    setCtxSub(null);
+  }, []);
+
+  // Mobile: long press
+  const handleTouchStart = useCallback((e, venta) => {
+    longPressTimer.current = setTimeout(() => {
+      const touch = e.touches[0];
+      setCtxMenu({ x: touch.clientX, y: touch.clientY, venta });
+      setCtxSub(null);
+    }, 500);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleTouchMove = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  // Context menu actions
+  const handleCtxArchive = useCallback(() => {
+    if (ctxMenu?.venta && onSaveEdit) {
+      onSaveEdit(ctxMenu.venta.id, { status: 'archivada' });
+    }
+    closeCtxMenu();
+  }, [ctxMenu, onSaveEdit, closeCtxMenu]);
+
+  const handleCtxLabel = useCallback((labelName) => {
+    if (ctxMenu?.venta && onSaveEdit) {
+      onSaveEdit(ctxMenu.venta.id, { etiqueta: labelName });
+    }
+    closeCtxMenu();
+  }, [ctxMenu, onSaveEdit, closeCtxMenu]);
+
+  const handleCtxMove = useCallback((folderId) => {
+    if (ctxMenu?.venta && onSaveEdit) {
+      onSaveEdit(ctxMenu.venta.id, { folder: folderId });
+    }
+    closeCtxMenu();
+  }, [ctxMenu, onSaveEdit, closeCtxMenu]);
+
   useEffect(() => {
     localStorage.setItem('salesTableVisibleColumns', JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
+  // Close pickers/menus on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (pickerRef.current && !pickerRef.current.contains(event.target)) {
         setShowColumnPicker(false);
       }
+      if (ctxMenuRef.current && !ctxMenuRef.current.contains(event.target)) {
+        closeCtxMenu();
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [closeCtxMenu]);
 
   const toggleColumn = (columnId) => {
     setVisibleColumns(prev => 
@@ -270,11 +339,16 @@ export default function SalesTable({
             <div 
               key={venta.id}
               onClick={() => handleRowClick(venta)}
+              onContextMenu={(e) => handleContextMenu(e, venta)}
+              onTouchStart={(e) => handleTouchStart(e, venta)}
+              onTouchEnd={handleTouchEnd}
+              onTouchMove={handleTouchMove}
               className={`
-                bg-white border border-border rounded-2xl p-4 transition-all active:scale-[0.98]
+                bg-white border border-border rounded-2xl p-4 transition-all active:scale-[0.98] select-none
                 ${isSelected ? 'ring-2 ring-blue border-blue' : ''}
                 ${isError ? 'bg-red-subtle/30' : ''}
               `}
+              style={{ touchAction: 'pan-y' }}
             >
               {/* Card Header: Checkbox, Status & Date */}
               <div className="flex items-center justify-between mb-3">
@@ -516,12 +590,17 @@ export default function SalesTable({
                   <tr
                     key={venta.id}
                     onClick={() => handleRowClick(venta)}
+                    onContextMenu={(e) => handleContextMenu(e, venta)}
+                    onTouchStart={(e) => handleTouchStart(e, venta)}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchMove={handleTouchMove}
                     className={`
-                      transition-all duration-150 cursor-pointer border-b border-border/40
+                      transition-all duration-150 cursor-pointer border-b border-border/40 select-none
                       ${!isSelected && !isError ? 'hover:bg-surface-alt/60' : ''}
                       ${isError ? 'bg-red-subtle/30 hover:bg-red-subtle/50' : ''}
                       ${isSelected ? 'bg-blue-subtle/50 hover:bg-blue-subtle' : ''}
                     `}
+                    style={{ touchAction: 'pan-y' }}
                   >
                     <td className="px-4 py-3">
                       <input
@@ -719,6 +798,132 @@ export default function SalesTable({
       </div>
       </div>
 
+      {/* ─── Context Menu (Right-click / Long-press) ─── */}
+      {ctxMenu && (
+        <>
+          <div className="fixed inset-0 z-[998]" onClick={closeCtxMenu} onContextMenu={(e) => { e.preventDefault(); closeCtxMenu(); }} />
+          <div
+            ref={ctxMenuRef}
+            className="fixed z-[999] bg-white border border-border/40 rounded-xl shadow-2xl min-w-[200px] overflow-hidden animate-slide-down py-1"
+            style={{
+              left: Math.min(ctxMenu.x, window.innerWidth - 220),
+              top: Math.min(ctxMenu.y, window.innerHeight - 300),
+            }}
+          >
+            {/* Header */}
+            <div className="px-4 py-2.5 border-b border-border/20">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-text-muted">
+                {ctxMenu.venta?.cliente || 'Consumidor Final'}
+              </span>
+            </div>
+
+            {/* Archive */}
+            <button
+              onClick={handleCtxArchive}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+            >
+              <Archive size={15} className="text-text-muted" />
+              {ctxMenu.venta?.status === 'archivada' ? 'Desarchivar' : 'Archivar'}
+            </button>
+
+            <div className="h-px bg-border/20 mx-2" />
+
+            {/* Labels submenu */}
+            <div className="relative">
+              <button
+                onClick={() => setCtxSub(ctxSub === 'labels' ? null : 'labels')}
+                className="w-full flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-3">
+                  <Tag size={15} className="text-text-muted" />
+                  Etiquetar
+                </span>
+                <ChevronRightSub size={14} className={`text-text-muted transition-transform ${ctxSub === 'labels' ? 'rotate-90' : ''}`} />
+              </button>
+              {ctxSub === 'labels' && (
+                <div className="border-t border-border/10 bg-surface-alt/30 py-1">
+                  {ctxMenu.venta?.etiqueta && (
+                    <button
+                      onClick={() => handleCtxLabel(null)}
+                      className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 transition-colors cursor-pointer"
+                    >
+                      <X size={13} />
+                      Quitar etiqueta
+                    </button>
+                  )}
+                  {labels.map(label => {
+                    const colorObj = LABEL_COLORS.find(c => c.id === label.colorId) || LABEL_COLORS[0];
+                    const isActive = ctxMenu.venta?.etiqueta === label.name;
+                    return (
+                      <button
+                        key={label.name}
+                        onClick={() => handleCtxLabel(label.name)}
+                        className={`w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold transition-colors cursor-pointer ${
+                          isActive ? 'bg-accent/5 text-accent' : 'text-text-primary hover:bg-surface-alt'
+                        }`}
+                      >
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colorObj.color }} />
+                        {label.name}
+                        {isActive && <Check size={13} className="ml-auto text-accent" />}
+                      </button>
+                    );
+                  })}
+                  {labels.length === 0 && (
+                    <div className="px-6 py-3 text-[10px] text-text-muted italic">No hay etiquetas creadas</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="h-px bg-border/20 mx-2" />
+
+            {/* Folders submenu */}
+            <div className="relative">
+              <button
+                onClick={() => setCtxSub(ctxSub === 'folders' ? null : 'folders')}
+                className="w-full flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-3">
+                  <FolderInput size={15} className="text-text-muted" />
+                  Mover a carpeta
+                </span>
+                <ChevronRightSub size={14} className={`text-text-muted transition-transform ${ctxSub === 'folders' ? 'rotate-90' : ''}`} />
+              </button>
+              {ctxSub === 'folders' && (
+                <div className="border-t border-border/10 bg-surface-alt/30 py-1">
+                  {ctxMenu.venta?.folder && (
+                    <button
+                      onClick={() => handleCtxMove(null)}
+                      className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 transition-colors cursor-pointer"
+                    >
+                      <X size={13} />
+                      Sacar de carpeta
+                    </button>
+                  )}
+                  {customFolders.map(folder => {
+                    const isActive = ctxMenu.venta?.folder === folder.id;
+                    return (
+                      <button
+                        key={folder.id}
+                        onClick={() => handleCtxMove(folder.id)}
+                        className={`w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold transition-colors cursor-pointer ${
+                          isActive ? 'bg-accent/5 text-accent' : 'text-text-primary hover:bg-surface-alt'
+                        }`}
+                      >
+                        📁 {folder.name}
+                        {isActive && <Check size={13} className="ml-auto text-accent" />}
+                      </button>
+                    );
+                  })}
+                  {customFolders.length === 0 && (
+                    <div className="px-6 py-3 text-[10px] text-text-muted italic">No hay carpetas creadas</div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   )
