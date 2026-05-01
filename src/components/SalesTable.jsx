@@ -392,41 +392,43 @@ export default function SalesTable({
             </button>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-text-muted hidden md:inline">
-                Filas por página:
-              </span>
-              <select
-                value={pageSize}
-                onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
-                className="bg-transparent border-none text-xs font-semibold text-text-primary cursor-pointer focus:outline-none"
-              >
-                {PAGE_SIZES.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-text-muted hidden md:inline">
+                  Filas por página:
+                </span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
+                  className="bg-transparent border-none text-xs font-semibold text-text-primary cursor-pointer focus:outline-none"
+                >
+                  {PAGE_SIZES.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-text-muted tabular-nums font-semibold">
-                {startIndex}–{endIndex} de {sortedVentas.length}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
-                  className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                >
-                  <ChevronRight size={16} />
-                </button>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-text-muted tabular-nums font-semibold">
+                  {startIndex}–{endIndex} de {sortedVentas.length}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
