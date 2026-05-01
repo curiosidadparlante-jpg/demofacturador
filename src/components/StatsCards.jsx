@@ -1,5 +1,5 @@
 import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle, Archive } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
 import { getMonotributoLimit } from '../utils/afipConstants'
@@ -58,6 +58,13 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
     e.stopPropagation()
     setShowValues(!showValues)
   }
+
+  // Set 'Facturadas' as default table on mount
+  useEffect(() => {
+    if (!activeCard && onCardClick) {
+      onCardClick('Facturadas', facturadas, timeframe)
+    }
+  }, []) // Empty dependency array ensures it only runs once on mount
 
   const renderMoney = (amount) => {
     return showValues ? formatCurrency(amount) : '$ ***.***'

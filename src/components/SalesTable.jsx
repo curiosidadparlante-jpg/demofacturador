@@ -3,6 +3,7 @@ import { LABEL_COLORS } from '../config/colors'
 import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download, Archive, Tag, FolderInput, ChevronRight as ChevronRightSub } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useConfig } from '../context/ConfigContext'
 import { translatePaymentMethod, getPaymentBadgeStyle } from '../utils/paymentMethods'
 import { exportToExcel } from '../utils/exportUtils'
@@ -799,12 +800,12 @@ export default function SalesTable({
       </div>
 
       {/* ─── Context Menu (Right-click / Long-press) ─── */}
-      {ctxMenu && (
-        <>
-          <div className="fixed inset-0 z-[998]" onClick={closeCtxMenu} onContextMenu={(e) => { e.preventDefault(); closeCtxMenu(); }} />
+      {ctxMenu && createPortal(
+        <div className="command-context-menu-portal" style={{ position: 'fixed', zIndex: 99999 }}>
+          <div className="fixed inset-0 z-[99998]" onClick={closeCtxMenu} onContextMenu={(e) => { e.preventDefault(); closeCtxMenu(); }} />
           <div
             ref={ctxMenuRef}
-            className="fixed z-[999] bg-white border border-border/40 rounded-xl shadow-2xl min-w-[200px] overflow-hidden animate-slide-down py-1"
+            className="fixed z-[99999] bg-white border border-border/40 rounded-xl shadow-2xl min-w-[200px] overflow-hidden animate-slide-down py-1"
             style={{
               left: Math.min(ctxMenu.x, window.innerWidth - 220),
               top: Math.min(ctxMenu.y, window.innerHeight - 300),
@@ -922,7 +923,8 @@ export default function SalesTable({
               )}
             </div>
           </div>
-        </>
+        </div>,
+        document.body
       )}
 
     </div>
