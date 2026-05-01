@@ -356,60 +356,104 @@ export default function SalesTable({
       </div>
 
       {/* ─── Desktop Table View (md+) ─── */}
-      <div className="hidden md:block bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
+      <div className="hidden md:block">
         
-        {/* Table Toolbar / Column Picker */}
-        <div className="flex items-center justify-end px-4 py-2 bg-surface-alt/30 border-b border-border gap-2 relative">
-          <div className="relative" ref={pickerRef}>
-            <button
-              onClick={() => setShowColumnPicker(!showColumnPicker)}
-              className={`
-                flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer
-                shadow-sm
-                ${showColumnPicker 
-                  ? 'bg-[#121212] text-white border-black shadow-lg shadow-black/10' 
-                  : 'bg-white border-border text-text-muted hover:text-text-primary hover:border-black/20 hover:shadow-md'
-                }
-              `}
-            >
-              <Settings2 size={12} />
-              Mostrar
-            </button>
+        {/* Table Toolbar / Pagination & Column Picker (Gmail Style) */}
+        <div className="flex items-center justify-between px-2 py-2 border-b border-border/60 gap-2 relative">
+          
+          <div className="flex items-center gap-3">
+             {/* Future bulk actions can go here (Gmail top-left actions) */}
+          </div>
 
-            {showColumnPicker && (
-              <div className="absolute right-0 mt-3 w-64 bg-white border border-border rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-50 py-4 animate-slide-down">
-                <div className="px-5 pb-3 mb-2 border-b border-border/50">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-primary opacity-60">
-                    Configurar Tabla
-                  </span>
-                </div>
-                <div className="max-h-[300px] overflow-y-auto px-2 space-y-1">
-                  {COLUMN_CONFIG.map(col => (
-                    <button
-                      key={col.id}
-                      onClick={() => toggleColumn(col.id)}
-                      className={`
-                        w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all text-[11px] font-semibold
-                        ${isVisible(col.id) 
-                          ? 'bg-accent/5 text-accent' 
-                          : 'text-text-secondary hover:bg-surface-alt hover:text-text-primary'
-                        }
-                      `}
-                    >
-                      <span>{col.label}</span>
-                      {isVisible(col.id) && <Check size={14} className="text-accent" />}
-                    </button>
-                  ))}
-                </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-muted hidden md:inline">
+                Filas por página:
+              </span>
+              <select
+                value={pageSize}
+                onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
+                className="bg-transparent border-none text-xs font-semibold text-text-primary cursor-pointer focus:outline-none"
+              >
+                {PAGE_SIZES.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-text-muted tabular-nums font-semibold">
+                {startIndex}–{endIndex} de {sortedVentas.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                >
+                  <ChevronRight size={16} />
+                </button>
               </div>
-            )}
+            </div>
+
+            {/* Column Picker */}
+            <div className="relative" ref={pickerRef}>
+              <button
+                onClick={() => setShowColumnPicker(!showColumnPicker)}
+                className={`
+                  flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer
+                  ${showColumnPicker 
+                    ? 'bg-surface-alt text-text-primary' 
+                    : 'bg-transparent text-text-muted hover:bg-surface-alt hover:text-text-primary'
+                  }
+                `}
+              >
+                <Settings2 size={14} />
+                Mostrar
+              </button>
+
+              {showColumnPicker && (
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-border rounded-xl shadow-lg z-50 py-3 animate-slide-down">
+                  <div className="px-4 pb-2 mb-2 border-b border-border/40">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-primary opacity-60">
+                      Columnas
+                    </span>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto px-1 space-y-0.5">
+                    {COLUMN_CONFIG.map(col => (
+                      <button
+                        key={col.id}
+                        onClick={() => toggleColumn(col.id)}
+                        className={`
+                          w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-[11px] font-semibold
+                          ${isVisible(col.id) 
+                            ? 'bg-accent/5 text-accent' 
+                            : 'text-text-secondary hover:bg-surface-alt hover:text-text-primary'
+                          }
+                        `}
+                      >
+                        <span>{col.label}</span>
+                        {isVisible(col.id) && <Check size={14} className="text-accent" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border">
+              <tr className="border-b border-border/60">
                 <th className="w-12 px-4 py-3 text-left">
                   <input
                     type="checkbox"
@@ -443,10 +487,10 @@ export default function SalesTable({
                     key={venta.id}
                     onClick={() => handleRowClick(venta)}
                     className={`
-                      transition-all duration-150 cursor-pointer border-b border-border
-                      ${!isSelected && !isError ? 'hover:bg-white/50' : ''}
-                      ${isError ? 'bg-red-subtle/50 hover:bg-red-subtle' : ''}
-                      ${isSelected ? 'bg-blue-subtle border-l-[3px] border-l-blue hover:bg-blue/10 relative' : 'border-l-[3px] border-l-transparent'}
+                      transition-all duration-150 cursor-pointer border-b border-border/40
+                      ${!isSelected && !isError ? 'hover:bg-surface-alt/60' : ''}
+                      ${isError ? 'bg-red-subtle/30 hover:bg-red-subtle/50' : ''}
+                      ${isSelected ? 'bg-blue-subtle/50 hover:bg-blue-subtle' : ''}
                     `}
                   >
                     <td className="px-4 py-3">
@@ -639,45 +683,7 @@ export default function SalesTable({
         </div>
       </div>
 
-      {/* ─── Pagination Toolbar ─── */}
-      <div className="flex items-center justify-between px-4 py-3 border border-border bg-surface-alt/50 rounded-xl">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-text-muted hidden md:inline">
-            Filas por página:
-          </span>
-          <select
-            value={pageSize}
-            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
-            className="bg-surface border border-border rounded-lg px-2 py-1 text-xs text-text-primary cursor-pointer focus:outline-none focus:border-accent"
-          >
-            {PAGE_SIZES.map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-text-muted tabular-nums">
-            {startIndex}–{endIndex} de {sortedVentas.length}
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setPage(p => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-              disabled={page >= totalPages - 1}
-              className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
