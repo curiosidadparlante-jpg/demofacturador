@@ -35,9 +35,10 @@ export default function Sidebar({
 
   // Counts
   const counts = {
-    facturadas: ventas.filter(v => v.status === 'facturado').length,
-    pendientes: ventas.filter(v => v.status === 'pendiente' || v.status === 'procesando').length,
-    error: ventas.filter(v => v.status === 'error').length,
+    inbox: ventas.filter(v => (v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error') && !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
+    historico: ventas.filter(v => !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
+    facturadas: ventas.filter(v => v.status === 'facturado' && !v.archivada).length,
+    error: ventas.filter(v => v.status === 'error' && !v.archivada).length,
     archivadas: ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado').length,
     papelera: ventas.filter(v => v.status === 'borrada').length,
   }
@@ -140,6 +141,7 @@ export default function Sidebar({
         <SidebarItem
           icon={<FileText size={16} />}
           label="Ventas Recibidas"
+          count={counts.inbox}
           active={isActive('facturas')}
           onClick={() => onViewChange('facturas')}
         />
@@ -173,20 +175,19 @@ export default function Sidebar({
         {foldersExpanded && (
           <div className="mt-1 space-y-0.5">
             <SidebarItem
+              icon={<FileText size={15} />}
+              label="Histórico"
+              count={counts.historico}
+              active={isActive('facturas', { type: 'historico' })}
+              onClick={() => onViewChange('facturas', { type: 'historico' })}
+            />
+            <SidebarItem
               icon={<FileCheck size={15} />}
               label="Facturadas"
               count={counts.facturadas}
               active={isActive('facturas', { type: 'status', value: 'facturado' })}
               onClick={() => onViewChange('facturas', { type: 'status', value: 'facturado' })}
               color="#2D8F5E"
-            />
-            <SidebarItem
-              icon={<Clock size={15} />}
-              label="Pendientes"
-              count={counts.pendientes}
-              active={isActive('facturas', { type: 'status', value: 'pendiente' })}
-              onClick={() => onViewChange('facturas', { type: 'status', value: 'pendiente' })}
-              color="#F59E0B"
             />
             <SidebarItem
               icon={<AlertCircle size={15} />}

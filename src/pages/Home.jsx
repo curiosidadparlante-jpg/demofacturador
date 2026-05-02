@@ -669,11 +669,16 @@ export default function Home() {
 
   // ─── Filtered ventas for active filter ───
   const viewFilteredVentas = useMemo(() => {
-    if (!activeFilter) return filteredVentas
+    if (!activeFilter) {
+      // Default Inbox view (Pendientes + Error)
+      return filteredVentas.filter(v => v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error')
+    }
+    if (activeFilter.type === 'historico') {
+      return filteredVentas
+    }
     if (activeFilter.type === 'status') {
       const st = activeFilter.value
       return ventas.filter(v => {
-        if (st === 'pendiente') return (v.status === 'pendiente' || v.status === 'procesando') && !v.archivada && v.status !== 'archivada' && v.status !== 'archivado'
         if (st === 'archivada') return v.archivada || v.status === 'archivada' || v.status === 'archivado'
         return v.status === st && !v.archivada && v.status !== 'archivada' && v.status !== 'archivado'
       })

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { 
-  FileCheck, Clock, AlertCircle, Archive, Trash2, 
-  FolderKanban, FolderPlus, Tag, X, Plus, ChevronRight
+  FileCheck, AlertCircle, Archive, Trash2, 
+  FolderKanban, FolderPlus, Tag, X, Plus, ChevronRight, FileText
 } from 'lucide-react'
 import { LABEL_COLORS } from '../config/colors'
 
@@ -23,9 +23,10 @@ export default function GestionView({
 
   // Counts
   const counts = {
-    facturadas: ventas.filter(v => v.status === 'facturado').length,
-    pendientes: ventas.filter(v => v.status === 'pendiente' || v.status === 'procesando').length,
-    error: ventas.filter(v => v.status === 'error').length,
+    inbox: ventas.filter(v => (v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error') && !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
+    historico: ventas.filter(v => !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
+    facturadas: ventas.filter(v => v.status === 'facturado' && !v.archivada).length,
+    error: ventas.filter(v => v.status === 'error' && !v.archivada).length,
     archivadas: ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado').length,
     papelera: ventas.filter(v => v.status === 'borrada').length,
   }
@@ -48,8 +49,8 @@ export default function GestionView({
   }
 
   const systemFolders = [
+    { icon: <FileText size={18} />, label: 'Histórico', count: counts.historico, color: '#3460A8', filter: { type: 'historico' } },
     { icon: <FileCheck size={18} />, label: 'Facturadas', count: counts.facturadas, color: '#2D8F5E', filter: { type: 'status', value: 'facturado' } },
-    { icon: <Clock size={18} />, label: 'Pendientes', count: counts.pendientes, color: '#F59E0B', filter: { type: 'status', value: 'pendiente' } },
     { icon: <AlertCircle size={18} />, label: 'Error', count: counts.error, color: '#C0443C', filter: { type: 'status', value: 'error' } },
     { icon: <Archive size={18} />, label: 'Archivo', count: counts.archivadas, color: '#8E8A81', filter: { type: 'status', value: 'archivada' } },
     { icon: <Trash2 size={18} />, label: 'Papelera', count: counts.papelera, color: '#8E8A81', filter: { type: 'status', value: 'borrada' } },
