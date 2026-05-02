@@ -42,9 +42,12 @@ export default function FacturasView({
         }
         return statusLabels[activeFilter.value] || 'Lista Facturas'
       case 'folder':
-        return `Carpeta: ${activeFilter.value}`
+        const folder = customFolders.find(f => f.id === activeFilter.value)
+        return `Carpeta: ${folder ? folder.name : ''}`
       case 'label':
         return `Etiqueta: ${activeFilter.value}`
+      case 'cliente':
+        return `Cliente: ${activeFilter.value}`
       default:
         return 'Lista Facturas'
     }
