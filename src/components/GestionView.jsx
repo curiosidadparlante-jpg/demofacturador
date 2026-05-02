@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { 
   FolderKanban, FolderPlus, Tag, X, Plus, ChevronRight, ChevronDown,
   Search, Users, TrendingUp, Calendar, FileText, ArrowUpDown
@@ -26,6 +26,13 @@ export default function GestionView({
   const [clientSearch, setClientSearch] = useState('')
   const [sortBy, setSortBy] = useState('total')
   const [selectedClient, setSelectedClient] = useState(null)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 20
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [clientSearch, sortBy])
 
   // ─── Build client directory from ventas ───
   const clients = useMemo(() => {
@@ -173,30 +180,64 @@ export default function GestionView({
               <div className="px-4 py-8 text-center text-xs text-text-muted">
                 {clientSearch ? 'Sin resultados para esa búsqueda' : 'No hay clientes registrados'}
               </div>
-            ) : sortedClients.map(c => (
-              <div key={c.nombre}>
-                <button
-                  onClick={() => setSelectedClient(selectedClient?.nombre === c.nombre ? null : c)}
-                  className={`w-full grid grid-cols-[1fr_80px] md:grid-cols-[1fr_120px_100px_80px_100px] gap-2 px-4 py-3 text-left transition-all cursor-pointer border-b border-border/10 last:border-0
-                    ${selectedClient?.nombre === c.nombre ? 'bg-blue/5' : 'hover:bg-surface-alt/50'}
-                  `}
-                >
-                  <div className="flex flex-col min-w-0 pr-2">
-                    <span className="text-xs font-bold text-text-primary truncate">{c.nombre}</span>
-                    {c.cuit && <span className="text-[10px] text-text-muted">{c.cuit}</span>}
-                  </div>
-                  <span className="text-xs font-black text-green text-right tabular-nums self-center">{formatMoney(c.totalFacturado)}</span>
-                  <span className="text-xs font-semibold text-text-secondary text-right tabular-nums self-center hidden md:block">{formatMoney(c.totalVentas)}</span>
-                  <span className="text-xs font-bold text-text-muted text-center tabular-nums self-center hidden md:block">{c.cantFacturas}</span>
-                  <span className="text-[10px] text-text-muted text-right self-center hidden md:block">{formatDate(c.ultimaFecha)}</span>
-                </button>
+            ) : (() => {
+              const totalPages = Math.ceil(sortedClients.length / itemsPerPage)
+              const paginatedClients = sortedClients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+              
+              return (
+                <>
+                  {paginatedClients.map(c => (
+                    <div key={c.nombre}>
+                      <button
+                        onClick={() => setSelectedClient(selectedClient?.nombre === c.nombre ? null : c)}
+                        className={`w-full grid grid-cols-[1fr_80px] md:grid-cols-[1fr_120px_100px_80px_100px] gap-2 px-4 py-3 text-left transition-all cursor-pointer border-b border-border/10 last:border-0
+                          ${selectedClient?.nombre === c.nombre ? 'bg-blue/5' : 'hover:bg-surface-alt/50'}
+                        `}
+                      >
+                        <div className="flex flex-col min-w-0 pr-2">
+                          <span className="text-xs font-bold text-text-primary truncate">{c.nombre}</span>
+                          {c.cuit && <span className="text-[10px] text-text-muted">{c.cuit}</span>}
+                        </div>
+                        <span className="text-xs font-black text-green text-right tabular-nums self-center">{formatMoney(c.totalFacturado)}</span>
+                        <span className="text-xs font-semibold text-text-secondary text-right tabular-nums self-center hidden md:block">{formatMoney(c.totalVentas)}</span>
+                        <span className="text-xs font-bold text-text-muted text-center tabular-nums self-center hidden md:block">{c.cantFacturas}</span>
+                        <span className="text-[10px] text-text-muted text-right self-center hidden md:block">{formatDate(c.ultimaFecha)}</span>
+                      </button>
 
-                {/* Inline history drawer */}
-                {selectedClient?.nombre === c.nombre && (
-                  <ClientHistory client={c} formatMoney={formatMoney} formatDate={formatDate} />
-                )}
-              </div>
-            ))}
+                      {/* Inline history drawer */}
+                      {selectedClient?.nombre === c.nombre && (
+                        <ClientHistory client={c} formatMoney={formatMoney} formatDate={formatDate} />
+                      )}
+                    </div>
+                  ))}
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="sticky bottom-0 bg-white border-t border-border/20 p-3 flex justify-between items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted ml-2">
+                        Página {currentPage} de {totalPages}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={currentPage === 1}
+                          className="px-3 py-1.5 rounded text-xs font-bold bg-surface-alt hover:bg-border/60 text-text-primary disabled:opacity-30 transition-colors cursor-pointer"
+                        >
+                          Anterior
+                        </button>
+                        <button
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          disabled={currentPage === totalPages}
+                          className="px-3 py-1.5 rounded text-xs font-bold bg-surface-alt hover:bg-border/60 text-text-primary disabled:opacity-30 transition-colors cursor-pointer"
+                        >
+                          Siguiente
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </div>
       </div>
