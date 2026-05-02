@@ -8,11 +8,7 @@ const CBTE_LABELS = {
   13: { letter: 'C', code: '013', name: 'NOTA DE CRÉDITO' },
   15: { letter: 'C', code: '015', name: 'RECIBO' },
   1:  { letter: 'A', code: '001', name: 'FACTURA' },
-  2:  { letter: 'A', code: '002', name: 'NOTA DE DÉBITO' },
-  3:  { letter: 'A', code: '003', name: 'NOTA DE CRÉDITO' },
   6:  { letter: 'B', code: '006', name: 'FACTURA' },
-  7:  { letter: 'B', code: '007', name: 'NOTA DE DÉBITO' },
-  8:  { letter: 'B', code: '008', name: 'NOTA DE CRÉDITO' },
 };
 
 const UNIDAD_LABELS = {
@@ -129,25 +125,18 @@ export async function generateInvoicePdf(venta, emisor) {
 
   // Período de servicio (si aplica)
   if ((df.concepto === 2 || df.concepto === 3) && df.periodo_desde) {
-    doc.text(`Período: ${df.periodo_desde} a ${df.periodo_hasta || '—'}`, margin + 5, receptorY);
-    if (df.vto_pago) {
-      doc.text(`Vto. Pago: ${df.vto_pago}`, margin + 110, receptorY);
-    }
     receptorY += 5;
   }
-
-  // Comprobantes asociados (NC / ND)
-  if (df.cbte_asoc && (df.cbte_asoc.nro > 0 || df.cbte_asoc.nro_comprobante)) {
-    doc.setFont('helvetica', 'bold');
-    const asocLabel = CBTE_LABELS[df.cbte_asoc.tipo]?.name || 'COMPROBANTE';
-    const asocNro = df.cbte_asoc.nro_comprobante || 
-      `${String(df.cbte_asoc.pto_vta || 0).padStart(4, '0')}-${String(df.cbte_asoc.nro || 0).padStart(8, '0')}`;
+  
+  // Comprobante Asociado (NC/ND)
+  if (df.cbte_asoc && df.cbte_asoc.nro) {
+    const asoc = df.cbte_asoc;
+    const asocLabel = CBTE_LABELS[asoc.tipo]?.name || `Tipo ${asoc.tipo}`;
+    const asocNro = `${String(asoc.pto_vta || 0).padStart(4, '0')}-${String(asoc.nro).padStart(8, '0')}`;
+    const asocFecha = asoc.fecha ? new Date(asoc.fecha + 'T12:00:00').toLocaleDateString('es-AR') : '';
     
-    doc.text(`Comprobante Asociado: ${asocLabel} ${asocNro}`, margin + 5, receptorY);
-    if (df.cbte_asoc.fecha) {
-      doc.setFont('helvetica', 'normal');
-      doc.text(` (Fecha: ${new Date(df.cbte_asoc.fecha + 'T12:00:00').toLocaleDateString('es-AR')})`, margin + 110, receptorY);
-    }
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Comprobante Asociado: ${asocLabel} ${asocNro}${asocFecha ? ` del ${asocFecha}` : ''}`, margin + 5, receptorY);
     receptorY += 5;
   }
 
@@ -179,33 +168,23 @@ export async function generateInvoicePdf(venta, emisor) {
   // ─── Pie de Factura ───
   const totalY = 240;
   doc.line(margin, totalY - 5, pageWidth - margin, totalY - 5);
-
-  // IVA discrimination for Factura A
-  const isFacturaA = cbteInfo.letter === 'A';
-  if (isFacturaA && df.neto_gravado != null && df.iva_monto != null) {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Subtotal Neto Gravado:', pageWidth - 80, totalY - 1);
-    doc.text(`$ ${Number(df.neto_gravado).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, pageWidth - 15, totalY - 1, { align: 'right' });
-    
-    const alicLabel = df.iva_porcentaje ? `${(df.iva_porcentaje * 100).toFixed(1)}%` : '21%';
-    doc.text(`IVA ${alicLabel}:`, pageWidth - 80, totalY + 4);
-    doc.text(`$ ${Number(df.iva_monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, pageWidth - 15, totalY + 4, { align: 'right' });
-    
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL: ', pageWidth - 60, totalY + 12);
-    doc.text(`$ ${Number(venta.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, pageWidth - 15, totalY + 12, { align: 'right' });
-  } else {
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL: ', pageWidth - 60, totalY + 5);
-    doc.text(`$ ${Number(venta.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, pageWidth - 15, totalY + 5, { align: 'right' });
-  }
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL: ', pageWidth - 60, totalY + 5);
+  doc.text(`$ ${Number(venta.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`, pageWidth - 15, totalY + 5, { align: 'right' });
 
   // ─── QR de AFIP ───
   try {
     const cleanCuit = (val) => String(val || '').replace(/\D/g, '');
+    const numDoc = cleanCuit(df.cuit);
+    
+    let tipoDocRec = 99; // Consumidor Final
+    if (numDoc.length >= 10) {
+      tipoDocRec = 80; // CUIT (asumimos CUIT si es largo)
+    } else if (numDoc.length >= 7) {
+      tipoDocRec = 96; // DNI
+    }
+
     const nroCompPto = (venta.nro_comprobante || '0-0').split('-');
     
     const qrData = {
@@ -218,8 +197,8 @@ export async function generateInvoicePdf(venta, emisor) {
       importe: parseFloat(Number(venta.monto).toFixed(2)),
       moneda: "PES",
       ctz: 1,
-      tipoDocRec: cuitCliente === 'Consumidor Final' ? 99 : 80,
-      nroDocRec: cuitCliente === 'Consumidor Final' ? 0 : Number(cleanCuit(cuitCliente)),
+      tipoDocRec: tipoDocRec,
+      nroDocRec: tipoDocRec === 99 ? 0 : Number(numDoc),
       tipoCodAut: "E",
       codAut: Number(venta.cae)
     };

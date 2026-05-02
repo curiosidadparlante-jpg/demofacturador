@@ -411,9 +411,15 @@ export default function Home() {
   const handleSync = async () => {
     setIsSyncing(true)
     try {
-      await new Promise(r => setTimeout(r, 1500))
-      showToast(`Sync completado: 0 nuevos, 0 reparados`, 'success')
-      refetch() // Recargar ventas de la DB
+      showToast('Sincronizando con MP...', 'info');
+      const res = await fetch('/api/sync-payments');
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Sync: ${data.inserted} nuevos, ${data.repaired} reparados`, 'success');
+        refetch();
+      } else {
+        showToast('Error: ' + data.error, 'error');
+      }
     } catch (err) {
       showToast('Error sincronizando: ' + err.message, 'error')
     } finally {
@@ -496,22 +502,21 @@ export default function Home() {
   }
 
   // ─── Emitir Factura handler (Bulk) ───
-  const handleInvoice = async () => {
-    const selectedVentasToInvoice = ventas.filter(v => selectedIds.has(v.id) && v.status !== 'facturado')
-    if (selectedVentasToInvoice.length === 0) {
-      showToast('No hay ventas pendientes o con error seleccionadas', 'error')
+  // ─── Emitir Factura handler (Bulk) ───
+  const handleInvoice = async (specificVentas = null) => {
+    const toInvoice = specificVentas || ventas.filter(v => selectedIds.has(v.id) && v.status !== 'facturado')
+    if (toInvoice.length === 0) {
+      showToast('No hay ventas pendientes seleccionadas', 'error')
       return
     }
 
     try {
-      showToast('Emitiendo factura...', 'info')
-      
-      setVentas(prev => prev.map(v => 
-        selectedIds.has(v.id) ? { ...v, status: 'procesando' } : v
-      ))
+      showToast('Emitiendo comprobantes...', 'info')
+      const targetIds = toInvoice.map(v => v.id)
+      setVentas(prev => prev.map(v => targetIds.includes(v.id) ? { ...v, status: 'procesando' } : v))
       
       const payload = {
-        ventas: selectedVentasToInvoice.map(v => ({
+        ventas: toInvoice.map(v => ({
           id: v.id,
           fecha: v.fecha,
           cliente: v.cliente,
@@ -522,30 +527,13 @@ export default function Home() {
         })),
       }
 
-      await new Promise(r => setTimeout(r, 2000));
-      
-      const data = {
-        success: true,
-        resultados: selectedVentasToInvoice.map((v) => {
-          const isSuccess = Math.random() > 0.1; // 90% success rate
-          if (isSuccess) {
-            return {
-              id: v.id,
-              success: true,
-              cae: '73' + Math.floor(100000000000 + Math.random() * 900000000000),
-              nro: '0003-' + String(Math.floor(Math.random() * 100000)).padStart(8, '0'),
-              pdf_url: null
-            };
-          } else {
-            return {
-              id: v.id,
-              success: false,
-              error: 'Demo: Simulacro de error AFIP aleatorio.'
-            };
-          }
-        })
-      };
+      const response = await fetch('/api/afip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
 
+      const data = await response.json()
       const resultados = data.resultados || []
       const successCount = resultados.filter(r => r.success).length
       
@@ -574,39 +562,99 @@ export default function Home() {
         return v
       }))
 
-      setSelectedIds(new Set())
+      if (!specificVentas) setSelectedIds(new Set())
       
       if (successCount === resultados.length && successCount > 0) {
-        showToast(`✓ ${successCount} comprobante(s) emitido(s) con éxito`, 'success')
+        showToast(`✓ ${successCount} comprobantes emitidos`, 'success')
       } else if (successCount > 0) {
         showToast(`${successCount} de ${resultados.length} emitidas. Algunos fallaron.`, 'warning')
       } else {
-        showToast('No se emitió ningún comprobante. Comprobá los errores en la tabla.', 'error')
+        showToast('No se emitió ningún comprobante. Revisá los errores.', 'error')
       }
-
     } catch (err) {
       console.error('[handleInvoice] Error:', err.message)
       showToast('Error al procesar facturas: ' + err.message, 'error')
-      
-      // Si falló el request entero, marcar las que estaban en proceso como error
-      setVentas(prev => prev.map(v => 
-        v.status === 'procesando' 
-          ? { ...v, status: 'error', datos_fiscales: { ...v.datos_fiscales, error_detalle: err.message } } 
-          : v
-      ))
+      setVentas(prev => prev.map(v => v.status === 'procesando' ? { ...v, status: 'error' } : v))
     }
+  }
+
+  const handleAnularVenta = async (v) => {
+    if (!confirm('¿Estás seguro de que querés anular esta factura?')) return
+    try {
+      const nroCompArr = (v.nro_comprobante || '0-0').split('-')
+      const tipoOriginal = v.datos_fiscales?.tipo_cbte || 11
+      let tipoNC = 13
+      if (tipoOriginal === 1) tipoNC = 3
+      if (tipoOriginal === 6) tipoNC = 8
+
+      await createVenta({
+        cliente: v.cliente,
+        monto: v.monto,
+        fecha: new Date().toISOString(),
+        status: 'pendiente',
+        datos_fiscales: {
+          ...v.datos_fiscales,
+          tipo_cbte: tipoNC,
+          cbte_asoc: {
+            tipo: tipoOriginal,
+            pto_vta: parseInt(nroCompArr[0]),
+            nro: parseInt(nroCompArr[1]),
+            fecha: v.datos_fiscales?.fecha_emision || v.fecha.split('T')[0]
+          },
+          comprobante_numero: null, cae: null, cae_vto: null, afip_envio_fecha: null, error_detalle: null
+        }
+      })
+      showToast('Nota de Crédito creada como pendiente', 'success')
+      setDetailVenta(null)
+    } catch (err) { showToast('Error: ' + err.message, 'error') }
+  }
+
+  const handleBulkAnular = async () => {
+    const selectedVentasArr = ventas.filter(v => selectedIds.has(v.id))
+    const toAnular = selectedVentasArr.filter(v => v.status === 'facturado')
+    if (toAnular.length === 0) return
+    if (!confirm(`¿Estás seguro de que querés anular las ${toAnular.length} facturas?`)) return
+    
+    try {
+      const payloads = toAnular.map(v => {
+        const nroCompArr = (v.nro_comprobante || '0-0').split('-')
+        const tipoOriginal = v.datos_fiscales?.tipo_cbte || 11
+        let tipoNC = 13
+        if (tipoOriginal === 1) tipoNC = 3
+        if (tipoOriginal === 6) tipoNC = 8
+        return {
+          cliente: v.cliente, monto: v.monto, fecha: new Date().toISOString(), status: 'pendiente',
+          datos_fiscales: {
+            ...v.datos_fiscales, tipo_cbte: tipoNC,
+            cbte_asoc: {
+              tipo: tipoOriginal, pto_vta: parseInt(nroCompArr[0]), nro: parseInt(nroCompArr[1]),
+              fecha: v.datos_fiscales?.fecha_emision || v.fecha.split('T')[0]
+            },
+            comprobante_numero: null, cae: null, cae_vto: null, afip_envio_fecha: null, error_detalle: null
+          }
+        }
+      })
+      await bulkCreateVentas(payloads)
+      showToast(`${toAnular.length} Notas de Crédito creadas`, 'success')
+      setSelectedIds(new Set())
+    } catch (err) { showToast('Error en anulación masiva: ' + err.message, 'error') }
   }
 
   const handleRecoverAfip = async () => {
     try {
-      showToast('Iniciando recuperación de AFIP...', 'info');
-      await new Promise(r => setTimeout(r, 2000));
-      showToast(`✓ Recuperación finalizada. Procesadas: 0`, 'success');
-      refetch(); // Recargar datos
+      showToast('Recuperando CAEs...', 'info');
+      const res = await fetch('/api/recover');
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Recuperación finalizada: ${data.processed}`, 'success');
+        refetch();
+      } else {
+        showToast('Error: ' + data.error, 'error');
+      }
     } catch (err) {
-      showToast('Error de conexión: ' + err.message, 'error');
+      showToast('Error: ' + err.message, 'error');
     }
-  };
+  }
 
 
   const handleEditVenta = async (id, payload) => {
@@ -852,6 +900,7 @@ export default function Home() {
         onBulkDelete={handleBulkDelete}
         onBulkRetry={handleBulkRetry}
         onBulkArchive={handleBulkArchive}
+        onBulkAnular={handleBulkAnular}
         customFolders={customFolders}
         labels={labels}
         onBulkMove={handleBulkMove}
@@ -867,6 +916,7 @@ export default function Home() {
           setDetailVentaEditMode(false)
         }}
         onRetry={handleRetry}
+        onAnular={handleAnularVenta}
         onSave={handleEditVenta}
         initialEditMode={detailVentaEditMode}
         customFolders={customFolders}
