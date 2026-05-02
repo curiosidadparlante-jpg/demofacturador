@@ -102,12 +102,11 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
   }
 
 
-  // ─── Card config ───
   const cards = [
-    { key: 'Facturadas', label: 'Total Facturado', amount: facturadasAmount, count: facturadas.length, color: 'bg-green', textColor: 'text-green', icon: FileCheck, borderClass: 'border-r border-b lg:border-b-0' },
-    { key: 'Pendientes', label: 'Pendientes', amount: pendientesAmount, count: pendientes.length, color: 'bg-[#F59E0B]', textColor: 'text-[#F59E0B]', icon: Clock, borderClass: 'border-r border-b lg:border-b-0' },
-    { key: 'Con Error', label: 'Errores AFIP', amount: conErrorAmount, count: conError.length, color: 'bg-red', textColor: 'text-red', icon: AlertCircle, borderClass: 'border-r' },
-    { key: 'Total Ventas', label: 'Total Movimientos', amount: totalActivasAmount, count: activas.length, color: 'bg-blue', textColor: 'text-blue', icon: Activity, borderClass: '' },
+    { key: 'Facturadas', label: 'Total Facturado', amount: facturadasAmount, count: facturadas.length, color: 'bg-green', textColor: 'text-green', icon: FileCheck },
+    { key: 'Pendientes', label: 'Pendientes', amount: pendientesAmount, count: pendientes.length, color: 'bg-[#F59E0B]', textColor: 'text-[#F59E0B]', icon: Clock },
+    { key: 'Con Error', label: 'Errores AFIP', amount: conErrorAmount, count: conError.length, color: 'bg-red', textColor: 'text-red', icon: AlertCircle },
+    { key: 'Total Ventas', label: 'Total Movimientos', amount: totalActivasAmount, count: activas.length, color: 'bg-blue', textColor: 'text-blue', icon: Activity },
   ]
 
   return (
@@ -243,7 +242,7 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
       </div>
 
       {/* ─── METRIC CARDS ─── */}
-      <div className="flex flex-wrap rounded-xl overflow-hidden border border-border shadow-sm">
+      <div className="flex flex-wrap gap-2 lg:gap-4">
         {cards.map((card) => {
           const isActive = activeCard === card.key
           const Icon = card.icon
@@ -252,8 +251,8 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
             <button
               key={card.key}
               onClick={() => onCardClick(card.key, dataMap[card.key], timeframe)}
-              className={`relative p-4 md:p-5 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer ${card.borderClass} border-border group
-                ${isActive ? `${card.color} text-white` : 'bg-white text-text-primary hover:bg-surface-alt'}
+              className={`relative px-6 py-4 md:px-8 md:py-5 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
+                ${isActive ? `${card.color} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
               `}
             >
               <div className="flex items-center gap-2 mb-4">
