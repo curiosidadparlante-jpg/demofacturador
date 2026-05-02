@@ -93,7 +93,7 @@ function computeKPI(ventas, startDate, endDate) {
   }
 }
 
-export default function AnalyticsDashboard({ ventas = [] }) {
+export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange }) {
   const [timeframe, setTimeframe] = useState(28) // number or 'custom'
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -176,6 +176,21 @@ export default function AnalyticsDashboard({ ventas = [] }) {
   }
 
   const compareEnabled = compareMode !== 'off'
+
+  const filteredSales = useMemo(() => {
+    if (!startDate || !endDate) return dashboardVentas
+    const start = new Date(startDate + 'T00:00:00')
+    const end = new Date(endDate + 'T23:59:59')
+    return dashboardVentas.filter(v => {
+      if (v.status === 'borrada') return false
+      const d = new Date(v.fecha)
+      return d >= start && d <= end
+    })
+  }, [dashboardVentas, startDate, endDate])
+
+  useEffect(() => {
+    onFilteredVentasChange?.(filteredSales)
+  }, [filteredSales, onFilteredVentasChange])
 
   const kpi = useMemo(() => computeKPI(dashboardVentas, startDate, endDate), [dashboardVentas, startDate, endDate])
   const kpiComp = useMemo(() => computeKPI(dashboardVentas, compStartDate, compEndDate), [dashboardVentas, compStartDate, compEndDate])
