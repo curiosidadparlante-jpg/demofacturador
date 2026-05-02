@@ -223,55 +223,59 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
           )}
 
         </div>
+      </div>
 
-        {/* Monotributo thermometer */}
+      {/* ─── METRIC CARDS ROW ─── */}
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4">
+        <div className="flex flex-wrap gap-2 lg:gap-4 flex-1">
+          {cards.map((card) => {
+            const isActive = activeCard === card.key
+            const Icon = card.icon
+            const dataMap = { 'Facturadas': facturadas, 'Pendientes': pendientes, 'Con Error': conError, 'Total Ventas': activas }
+            return (
+              <button
+                key={card.key}
+                onClick={() => onCardClick(card.key, dataMap[card.key], timeframe)}
+                className={`relative px-6 py-4 md:px-8 md:py-5 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
+                  ${isActive ? `${card.color} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
+                `}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
+                    {isActive && <Icon size={10} className="text-white" />}
+                  </div>
+                  <span className={`text-xs md:text-sm font-semibold ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className={`text-2xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textColor}`}>
+                    {renderMoney(card.amount)}
+                  </span>
+                  <span className={`text-[10px] uppercase tracking-widest mt-1 ${isActive ? 'text-white/80' : 'text-text-muted'}`}>
+                    {card.count} mov.
+                  </span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Monotributo thermometer (Right aligned at cards height) */}
         {!isRI && (
-          <div className="flex items-center gap-4 px-4">
+          <div className="flex items-center justify-center gap-4 px-6 py-4 md:px-8 md:py-5 bg-white border border-border rounded-xl shadow-sm xl:h-auto">
             <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold uppercase text-text-muted">Cat. {category} ({renderMoney(limit)})</span>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-xs font-black text-text-primary">{renderMoney(facturacionAnual)}</span>
-                <span className={`text-[10px] font-bold ${colorClass.split(' ')[0]}`}>{percentage.toFixed(1)}%</span>
+              <span className="text-[10px] font-bold uppercase text-text-muted tracking-widest">Cat. {category} ({renderMoney(limit)})</span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-lg md:text-xl font-black text-text-primary">{renderMoney(facturacionAnual)}</span>
+                <span className={`text-[10px] font-bold bg-surface-alt px-2 py-0.5 rounded-full ${colorClass.split(' ')[0]}`}>{percentage.toFixed(1)}%</span>
               </div>
             </div>
-            <div className="h-2 w-24 bg-border/40 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`} style={{ width: `${percentage}%` }} />
+            <div className="flex flex-col gap-1 items-end">
+              <div className="h-3 w-20 md:w-24 bg-border/40 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`} style={{ width: `${percentage}%` }} />
+              </div>
             </div>
           </div>
         )}
-      </div>
-
-      {/* ─── METRIC CARDS ─── */}
-      <div className="flex flex-wrap gap-2 lg:gap-4">
-        {cards.map((card) => {
-          const isActive = activeCard === card.key
-          const Icon = card.icon
-          const dataMap = { 'Facturadas': facturadas, 'Pendientes': pendientes, 'Con Error': conError, 'Total Ventas': activas }
-          return (
-            <button
-              key={card.key}
-              onClick={() => onCardClick(card.key, dataMap[card.key], timeframe)}
-              className={`relative px-6 py-4 md:px-8 md:py-5 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
-                ${isActive ? `${card.color} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
-              `}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
-                  {isActive && <Icon size={10} className="text-white" />}
-                </div>
-                <span className={`text-xs md:text-sm font-semibold ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className={`text-2xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textColor}`}>
-                  {renderMoney(card.amount)}
-                </span>
-                <span className={`text-[10px] uppercase tracking-widest mt-1 ${isActive ? 'text-white/80' : 'text-text-muted'}`}>
-                  {card.count} mov.
-                </span>
-              </div>
-            </button>
-          )
-        })}
       </div>
 
       {/* Eye toggle */}
