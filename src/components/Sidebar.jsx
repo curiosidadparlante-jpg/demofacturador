@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { 
   Plus, FileText, BarChart3, FolderKanban, 
   FileCheck, Clock, AlertCircle, Archive, Trash2,
-  FolderPlus, Tag, X, ChevronDown, ChevronUp,
+  FolderPlus, Tag, X, ChevronDown, ChevronUp, ChevronRight,
   PanelLeftClose, PanelLeft
 } from 'lucide-react'
 
@@ -27,6 +27,7 @@ export default function Sidebar({
 }) {
   const [showNewFolder, setShowNewFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [newFolderParentId, setNewFolderParentId] = useState(null)
   const [showNewLabel, setShowNewLabel] = useState(false)
   const [newLabelName, setNewLabelName] = useState('')
   const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0].id)
@@ -45,10 +46,23 @@ export default function Sidebar({
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
-      onCreateFolder?.(newFolderName.trim())
+      onCreateFolder?.(newFolderName.trim(), newFolderParentId)
       setNewFolderName('')
+      setNewFolderParentId(null)
       setShowNewFolder(false)
     }
+  }
+
+  const startNewSubfolder = (parentId) => {
+    setNewFolderParentId(parentId)
+    setNewFolderName('')
+    setShowNewFolder(true)
+  }
+
+  const startNewRootFolder = () => {
+    setNewFolderParentId(null)
+    setNewFolderName('')
+    setShowNewFolder(true)
   }
 
   const handleCreateLabel = () => {
@@ -213,34 +227,27 @@ export default function Sidebar({
               onClick={() => onViewChange('facturas', { type: 'status', value: 'borrada' })}
             />
 
-            {/* Custom Folders */}
-            {customFolders.map(folder => (
-              <div key={folder.id} className="group relative">
-                <SidebarItem
-                  icon={<FolderKanban size={15} />}
-                  label={folder.name}
-                  count={ventas.filter(v => v.folder === folder.id).length}
-                  active={isActive('facturas', { type: 'folder', value: folder.id })}
-                  onClick={() => onViewChange('facturas', { type: 'folder', value: folder.id })}
-                />
-                <button
-                  onClick={(e) => { e.stopPropagation(); onDeleteFolder?.(folder.id) }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 rounded text-text-muted hover:text-red transition-all cursor-pointer"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
+            {/* Custom Folders — recursive tree */}
+            <FolderTree
+              folders={customFolders}
+              parentId={null}
+              depth={0}
+              ventas={ventas}
+              isActive={isActive}
+              onViewChange={onViewChange}
+              onDeleteFolder={onDeleteFolder}
+              onStartSubfolder={startNewSubfolder}
+            />
 
-            {/* Add Folder */}
+            {/* Add Folder input (root or subfolder) */}
             {showNewFolder ? (
-              <div className="px-3 py-2 flex items-center gap-2">
+              <div className="px-3 py-2 flex items-center gap-2" style={{ paddingLeft: newFolderParentId ? '28px' : '12px' }}>
                 <input
                   autoFocus
                   value={newFolderName}
                   onChange={e => setNewFolderName(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
-                  placeholder="Nombre..."
+                  onKeyDown={e => { if (e.key === 'Enter') handleCreateFolder(); if (e.key === 'Escape') setShowNewFolder(false); }}
+                  placeholder={newFolderParentId ? 'Subcarpeta...' : 'Carpeta...'}
                   className="flex-1 bg-surface-alt border border-border rounded-lg px-2 py-1 text-xs text-text-primary focus:outline-none focus:border-accent"
                 />
                 <button onClick={handleCreateFolder} className="text-green hover:text-green/80 cursor-pointer"><Plus size={14} /></button>
@@ -248,7 +255,7 @@ export default function Sidebar({
               </div>
             ) : (
               <button
-                onClick={() => setShowNewFolder(true)}
+                onClick={startNewRootFolder}
                 className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold text-text-muted hover:text-text-primary hover:bg-surface-alt rounded-lg transition-all cursor-pointer"
               >
                 <FolderPlus size={14} />
@@ -361,5 +368,96 @@ function SidebarItem({ icon, label, count, active, onClick, color, highlight }) 
         </span>
       )}
     </button>
+  )
+}
+
+function FolderTree({ folders, parentId, depth, ventas, isActive, onViewChange, onDeleteFolder, onStartSubfolder }) {
+  const children = folders.filter(f => (f.parentId || null) === parentId)
+  if (children.length === 0) return null
+
+  return children.map(folder => (
+    <FolderNode
+      key={folder.id}
+      folder={folder}
+      folders={folders}
+      depth={depth}
+      ventas={ventas}
+      isActive={isActive}
+      onViewChange={onViewChange}
+      onDeleteFolder={onDeleteFolder}
+      onStartSubfolder={onStartSubfolder}
+    />
+  ))
+}
+
+function FolderNode({ folder, folders, depth, ventas, isActive, onViewChange, onDeleteFolder, onStartSubfolder }) {
+  const [expanded, setExpanded] = useState(true)
+  const hasChildren = folders.some(f => f.parentId === folder.id)
+  const count = ventas.filter(v => v.folder === folder.id).length
+  const active = isActive('facturas', { type: 'folder', value: folder.id })
+
+  return (
+    <div>
+      <div className="group relative" style={{ paddingLeft: `${depth * 16}px` }}>
+        <button
+          onClick={() => onViewChange('facturas', { type: 'folder', value: folder.id })}
+          className={`
+            w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold transition-all cursor-pointer
+            ${active ? 'bg-blue/10 text-blue font-bold' : 'text-text-secondary hover:bg-surface-alt hover:text-text-primary'}
+          `}
+        >
+          {/* Expand/collapse chevron */}
+          {hasChildren ? (
+            <span
+              onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
+              className="text-text-muted hover:text-text-primary cursor-pointer shrink-0"
+            >
+              <ChevronRight size={12} className={`transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`} />
+            </span>
+          ) : (
+            <span className="w-3 shrink-0" />
+          )}
+          <span className={`shrink-0 ${active ? 'text-blue' : 'text-text-muted'}`}>
+            <FolderKanban size={15} />
+          </span>
+          <span className="flex-1 text-left truncate">{folder.name}</span>
+          {count > 0 && (
+            <span className={`text-[10px] font-bold tabular-nums ${active ? 'text-blue' : 'text-text-muted'}`}>{count}</span>
+          )}
+        </button>
+
+        {/* Hover action buttons */}
+        <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-all">
+          <button
+            onClick={(e) => { e.stopPropagation(); onStartSubfolder(folder.id) }}
+            className="p-1 rounded text-text-muted hover:text-blue transition-all cursor-pointer"
+            title="Nueva subcarpeta"
+          >
+            <FolderPlus size={12} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDeleteFolder?.(folder.id) }}
+            className="p-1 rounded text-text-muted hover:text-red transition-all cursor-pointer"
+            title="Eliminar carpeta"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      </div>
+
+      {/* Recursive children */}
+      {expanded && hasChildren && (
+        <FolderTree
+          folders={folders}
+          parentId={folder.id}
+          depth={depth + 1}
+          ventas={ventas}
+          isActive={isActive}
+          onViewChange={onViewChange}
+          onDeleteFolder={onDeleteFolder}
+          onStartSubfolder={onStartSubfolder}
+        />
+      )}
+    </div>
   )
 }

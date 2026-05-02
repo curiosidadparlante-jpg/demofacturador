@@ -667,6 +667,16 @@ export default function Home() {
     }
   }
 
+  // ─── Helper: get all descendant folder IDs ───
+  const getDescendantIds = (folderId, folders) => {
+    const children = folders.filter(f => f.parentId === folderId)
+    let ids = [folderId]
+    children.forEach(child => {
+      ids = [...ids, ...getDescendantIds(child.id, folders)]
+    })
+    return ids
+  }
+
   // ─── Filtered ventas for active filter ───
   const viewFilteredVentas = useMemo(() => {
     if (!activeFilter) {
@@ -684,23 +694,25 @@ export default function Home() {
       })
     }
     if (activeFilter.type === 'folder') {
-      return ventas.filter(v => v.folder === activeFilter.value)
+      const folderIds = getDescendantIds(activeFilter.value, customFolders)
+      return ventas.filter(v => folderIds.includes(v.folder))
     }
     if (activeFilter.type === 'label') {
       return ventas.filter(v => v.etiqueta === activeFilter.value)
     }
     return filteredVentas
-  }, [activeFilter, filteredVentas, ventas])
+  }, [activeFilter, filteredVentas, ventas, customFolders])
 
   // ─── Folder CRUD ───
-  const handleCreateFolder = (name) => {
-    const folder = { id: Date.now().toString(), name }
+  const handleCreateFolder = (name, parentId = null) => {
+    const folder = { id: Date.now().toString(), name, parentId }
     const updated = [...customFolders, folder]
     setCustomFolders(updated)
     localStorage.setItem('cmd_folders', JSON.stringify(updated))
   }
   const handleDeleteFolder = (id) => {
-    const updated = customFolders.filter(f => f.id !== id)
+    const idsToDelete = getDescendantIds(id, customFolders)
+    const updated = customFolders.filter(f => !idsToDelete.includes(f.id))
     setCustomFolders(updated)
     localStorage.setItem('cmd_folders', JSON.stringify(updated))
   }
