@@ -4,6 +4,7 @@ import {
   Search, Users, TrendingUp, Calendar, FileText, ArrowUpDown
 } from 'lucide-react'
 import { LABEL_COLORS } from '../config/colors'
+import { hasEtiqueta } from '../utils/labelHelpers'
 
 export default function GestionView({ 
   ventas = [],
@@ -297,7 +298,7 @@ export default function GestionView({
             <div className="grid grid-cols-2 gap-2">
               {labels.map(label => {
                 const colorObj = LABEL_COLORS.find(c => c.id === label.colorId) || LABEL_COLORS[0]
-                const count = ventas.filter(v => v.etiqueta === label.name).length
+                const count = ventas.filter(v => hasEtiqueta(v, label.name)).length
                 return (
                   <div key={label.id} className="group relative">
                     <button onClick={() => onNavigate?.('facturas', { type: 'label', value: label.name })}

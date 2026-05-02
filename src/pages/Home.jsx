@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
+import { hasEtiqueta } from '../utils/labelHelpers'
 import { useVentas } from '../hooks/useVentas'
 import { useClientes } from '../hooks/useClientes'
 import EmitirFacturaBar from '../components/EmitirFacturaBar'
@@ -635,7 +636,7 @@ export default function Home() {
     try {
       const ids = Array.from(selectedIds)
       for (const id of ids) {
-        await updateVenta(id, { etiqueta })
+        await updateVentaEtiqueta(id, etiqueta)
       }
       setSelectedIds(new Set())
       showToast(`Etiquetadas ${ids.length} ventas`, 'success')
@@ -698,7 +699,7 @@ export default function Home() {
       return ventas.filter(v => folderIds.includes(v.folder))
     }
     if (activeFilter.type === 'label') {
-      return ventas.filter(v => v.etiqueta === activeFilter.value)
+      return ventas.filter(v => hasEtiqueta(v, activeFilter.value))
     }
     return filteredVentas
   }, [activeFilter, filteredVentas, ventas, customFolders])

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { getEtiquetas } from '../utils/labelHelpers'
 
 const DUMMY_VENTAS = [
   {
@@ -182,7 +183,19 @@ export function useVentas() {
   }, [])
 
   const updateVentaEtiqueta = useCallback(async (id, etiqueta) => {
-    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, etiqueta } : v));
+    saveToLocal(prev => prev.map(v => {
+      if (String(v.id) !== String(id)) return v
+      const current = getEtiquetas(v)
+      let next
+      if (etiqueta === '' || etiqueta === null) {
+        next = [] // clear all
+      } else if (current.includes(etiqueta)) {
+        next = current.filter(e => e !== etiqueta) // toggle off
+      } else {
+        next = [...current, etiqueta] // toggle on
+      }
+      return { ...v, etiquetas: next, etiqueta: next[0] || '' }
+    }));
   }, [])
 
   const bulkCreateVentas = useCallback(async (payloads) => {

@@ -1,5 +1,6 @@
 import StatusBadge from './StatusBadge'
 import { LABEL_COLORS } from '../config/colors'
+import { getEtiquetas, hasEtiqueta } from '../utils/labelHelpers'
 import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download, Archive, Tag, FolderInput, ChevronRight as ChevronRightSub } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef, useCallback } from 'react'
@@ -66,9 +67,24 @@ const EtiquetaBadge = ({ name, labels }) => {
   const colorObj = LABEL_COLORS.find(c => c.id === label?.colorId) || LABEL_COLORS[0];
   const color = colorObj.color;
   return (
-    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-alt border border-border/40 max-w-[120px]">
+    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-alt border border-border/40 max-w-[120px] shrink-0">
       <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
       <span className="text-[10px] font-bold text-text-primary truncate uppercase tracking-tighter">{name}</span>
+    </div>
+  )
+}
+
+const EtiquetasCellContent = ({ venta, labels }) => {
+  const etiquetas = getEtiquetas(venta)
+  if (etiquetas.length === 0) return null
+  const visible = etiquetas.slice(0, 2)
+  const overflow = etiquetas.length - 2
+  return (
+    <div className="flex items-center gap-1 flex-wrap max-w-[200px]">
+      {visible.map(name => <EtiquetaBadge key={name} name={name} labels={labels} />)}
+      {overflow > 0 && (
+        <span className="text-[9px] font-black text-text-muted bg-surface-alt border border-border/40 rounded-full px-1.5 py-0.5">+{overflow}</span>
+      )}
     </div>
   )
 }
@@ -164,7 +180,16 @@ export default function SalesTable({
 
   const handleCtxLabel = useCallback((labelName) => {
     if (ctxMenu?.venta && onSaveEdit) {
-      onSaveEdit(ctxMenu.venta.id, { etiqueta: labelName });
+      const current = getEtiquetas(ctxMenu.venta)
+      let next
+      if (labelName === '' || labelName === null) {
+        next = []
+      } else if (current.includes(labelName)) {
+        next = current.filter(e => e !== labelName)
+      } else {
+        next = [...current, labelName]
+      }
+      onSaveEdit(ctxMenu.venta.id, { etiquetas: next, etiqueta: next[0] || '' });
     }
     closeCtxMenu();
   }, [ctxMenu, onSaveEdit, closeCtxMenu]);
@@ -251,8 +276,8 @@ export default function SalesTable({
         valB = b.datos_fiscales?.origen || ''
         break
       case 'etiqueta':
-        valA = a.etiqueta || ''
-        valB = b.etiqueta || ''
+        valA = getEtiquetas(a).join(',') || ''
+        valB = getEtiquetas(b).join(',') || ''
         break
       default:
         return 0
@@ -713,7 +738,7 @@ export default function SalesTable({
                     )}
                     {isVisible('etiqueta') && (
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <EtiquetaBadge name={venta.etiqueta} labels={labels} />
+                        <EtiquetasCellContent venta={venta} labels={labels} />
                       </td>
                     )}
                     {isVisible('fecha_facturacion') && (
@@ -845,18 +870,18 @@ export default function SalesTable({
               </button>
               {ctxSub === 'labels' && (
                 <div className="border-t border-border/10 bg-surface-alt/30 py-1">
-                  {ctxMenu.venta?.etiqueta && (
+                  {getEtiquetas(ctxMenu.venta).length > 0 && (
                     <button
-                      onClick={() => handleCtxLabel(null)}
+                      onClick={() => handleCtxLabel('')}
                       className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 transition-colors cursor-pointer"
                     >
                       <X size={13} />
-                      Quitar etiqueta
+                      Quitar todas
                     </button>
                   )}
                   {labels.map(label => {
                     const colorObj = LABEL_COLORS.find(c => c.id === label.colorId) || LABEL_COLORS[0];
-                    const isActive = ctxMenu.venta?.etiqueta === label.name;
+                    const isActive = hasEtiqueta(ctxMenu.venta, label.name);
                     return (
                       <button
                         key={label.name}

@@ -189,17 +189,11 @@ export default function SummaryModal({ isOpen, onClose, title, ventas, onDelete,
                     )}
                     {isArchiveView && (
                       <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          defaultValue={venta.etiqueta || ''}
-                          onBlur={(e) => {
-                            if (e.target.value !== (venta.etiqueta || '')) {
-                              onUpdateEtiqueta && onUpdateEtiqueta(venta.id, e.target.value);
-                            }
-                          }}
-                          placeholder="Sin etiqueta"
-                          className="px-2 py-1 bg-transparent border-b border-dashed border-border-subtle focus:border-purple focus:outline-none text-xs text-text-primary transition-colors placeholder:text-text-muted/50 w-full max-w-[120px]"
-                        />
+                        <span className="text-xs text-text-primary">
+                          {(Array.isArray(venta.etiquetas) && venta.etiquetas.length > 0) 
+                            ? venta.etiquetas.join(', ') 
+                            : (venta.etiqueta || '—')}
+                        </span>
                       </td>
                     )}
                     <td className="px-4 py-3 text-right">

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { hasEtiqueta } from '../utils/labelHelpers'
 import { 
   Plus, FileText, BarChart3, FolderKanban, 
   FileCheck, Clock, AlertCircle, Archive, Trash2,
@@ -288,7 +289,7 @@ export default function Sidebar({
                   <SidebarItem
                     icon={<div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorObj.color }} />}
                     label={label.name}
-                    count={ventas.filter(v => v.etiqueta === label.name).length}
+                    count={ventas.filter(v => hasEtiqueta(v, label.name)).length}
                     active={isActive('facturas', { type: 'label', value: label.name })}
                     onClick={() => onViewChange('facturas', { type: 'label', value: label.name })}
                   />

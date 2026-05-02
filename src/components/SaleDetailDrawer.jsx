@@ -6,6 +6,7 @@ import { useConfig } from '../context/ConfigContext';
 import { translatePaymentMethod, simplifyPaymentMethod } from '../utils/paymentMethods';
 import SaleFormFields, { CONCEPTOS, UNIDADES_MEDIDA } from './SaleFormFields';
 import { getTiposComprobante, calcularIVA, getAlicuotaById, needsCbteAsociado } from '../utils/ivaHelpers';
+import { getEtiquetas } from '../utils/labelHelpers';
 
 export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRetry, initialEditMode = false, customFolders = [], labels = [] }) {
   const { emisor, isRI } = useConfig();
@@ -52,7 +53,7 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
         ivaAlicuota: df.iva_alicuota_id || 5,
         // Organization
         folder: venta.folder || '',
-        etiqueta: venta.etiqueta || '',
+        etiquetas: getEtiquetas(venta),
       });
       
       // Auto-open in editing if it's pending
@@ -182,7 +183,8 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
             fecha_emision: editForm.fechaEmision,
           },
           folder: editForm.folder,
-          etiqueta: editForm.etiqueta,
+          etiquetas: editForm.etiquetas,
+          etiqueta: editForm.etiquetas[0] || '',
         });
       }
       // After save, just close the drawer
@@ -336,16 +338,44 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">Etiqueta</label>
-                      <select 
-                        value={isEditing ? editForm.etiqueta : (venta.etiqueta || '')}
-                        onChange={(e) => isEditing && setEditForm(prev => ({ ...prev, etiqueta: e.target.value }))}
-                        disabled={!isEditing}
-                        className="w-full bg-surface-alt border border-border rounded-lg px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-accent disabled:opacity-100 disabled:bg-transparent disabled:border-none disabled:px-0 cursor-pointer"
-                      >
-                        <option value="">Sin etiqueta</option>
-                        {labels.map(l => <option key={l.id} value={l.name}>{l.name}</option>)}
-                      </select>
+                      <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">Etiquetas</label>
+                      {isEditing ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {labels.map(l => {
+                            const colorObj = LABEL_COLORS.find(c => c.id === l.colorId) || LABEL_COLORS[0];
+                            const active = editForm.etiquetas?.includes(l.name);
+                            return (
+                              <button key={l.id} type="button"
+                                onClick={() => {
+                                  const curr = editForm.etiquetas || [];
+                                  const next = active ? curr.filter(e => e !== l.name) : [...curr, l.name];
+                                  setEditForm(prev => ({ ...prev, etiquetas: next }));
+                                }}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight border transition-all cursor-pointer ${
+                                  active ? 'border-accent/40 bg-accent/5 text-accent' : 'border-border/40 bg-surface-alt text-text-muted hover:border-border'
+                                }`}
+                              >
+                                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: colorObj.color }} />
+                                {l.name}
+                              </button>
+                            );
+                          })}
+                          {labels.length === 0 && <span className="text-[10px] text-text-muted italic">Sin etiquetas creadas</span>}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1.5">
+                          {getEtiquetas(venta).length > 0 ? getEtiquetas(venta).map(name => {
+                            const label = labels.find(l => l.name === name);
+                            const colorObj = LABEL_COLORS.find(c => c.id === label?.colorId) || LABEL_COLORS[0];
+                            return (
+                              <div key={name} className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-alt border border-border/40">
+                                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: colorObj.color }} />
+                                <span className="text-[10px] font-bold text-text-primary uppercase tracking-tighter">{name}</span>
+                              </div>
+                            );
+                          }) : <span className="text-xs text-text-muted">—</span>}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Section>
