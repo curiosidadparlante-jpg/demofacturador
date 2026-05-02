@@ -178,7 +178,7 @@ export function useVentas() {
   }, [])
 
   const archiveVenta = useCallback(async (id) => {
-    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, status: 'archivada' } : v));
+    saveToLocal(prev => prev.map(v => String(v.id) === String(id) ? { ...v, archivada: true } : v));
   }, [])
 
   const updateVentaEtiqueta = useCallback(async (id, etiqueta) => {

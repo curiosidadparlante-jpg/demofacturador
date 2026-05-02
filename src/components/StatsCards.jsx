@@ -16,7 +16,7 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
   const facturadas = activas.filter(v => v.status === 'facturado')
   const conError = activas.filter(v => v.status === 'error')
   const pendientes = activas.filter(v => v.status === 'pendiente' || v.status === 'procesando')
-  const archivadasAll = ventas.filter(v => v.status === 'archivado')
+  const archivadasAll = ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado')
   const borradasAll = ventas.filter(v => v.status === 'borrada')
 
   const getAmount = (v) => {

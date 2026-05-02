@@ -26,7 +26,7 @@ export default function GestionView({
     facturadas: ventas.filter(v => v.status === 'facturado').length,
     pendientes: ventas.filter(v => v.status === 'pendiente' || v.status === 'procesando').length,
     error: ventas.filter(v => v.status === 'error').length,
-    archivadas: ventas.filter(v => v.status === 'archivada' || v.status === 'archivado').length,
+    archivadas: ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado').length,
     papelera: ventas.filter(v => v.status === 'borrada').length,
   }
 

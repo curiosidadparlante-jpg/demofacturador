@@ -68,12 +68,12 @@ export default function Home() {
 
   // ─── Filtered ventas ───
   const borradas = useMemo(() => ventas.filter(v => v.status === 'borrada'), [ventas])
-  const archivadas = useMemo(() => ventas.filter(v => v.status === 'archivada'), [ventas])
+  const archivadas = useMemo(() => ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado'), [ventas])
   const filteredVentas = useMemo(() => {
     return ventas.filter(v => {
       // Exclude borradas and archivadas globally from generic UI views
       if (v.status === 'borrada') return false
-      if (v.status === 'archivada') return false
+      if (v.archivada || v.status === 'archivada' || v.status === 'archivado') return false
 
       // Universal search across all fields
       if (debouncedSearch) {
@@ -384,7 +384,7 @@ export default function Home() {
     const idsToProcess = Array.from(selectedIds).map(id => String(id))
     
     setVentas(prev => prev.map(v => 
-      idsToProcess.includes(String(v.id)) ? { ...v, status: 'archivada' } : v
+      idsToProcess.includes(String(v.id)) ? { ...v, archivada: true } : v
     ))
     
     setSelectedIds(new Set())
@@ -673,9 +673,9 @@ export default function Home() {
     if (activeFilter.type === 'status') {
       const st = activeFilter.value
       return ventas.filter(v => {
-        if (st === 'pendiente') return v.status === 'pendiente' || v.status === 'procesando'
-        if (st === 'archivada') return v.status === 'archivada' || v.status === 'archivado'
-        return v.status === st
+        if (st === 'pendiente') return (v.status === 'pendiente' || v.status === 'procesando') && !v.archivada && v.status !== 'archivada' && v.status !== 'archivado'
+        if (st === 'archivada') return v.archivada || v.status === 'archivada' || v.status === 'archivado'
+        return v.status === st && !v.archivada && v.status !== 'archivada' && v.status !== 'archivado'
       })
     }
     if (activeFilter.type === 'folder') {

@@ -155,7 +155,9 @@ export default function SalesTable({
   // Context menu actions
   const handleCtxArchive = useCallback(() => {
     if (ctxMenu?.venta && onSaveEdit) {
-      onSaveEdit(ctxMenu.venta.id, { status: 'archivada' });
+      const isArchivada = ctxMenu.venta.archivada || ctxMenu.venta.status === 'archivada' || ctxMenu.venta.status === 'archivado';
+      const newStatus = isArchivada && ctxMenu.venta.status === 'archivada' ? 'pendiente' : ctxMenu.venta.status;
+      onSaveEdit(ctxMenu.venta.id, { archivada: !isArchivada, status: newStatus });
     }
     closeCtxMenu();
   }, [ctxMenu, onSaveEdit, closeCtxMenu]);
@@ -824,7 +826,7 @@ export default function SalesTable({
               className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
             >
               <Archive size={15} className="text-text-muted" />
-              {ctxMenu.venta?.status === 'archivada' ? 'Desarchivar' : 'Archivar'}
+              {(ctxMenu.venta?.archivada || ctxMenu.venta?.status === 'archivada' || ctxMenu.venta?.status === 'archivado') ? 'Desarchivar' : 'Archivar'}
             </button>
 
             <div className="h-px bg-border/20 mx-2" />
