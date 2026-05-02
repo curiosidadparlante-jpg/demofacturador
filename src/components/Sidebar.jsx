@@ -40,6 +40,7 @@ export default function Sidebar({
     inbox: ventas.filter(v => (v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error') && !v.archivada && v.status !== 'archivada' && v.status !== 'borrada' && !v.folder).length,
     historico: ventas.filter(v => !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
     facturadas: ventas.filter(v => v.status === 'facturado' && !v.archivada).length,
+    pendientes: ventas.filter(v => v.status === 'pendiente' && !v.archivada).length,
     error: ventas.filter(v => v.status === 'error' && !v.archivada).length,
     archivadas: ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado').length,
     papelera: ventas.filter(v => v.status === 'borrada').length,
@@ -203,6 +204,14 @@ export default function Sidebar({
               active={isActive('facturas', { type: 'status', value: 'facturado' })}
               onClick={() => onViewChange('facturas', { type: 'status', value: 'facturado' })}
               color="#2D8F5E"
+            />
+            <SidebarItem
+              icon={<Clock size={15} />}
+              label="Pendientes"
+              count={counts.pendientes}
+              active={isActive('facturas', { type: 'status', value: 'pendiente' })}
+              onClick={() => onViewChange('facturas', { type: 'status', value: 'pendiente' })}
+              color="#FFE100"
             />
             <SidebarItem
               icon={<AlertCircle size={15} />}
