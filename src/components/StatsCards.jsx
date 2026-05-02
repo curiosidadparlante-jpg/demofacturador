@@ -259,20 +259,23 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
           })}
         </div>
 
-        {/* Monotributo thermometer (Right aligned at cards height) */}
+        {/* Monotributo thermometer */}
         {!isRI && (
-          <div className="flex items-center justify-center gap-4 px-6 py-4 md:px-8 md:py-5 bg-white border border-border rounded-xl shadow-sm xl:h-auto">
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] font-bold uppercase text-text-muted tracking-widest">Cat. {category} ({renderMoney(limit)})</span>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-lg md:text-xl font-black text-text-primary">{renderMoney(facturacionAnual)}</span>
-                <span className={`text-[10px] font-bold bg-surface-alt px-2 py-0.5 rounded-full ${colorClass.split(' ')[0]}`}>{percentage.toFixed(1)}%</span>
+          <div className="flex flex-col justify-center w-full xl:w-[350px] 2xl:w-[450px] px-2 py-4 xl:py-0">
+            <div className="flex justify-between items-end mb-2">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold uppercase text-text-muted tracking-widest">Cat. {category}</span>
+                <span className="text-[10px] font-semibold text-text-muted">Límite: {renderMoney(limit)}</span>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-lg md:text-xl font-black text-text-primary">{renderMoney(facturacionAnual)}</span>
+                  <span className={`text-[10px] font-bold ${colorClass.split(' ')[0]}`}>{percentage.toFixed(1)}%</span>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col gap-1 items-end">
-              <div className="h-3 w-20 md:w-24 bg-border/40 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`} style={{ width: `${percentage}%` }} />
-              </div>
+            <div className="h-2.5 w-full bg-border/40 rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`} style={{ width: `${percentage}%` }} />
             </div>
           </div>
         )}
