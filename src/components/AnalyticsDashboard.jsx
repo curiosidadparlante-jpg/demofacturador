@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search, FileDown } from 'lucide-react'
 import AnalyticsChart from './AnalyticsChart'
-import { exportToExcel, exportToCSV } from '../utils/exportUtils'
+import { exportChartDataToExcel, exportChartDataToCSV } from '../utils/exportUtils'
 
 const PRESETS = [
   { label: '7 días', days: 7 },
@@ -382,16 +382,16 @@ export default function AnalyticsDashboard({ ventas = [] }) {
               {exportOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/40 py-1 z-50 animate-slide-down">
                   <button 
-                    onClick={() => { exportToExcel(dashboardVentas); setExportOpen(false); }}
+                    onClick={() => { exportChartDataToExcel(chartData); setExportOpen(false); }}
                     className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
                   >
-                    Exportar Operaciones (Excel)
+                    Exportar Gráfico (Excel)
                   </button>
                   <button 
-                    onClick={() => { exportToCSV(dashboardVentas); setExportOpen(false); }}
+                    onClick={() => { exportChartDataToCSV(chartData); setExportOpen(false); }}
                     className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
                   >
-                    Exportar Operaciones (CSV)
+                    Exportar Gráfico (CSV)
                   </button>
                 </div>
               )}
