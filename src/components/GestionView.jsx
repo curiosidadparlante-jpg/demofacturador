@@ -196,7 +196,11 @@ export default function GestionView({
                   <ClientHistory client={c} formatMoney={formatMoney} formatDate={formatDate} />
                 )}
               </div>
+            ))}
           </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
