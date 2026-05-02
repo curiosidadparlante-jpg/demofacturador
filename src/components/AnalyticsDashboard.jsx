@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search } from 'lucide-react'
+import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search, FileDown } from 'lucide-react'
 import AnalyticsChart from './AnalyticsChart'
+import { exportToExcel, exportToCSV } from '../utils/exportUtils'
 
 const PRESETS = [
   { label: '7 días', days: 7 },
@@ -111,6 +112,9 @@ export default function AnalyticsDashboard({ ventas = [] }) {
   const [clientSearchTerm, setClientSearchTerm] = useState('')
   const clientRef = useRef(null)
 
+  const [exportOpen, setExportOpen] = useState(false)
+  const exportRef = useRef(null)
+
   const uniqueClients = useMemo(() => {
     const clients = new Set()
     ventas.forEach(v => {
@@ -137,6 +141,7 @@ export default function AnalyticsDashboard({ ventas = [] }) {
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
       if (compareRef.current && !compareRef.current.contains(e.target)) setCompareOpen(false)
       if (clientRef.current && !clientRef.current.contains(e.target)) setClientOpen(false)
+      if (exportRef.current && !exportRef.current.contains(e.target)) setExportOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -314,56 +319,83 @@ export default function AnalyticsDashboard({ ventas = [] }) {
                 </div>
               )}
             </div>
-          </div>
+            {/* Compare Selector */}
+            <div className="relative" ref={compareRef}>
+              <button onClick={() => setCompareOpen(!compareOpen)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border ${
+                  compareEnabled ? 'border-purple bg-purple/5 text-purple' : 'border-border/40 text-text-muted hover:bg-surface-alt'
+                }`}>
+                {compareEnabled ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
+                Comparar {compareEnabled && <ChevronDown size={12} className="ml-0.5" />}
+              </button>
 
-          {/* Compare Selector */}
-          <div className="relative" ref={compareRef}>
-            <button onClick={() => setCompareOpen(!compareOpen)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border ${
-                compareEnabled ? 'border-purple bg-purple/5 text-purple' : 'border-border/40 text-text-muted hover:bg-surface-alt'
-              }`}>
-              {compareEnabled ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
-              Comparar {compareEnabled && <ChevronDown size={12} className="ml-0.5" />}
-            </button>
-
-            {compareOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[300px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down">
-                <div className="px-4 py-3 border-b border-border"><h4 className="text-sm font-bold text-text-primary">Comparar con</h4></div>
-                <div className="p-2">
-                  <button onClick={() => { setCompareMode('off'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'off' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                    Sin comparación
-                  </button>
-                  <button onClick={() => { setCompareMode('previous'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'previous' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                    Período anterior
-                  </button>
-                  <button onClick={() => { setCompareMode('year'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'year' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                    Mismo período año pasado
-                  </button>
-                  <button onClick={() => { setCompareMode('custom') }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'custom' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                    Personalizado...
-                  </button>
-                </div>
-                
-                {compareMode === 'custom' && (
-                  <div className="px-4 pb-4 border-t border-border pt-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Inicio</label>
-                        <input type="date" value={compareFrom} onChange={e => setCompareFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-purple" />
-                      </div>
-                      <span className="text-text-muted mt-4">-</span>
-                      <div className="flex-1">
-                        <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fin</label>
-                        <input type="date" value={compareTo} onChange={e => setCompareTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-purple" />
-                      </div>
-                    </div>
-                    <button onClick={() => setCompareOpen(false)} disabled={!compareFrom || !compareTo} className="w-full mt-3 py-2 text-xs font-bold text-white bg-purple rounded-lg hover:bg-purple/90 disabled:opacity-50 cursor-pointer">
-                      Aplicar comparación
+              {compareOpen && (
+                <div className="absolute right-0 top-full mt-2 w-[300px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down">
+                  <div className="px-4 py-3 border-b border-border"><h4 className="text-sm font-bold text-text-primary">Comparar con</h4></div>
+                  <div className="p-2">
+                    <button onClick={() => { setCompareMode('off'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'off' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
+                      Sin comparación
+                    </button>
+                    <button onClick={() => { setCompareMode('previous'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'previous' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
+                      Período anterior
+                    </button>
+                    <button onClick={() => { setCompareMode('year'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'year' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
+                      Mismo período año anterior
+                    </button>
+                    <button onClick={() => setCompareMode('custom')} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'custom' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
+                      Personalizado...
                     </button>
                   </div>
-                )}
-              </div>
-            )}
+                  
+                  {compareMode === 'custom' && (
+                    <div className="p-4 border-t border-border bg-surface-alt/30">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Inicio Comp.</label>
+                          <input type="date" value={compareFrom} onChange={e => setCompareFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
+                        </div>
+                        <span className="text-text-muted mt-4">-</span>
+                        <div className="flex-1">
+                          <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fin Comp.</label>
+                          <input type="date" value={compareTo} onChange={e => setCompareTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
+                        </div>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <button onClick={() => setCompareOpen(false)} className="px-3 py-1.5 text-xs font-bold text-white bg-purple rounded-lg hover:bg-purple/90 cursor-pointer">OK</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Export Dropdown */}
+            <div className="relative" ref={exportRef}>
+              <button 
+                onClick={() => setExportOpen(!exportOpen)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border border-border/40 text-text-muted hover:bg-surface-alt hover:text-text-primary"
+              >
+                <FileDown size={14} />
+                Exportar <ChevronDown size={12} className="ml-0.5" />
+              </button>
+              
+              {exportOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/40 py-1 z-50 animate-slide-down">
+                  <button 
+                    onClick={() => { exportToExcel(dashboardVentas); setExportOpen(false); }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
+                  >
+                    Exportar Operaciones (Excel)
+                  </button>
+                  <button 
+                    onClick={() => { exportToCSV(dashboardVentas); setExportOpen(false); }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
+                  >
+                    Exportar Operaciones (CSV)
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
