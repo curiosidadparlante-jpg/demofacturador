@@ -1,6 +1,6 @@
-import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle, Archive, Calendar, X, ArrowRightLeft } from 'lucide-react'
+import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle, Archive, Calendar, X } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { filterVentasByTimeframe, filterVentasByDateRange, getComparisonRange, getTimeframeRange } from '../utils/dateUtils'
+import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
 import { getMonotributoLimit } from '../utils/afipConstants'
 
@@ -8,10 +8,8 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
   const [timeframe, setTimeframe] = useState('all')
   const [showValues, setShowValues] = useState(true)
   const [moreOpen, setMoreOpen] = useState(false)
-  const [moreTab, setMoreTab] = useState('filter') // 'filter' | 'compare'
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
-  const [comparing, setComparing] = useState(false)
   const moreRef = useRef(null)
 
   const { emisor, isRI } = useConfig()
@@ -46,34 +44,6 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
   const pendientesAmount = pendientes.reduce((s, v) => s + getAmount(v), 0)
   const conErrorAmount = conError.reduce((s, v) => s + getAmount(v), 0)
 
-  // ─── Comparison data ───
-  const compData = useMemo(() => {
-    if (!comparing) return null
-    let range
-    if (timeframe === 'custom' && customFrom && customTo) {
-      range = getComparisonRange(customFrom, customTo)
-    } else {
-      const tr = getTimeframeRange(timeframe)
-      if (!tr) return null
-      range = getComparisonRange(tr.from, tr.to)
-    }
-    const prev = filterVentasByDateRange(ventas, range.from, range.to)
-    const prevActivas = prev.filter(v => v.status !== 'borrada')
-    const prevFacturadas = prevActivas.filter(v => v.status === 'facturado')
-    const prevPendientes = prevActivas.filter(v => v.status === 'pendiente' || v.status === 'procesando')
-    const prevError = prevActivas.filter(v => v.status === 'error')
-    return {
-      range,
-      facturadas: prevFacturadas.reduce((s, v) => s + getAmount(v), 0),
-      pendientes: prevPendientes.reduce((s, v) => s + getAmount(v), 0),
-      error: prevError.reduce((s, v) => s + getAmount(v), 0),
-      total: prevActivas.reduce((s, v) => s + getAmount(v), 0),
-      countFact: prevFacturadas.length,
-      countPend: prevPendientes.length,
-      countErr: prevError.length,
-      countTotal: prevActivas.length,
-    }
-  }, [comparing, timeframe, customFrom, customTo, ventas])
 
   // ─── Monotributo ───
   const facturacionAnual = useMemo(() => {
@@ -116,22 +86,6 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
 
   const renderMoney = (amount) => showValues ? formatCurrency(amount) : '$ ***.***'
 
-  const getDelta = (current, previous) => {
-    if (!previous || previous === 0) return null
-    const pct = ((current - previous) / Math.abs(previous)) * 100
-    return pct
-  }
-
-  const renderDelta = (current, previous) => {
-    const d = getDelta(current, previous)
-    if (d === null) return null
-    const isUp = d >= 0
-    return (
-      <span className={`text-[9px] font-bold ${isUp ? 'text-green' : 'text-red'}`}>
-        {isUp ? '▲' : '▼'} {Math.abs(d).toFixed(0)}%
-      </span>
-    )
-  }
 
   const handleApplyCustom = () => {
     if (customFrom && customTo) {
@@ -147,18 +101,13 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
     setMoreOpen(false)
   }
 
-  const timeframeLabel = () => {
-    const labels = { all: 'Histórico', year: 'Año Fiscal', month: 'Mes', week: 'Semana', day: 'Día' }
-    if (timeframe === 'custom') return `${customFrom} → ${customTo}`
-    return labels[timeframe] || timeframe
-  }
 
   // ─── Card config ───
   const cards = [
-    { key: 'Facturadas', label: 'Total Facturado', amount: facturadasAmount, count: facturadas.length, color: 'bg-green', textColor: 'text-green', icon: FileCheck, compAmount: compData?.facturadas, compCount: compData?.countFact, borderClass: 'border-r border-b lg:border-b-0' },
-    { key: 'Pendientes', label: 'Pendientes', amount: pendientesAmount, count: pendientes.length, color: 'bg-[#F59E0B]', textColor: 'text-[#F59E0B]', icon: Clock, compAmount: compData?.pendientes, compCount: compData?.countPend, borderClass: 'border-r border-b lg:border-b-0' },
-    { key: 'Con Error', label: 'Errores AFIP', amount: conErrorAmount, count: conError.length, color: 'bg-red', textColor: 'text-red', icon: AlertCircle, compAmount: compData?.error, compCount: compData?.countErr, borderClass: 'border-r' },
-    { key: 'Total Ventas', label: 'Total Movimientos', amount: totalActivasAmount, count: activas.length, color: 'bg-blue', textColor: 'text-blue', icon: Activity, compAmount: compData?.total, compCount: compData?.countTotal, borderClass: '' },
+    { key: 'Facturadas', label: 'Total Facturado', amount: facturadasAmount, count: facturadas.length, color: 'bg-green', textColor: 'text-green', icon: FileCheck, borderClass: 'border-r border-b lg:border-b-0' },
+    { key: 'Pendientes', label: 'Pendientes', amount: pendientesAmount, count: pendientes.length, color: 'bg-[#F59E0B]', textColor: 'text-[#F59E0B]', icon: Clock, borderClass: 'border-r border-b lg:border-b-0' },
+    { key: 'Con Error', label: 'Errores AFIP', amount: conErrorAmount, count: conError.length, color: 'bg-red', textColor: 'text-red', icon: AlertCircle, borderClass: 'border-r' },
+    { key: 'Total Ventas', label: 'Total Movimientos', amount: totalActivasAmount, count: activas.length, color: 'bg-blue', textColor: 'text-blue', icon: Activity, borderClass: '' },
   ]
 
   return (
@@ -192,7 +141,7 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
             <button
               onClick={() => setMoreOpen(!moreOpen)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
-                ${(moreOpen || timeframe === 'custom' || comparing) ? 'bg-blue/10 border-blue/30 text-blue' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
+                ${(moreOpen || timeframe === 'custom') ? 'bg-blue/10 border-blue/30 text-blue' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
               `}
             >
               <Calendar size={13} />
@@ -202,96 +151,64 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
 
             {moreOpen && (
               <div className="absolute top-full left-0 mt-2 w-[340px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down overflow-hidden">
-                {/* Tabs: Filtrar | Comparar */}
-                <div className="flex border-b border-border">
-                  <button onClick={() => setMoreTab('filter')} className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer ${moreTab === 'filter' ? 'text-blue border-b-2 border-blue' : 'text-text-muted hover:text-text-primary'}`}>
-                    Filtrar
-                  </button>
-                  <button onClick={() => setMoreTab('compare')} className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer ${moreTab === 'compare' ? 'text-blue border-b-2 border-blue' : 'text-text-muted hover:text-text-primary'}`}>
-                    Comparar
-                  </button>
+                {/* Header */}
+                <div className="px-4 py-3 border-b border-border">
+                  <h4 className="text-sm font-bold text-text-primary">Intervalo de fechas</h4>
                 </div>
 
                 <div className="p-4 space-y-3">
-                  {moreTab === 'filter' && (
-                    <>
-                      {/* Preset ranges */}
-                      {[
-                        { label: 'Últimos 7 días', from: daysAgo(7), to: todayStr() },
-                        { label: 'Últimos 28 días', from: daysAgo(28), to: todayStr() },
-                        { label: 'Últimos 3 meses', from: daysAgo(90), to: todayStr() },
-                        { label: 'Últimos 6 meses', from: daysAgo(180), to: todayStr() },
-                        { label: 'Últimos 12 meses', from: daysAgo(365), to: todayStr() },
-                      ].map((preset) => (
-                        <label key={preset.label} className="flex items-center gap-3 cursor-pointer group">
-                          <input
-                            type="radio"
-                            name="datePreset"
-                            checked={timeframe === 'custom' && customFrom === preset.from && customTo === preset.to}
-                            onChange={() => { setCustomFrom(preset.from); setCustomTo(preset.to); setTimeframe('custom'); }}
-                            className="accent-blue w-4 h-4 cursor-pointer"
-                          />
-                          <span className="text-sm text-text-primary group-hover:text-blue transition-colors">{preset.label}</span>
-                        </label>
-                      ))}
+                  {/* Preset ranges */}
+                  {[
+                    { label: 'Últimos 7 días', from: daysAgo(7), to: todayStr() },
+                    { label: 'Últimos 28 días', from: daysAgo(28), to: todayStr() },
+                    { label: 'Últimos 3 meses', from: daysAgo(90), to: todayStr() },
+                    { label: 'Últimos 6 meses', from: daysAgo(180), to: todayStr() },
+                    { label: 'Últimos 12 meses', from: daysAgo(365), to: todayStr() },
+                  ].map((preset) => (
+                    <label key={preset.label} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="datePreset"
+                        checked={timeframe === 'custom' && customFrom === preset.from && customTo === preset.to}
+                        onChange={() => { setCustomFrom(preset.from); setCustomTo(preset.to); setTimeframe('custom'); }}
+                        className="accent-blue w-4 h-4 cursor-pointer"
+                      />
+                      <span className="text-sm text-text-primary group-hover:text-blue transition-colors">{preset.label}</span>
+                    </label>
+                  ))}
 
-                      <div className="h-px bg-border/40 my-2" />
+                  <div className="h-px bg-border/40 my-2" />
 
-                      {/* Custom range */}
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="datePreset"
-                          checked={timeframe === 'custom' && ![7,28,90,180,365].some(d => customFrom === daysAgo(d) && customTo === todayStr())}
-                          onChange={() => {}}
-                          className="accent-blue w-4 h-4 cursor-pointer"
-                        />
-                        <span className="text-sm text-text-primary">Personalizado</span>
-                      </label>
+                  {/* Custom range */}
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="datePreset"
+                      checked={timeframe === 'custom' && ![7,28,90,180,365].some(d => customFrom === daysAgo(d) && customTo === todayStr())}
+                      onChange={() => {}}
+                      className="accent-blue w-4 h-4 cursor-pointer"
+                    />
+                    <span className="text-sm text-text-primary">Personalizado</span>
+                  </label>
 
-                      <div className="flex items-center gap-2 pl-7">
-                        <div className="flex-1">
-                          <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fecha inicio</label>
-                          <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-blue" />
-                        </div>
-                        <span className="text-text-muted mt-4">-</span>
-                        <div className="flex-1">
-                          <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fecha fin</label>
-                          <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-blue" />
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {moreTab === 'compare' && (
-                    <div className="space-y-3">
-                      <p className="text-xs text-text-muted">
-                        Compará el período actual con el período anterior equivalente.
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => setComparing(!comparing)}
-                          className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${comparing ? 'bg-blue' : 'bg-border'}`}
-                        >
-                          <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${comparing ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                        </button>
-                        <span className="text-sm text-text-primary">{comparing ? 'Comparando activo' : 'Activar comparación'}</span>
-                      </div>
-                      {comparing && (
-                        <div className="bg-blue/5 border border-blue/20 rounded-lg p-3 text-xs text-blue">
-                          <ArrowRightLeft size={14} className="inline mr-1.5" />
-                          <strong>Período actual:</strong> {timeframeLabel()}<br/>
-                          {compData && <><strong>vs. Período anterior:</strong> {compData.range.from} → {compData.range.to}</>}
-                        </div>
-                      )}
+                  <div className="flex items-center gap-2 pl-7">
+                    <div className="flex-1">
+                      <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fecha inicio</label>
+                      <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-blue" />
                     </div>
-                  )}
+                    <span className="text-text-muted mt-4">-</span>
+                    <div className="flex-1">
+                      <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fecha fin</label>
+                      <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-blue" />
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* Footer */}
                 <div className="flex justify-end gap-2 px-4 py-3 border-t border-border bg-surface-alt/30">
                   <button onClick={() => { setMoreOpen(false) }} className="px-4 py-1.5 text-xs font-bold text-blue cursor-pointer hover:underline">Cancelar</button>
-                  <button onClick={handleApplyCustom} className="px-4 py-1.5 text-xs font-bold text-white bg-blue rounded-lg cursor-pointer hover:bg-blue/90 transition-colors disabled:opacity-40" disabled={moreTab === 'filter' && (!customFrom || !customTo)}>Aplicar</button>
+                  <button onClick={handleApplyCustom} className="px-4 py-1.5 text-xs font-bold text-white bg-blue rounded-lg cursor-pointer hover:bg-blue/90 transition-colors disabled:opacity-40" disabled={!customFrom || !customTo}>Aplicar</button>
                 </div>
               </div>
             )}
@@ -305,13 +222,7 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
               <button onClick={() => { setTimeframe('all'); setCustomFrom(''); setCustomTo(''); }} className="ml-1 hover:text-red cursor-pointer"><X size={11} /></button>
             </div>
           )}
-          {comparing && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple/10 text-purple rounded-full text-[10px] font-bold">
-              <ArrowRightLeft size={11} />
-              Comparando
-              <button onClick={() => setComparing(false)} className="ml-1 hover:text-red cursor-pointer"><X size={11} /></button>
-            </div>
-          )}
+
         </div>
 
         {/* Monotributo thermometer */}
@@ -332,7 +243,7 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
       </div>
 
       {/* ─── METRIC CARDS ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 rounded-xl overflow-hidden border border-border shadow-sm">
+      <div className="flex flex-wrap rounded-xl overflow-hidden border border-border shadow-sm">
         {cards.map((card) => {
           const isActive = activeCard === card.key
           const Icon = card.icon
@@ -352,19 +263,11 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
                 <span className={`text-xs md:text-sm font-semibold ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
               </div>
               <div className="flex flex-col">
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-2xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textColor}`}>
-                    {renderMoney(card.amount)}
-                  </span>
-                  {comparing && compData && renderDelta(card.amount, card.compAmount) && (
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-surface-alt'}`}>
-                      {renderDelta(card.amount, card.compAmount)}
-                    </span>
-                  )}
-                </div>
+                <span className={`text-2xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textColor}`}>
+                  {renderMoney(card.amount)}
+                </span>
                 <span className={`text-[10px] uppercase tracking-widest mt-1 ${isActive ? 'text-white/80' : 'text-text-muted'}`}>
                   {card.count} mov.
-                  {comparing && compData != null && <span className="ml-1 opacity-70">({card.compCount !== undefined ? card.compCount : '—'} ant.)</span>}
                 </span>
               </div>
             </button>
