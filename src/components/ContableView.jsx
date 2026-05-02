@@ -32,14 +32,14 @@ export default function ContableView({
         </p>
       </div>
 
-      <div className="mb-6">
+      <StatsCards ventas={ventas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} />
+
+      <div className="mt-8 mb-4">
         <FilterBar filters={filters} onFilterChange={onFilterChange} />
       </div>
 
-      <StatsCards ventas={ventas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} />
-
       {tableData && (
-        <div className="bg-surface rounded-xl border border-border p-4 md:p-6 animate-fade-in shadow-sm mt-8">
+        <div className="bg-surface rounded-xl border border-border p-4 md:p-6 animate-fade-in shadow-sm">
           <SalesTable 
             ventas={tableData.ventas}
             selectedIds={selectedIds}
