@@ -36,7 +36,7 @@ export default function Sidebar({
 
   // Counts
   const counts = {
-    inbox: ventas.filter(v => (v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error') && !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
+    inbox: ventas.filter(v => (v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error') && !v.archivada && v.status !== 'archivada' && v.status !== 'borrada' && !v.folder).length,
     historico: ventas.filter(v => !v.archivada && v.status !== 'archivada' && v.status !== 'borrada').length,
     facturadas: ventas.filter(v => v.status === 'facturado' && !v.archivada).length,
     error: ventas.filter(v => v.status === 'error' && !v.archivada).length,

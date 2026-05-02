@@ -681,7 +681,7 @@ export default function Home() {
   const viewFilteredVentas = useMemo(() => {
     if (!activeFilter) {
       // Default Inbox view (Pendientes + Error)
-      return filteredVentas.filter(v => v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error')
+      return filteredVentas.filter(v => (v.status === 'pendiente' || v.status === 'procesando' || v.status === 'error') && !v.folder)
     }
     if (activeFilter.type === 'historico') {
       return filteredVentas
