@@ -264,8 +264,8 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
           <div className="flex flex-col justify-center w-full xl:w-[350px] 2xl:w-[450px] px-2 py-4 xl:py-0">
             <div className="flex justify-between items-end mb-2">
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase text-text-muted tracking-widest">Cat. {category}</span>
-                <span className="text-[10px] font-semibold text-text-muted">Límite: {renderMoney(limit)}</span>
+                <span className="text-xs md:text-sm font-bold uppercase text-text-muted tracking-widest">Cat. {category}</span>
+                <span className="text-[11px] md:text-xs font-semibold text-text-muted mt-0.5">Límite: {renderMoney(limit)}</span>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-baseline gap-2">
