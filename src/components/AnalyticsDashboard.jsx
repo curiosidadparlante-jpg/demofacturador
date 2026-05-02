@@ -10,10 +10,10 @@ const PRESETS = [
 ]
 
 const METRICS = {
-  facturadas: { color: '#2D8F5E', bgClass: 'bg-green', textClass: 'text-green', label: 'Facturadas', icon: FileCheck, format: v => v, isMoney: false },
-  pendientes: { color: '#FFE100', bgClass: 'bg-yellow', textClass: 'text-[#b8960c]', label: 'Pendientes', icon: Clock, format: v => v, isMoney: false },
-  total: { color: '#3460A8', bgClass: 'bg-blue', textClass: 'text-blue', label: 'Total Ops', icon: FileText, format: v => v, isMoney: false },
-  monto: { color: '#7C4DFF', bgClass: 'bg-purple', textClass: 'text-purple', label: 'Monto Fact.', icon: DollarSign, format: v => `$${Number(v||0).toLocaleString('es-AR')}`, isMoney: true },
+  facturadas: { color: '#305D4A', bgClass: 'card-green', textClass: 'text-green', label: 'Facturadas', icon: FileCheck, format: v => v, isMoney: false },
+  pendientes: { color: '#D4B230', bgClass: 'card-yellow', textClass: 'text-[#b8960c]', label: 'Pendientes', icon: Clock, format: v => v, isMoney: false },
+  total: { color: '#2C6473', bgClass: 'card-blue', textClass: 'text-blue', label: 'Total Ops', icon: FileText, format: v => v, isMoney: false },
+  monto: { color: '#814FFE', bgClass: 'card-purple', textClass: 'text-purple', label: 'Monto Fact.', icon: DollarSign, format: v => `$${Number(v||0).toLocaleString('es-AR')}`, isMoney: true },
 }
 
 function toDateStr(d) { return d.toISOString().split('T')[0] }
