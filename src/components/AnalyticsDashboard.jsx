@@ -10,10 +10,10 @@ const PRESETS = [
 ]
 
 const METRICS = {
-  facturadas: { color: '#2D8F5E', label: 'Facturadas', icon: FileCheck, format: v => v, isMoney: false },
-  pendientes: { color: '#b8960c', label: 'Pendientes', icon: Clock, format: v => v, isMoney: false },
-  total: { color: '#3460A8', label: 'Total Ops', icon: FileText, format: v => v, isMoney: false },
-  monto: { color: '#7C4DFF', label: 'Monto Fact.', icon: DollarSign, format: v => `$${Number(v||0).toLocaleString('es-AR')}`, isMoney: true },
+  facturadas: { color: '#2D8F5E', bgClass: 'bg-green', textClass: 'text-green', label: 'Facturadas', icon: FileCheck, format: v => v, isMoney: false },
+  pendientes: { color: '#FFE100', bgClass: 'bg-yellow', textClass: 'text-[#b8960c]', label: 'Pendientes', icon: Clock, format: v => v, isMoney: false },
+  total: { color: '#3460A8', bgClass: 'bg-blue', textClass: 'text-blue', label: 'Total Ops', icon: FileText, format: v => v, isMoney: false },
+  monto: { color: '#7C4DFF', bgClass: 'bg-purple', textClass: 'text-purple', label: 'Monto Fact.', icon: DollarSign, format: v => `$${Number(v||0).toLocaleString('es-AR')}`, isMoney: true },
 }
 
 function toDateStr(d) { return d.toISOString().split('T')[0] }
@@ -147,32 +147,40 @@ export default function AnalyticsDashboard({ ventas = [] }) {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        {cards.map(card => {
-          const Icon = card.icon
-          const isUp = card.change >= 0
-          return (
-            <button key={card.key} onClick={() => toggleMetric(card.key)}
-              className={`relative bg-white border rounded-2xl p-4 text-left transition-all cursor-pointer group hover:shadow-md hover:-translate-y-0.5 ${
-                card.active ? 'border-[color:var(--c)] shadow-sm ring-1 ring-[color:var(--c)]/20' : 'border-border/40'
-              }`}
-              style={{ '--c': card.color }}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-text-muted">{card.label}</span>
-                <Icon size={14} style={{ color: card.color }} />
-              </div>
-              <div className="text-2xl font-black tracking-tight" style={{ color: card.active ? card.color : '#1a1a1a' }}>
-                {card.isMoney ? card.format(card.value) : card.value}
-              </div>
-              <div className={`flex items-center gap-1 mt-1.5 text-[10px] font-bold ${isUp ? 'text-green' : 'text-red'}`}>
-                {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                {isUp ? '+' : ''}{card.change}%
-                <span className="text-text-muted font-normal ml-1">vs anterior</span>
-              </div>
-              {card.active && <div className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full" style={{ backgroundColor: card.color }} />}
-            </button>
-          )
-        })}
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
+        <div className="flex flex-wrap gap-2 lg:gap-4 flex-1">
+          {cards.map(card => {
+            const Icon = card.icon
+            const isUp = card.change >= 0
+            const isActive = card.active
+            return (
+              <button
+                key={card.key}
+                onClick={() => toggleMetric(card.key)}
+                className={`relative flex-1 min-w-[140px] px-4 py-4 md:px-6 md:py-5 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
+                  ${isActive ? `${card.bgClass} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
+                `}
+              >
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
+                    {isActive && <Icon size={10} className="text-white" />}
+                  </div>
+                  <span className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className={`text-xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textClass}`}>
+                    {card.isMoney ? card.format(card.value) : card.value}
+                  </span>
+                  <div className={`flex items-center gap-1 mt-1 text-[9px] md:text-[10px] font-bold ${isActive ? 'text-white/80' : (isUp ? 'text-green' : 'text-red')}`}>
+                    {isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                    {isUp ? '+' : ''}{card.change}%
+                    <span className={`font-normal ml-0.5 ${isActive ? 'text-white/60' : 'text-text-muted'}`}>vs anterior</span>
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Chart */}
