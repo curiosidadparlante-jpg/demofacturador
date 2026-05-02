@@ -24,13 +24,25 @@ export default function GestionView({
   const [newLabelName, setNewLabelName] = useState('')
   const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0].id)
   const [clientSearch, setClientSearch] = useState('')
+  const [globalClientFilter, setGlobalClientFilter] = useState('')
   const [sortBy, setSortBy] = useState('total')
   const [selectedClient, setSelectedClient] = useState(null)
+
+  // ─── Global Filter for CUIT/Razon Social ───
+  const filteredVentas = useMemo(() => {
+    if (!globalClientFilter.trim()) return ventas
+    const q = globalClientFilter.toLowerCase().trim()
+    return ventas.filter(v => 
+      v.cliente?.toLowerCase().includes(q) || 
+      v.datos_fiscales?.cuit?.includes(q) ||
+      v.nro_comprobante?.toLowerCase().includes(q)
+    )
+  }, [ventas, globalClientFilter])
 
   // ─── Build client directory from ventas ───
   const clients = useMemo(() => {
     const map = new Map()
-    ventas.forEach(v => {
+    filteredVentas.forEach(v => {
       if (v.status === 'borrada') return
       const nombre = v.cliente?.trim()
       if (!nombre) return
@@ -93,8 +105,25 @@ export default function GestionView({
 
   return (
     <div>
+      {/* ─── GLOBAL FILTER ─── */}
+      <div className="mb-6 relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+        <input
+          type="text"
+          placeholder="Buscar facturas por cliente, CUIT, o nro comprobante..."
+          value={globalClientFilter}
+          onChange={(e) => setGlobalClientFilter(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 bg-white border border-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-blue transition-colors shadow-sm"
+        />
+        {globalClientFilter && (
+          <button onClick={() => setGlobalClientFilter('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-red cursor-pointer transition-colors">
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
       {/* ─── ANALYTICS DASHBOARD ─── */}
-      <AnalyticsDashboard ventas={ventas} />
+      <AnalyticsDashboard ventas={filteredVentas} />
 
       {/* ─── TOP 5 CLIENTS ─── */}
       {top5.length > 0 && (

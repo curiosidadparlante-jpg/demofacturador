@@ -288,7 +288,7 @@ export default function AnalyticsDashboard({ ventas = [] }) {
 
       {/* KPI Cards */}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
-        <div className="flex flex-wrap gap-2 lg:gap-4 flex-1 w-full">
+        <div className="flex flex-wrap gap-2 lg:gap-4 w-full">
           {cards.map(card => {
             const Icon = card.icon
             const isUp = card.change >= 0
@@ -297,7 +297,7 @@ export default function AnalyticsDashboard({ ventas = [] }) {
               <button
                 key={card.key}
                 onClick={() => toggleMetric(card.key)}
-                className={`relative flex-1 min-w-[140px] px-4 py-4 md:px-6 md:py-5 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
+                className={`relative min-w-[160px] max-w-[220px] px-4 py-4 md:px-5 md:py-4 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
                   ${isActive ? `${card.bgClass} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
                 `}
               >
