@@ -159,12 +159,12 @@ export default function GestionView({
         {/* Client table */}
         <div className="bg-white border border-border/40 rounded-2xl overflow-hidden shadow-sm">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_120px_100px_80px_100px] gap-2 px-4 py-2.5 bg-surface-alt/50 border-b border-border/30 text-[9px] font-black uppercase tracking-[0.15em] text-text-muted">
+          <div className="grid grid-cols-[1fr_80px] md:grid-cols-[1fr_120px_100px_80px_100px] gap-2 px-4 py-2.5 bg-surface-alt/50 border-b border-border/30 text-[9px] font-black uppercase tracking-[0.15em] text-text-muted">
             <span>Cliente</span>
-            <span className="text-right">Total Facturado</span>
-            <span className="text-right">Total Ventas</span>
-            <span className="text-center">Facturas</span>
-            <span className="text-right">Última Act.</span>
+            <span className="text-right">Facturado</span>
+            <span className="text-right hidden md:block">Total Ventas</span>
+            <span className="text-center hidden md:block">Facturas</span>
+            <span className="text-right hidden md:block">Última Act.</span>
           </div>
 
           {/* Rows */}
@@ -177,18 +177,18 @@ export default function GestionView({
               <div key={c.nombre}>
                 <button
                   onClick={() => setSelectedClient(selectedClient?.nombre === c.nombre ? null : c)}
-                  className={`w-full grid grid-cols-[1fr_120px_100px_80px_100px] gap-2 px-4 py-3 text-left transition-all cursor-pointer border-b border-border/10 last:border-0
+                  className={`w-full grid grid-cols-[1fr_80px] md:grid-cols-[1fr_120px_100px_80px_100px] gap-2 px-4 py-3 text-left transition-all cursor-pointer border-b border-border/10 last:border-0
                     ${selectedClient?.nombre === c.nombre ? 'bg-blue/5' : 'hover:bg-surface-alt/50'}
                   `}
                 >
-                  <div className="flex flex-col min-w-0">
+                  <div className="flex flex-col min-w-0 pr-2">
                     <span className="text-xs font-bold text-text-primary truncate">{c.nombre}</span>
                     {c.cuit && <span className="text-[10px] text-text-muted">{c.cuit}</span>}
                   </div>
                   <span className="text-xs font-black text-green text-right tabular-nums self-center">{formatMoney(c.totalFacturado)}</span>
-                  <span className="text-xs font-semibold text-text-secondary text-right tabular-nums self-center">{formatMoney(c.totalVentas)}</span>
-                  <span className="text-xs font-bold text-text-muted text-center tabular-nums self-center">{c.cantFacturas}</span>
-                  <span className="text-[10px] text-text-muted text-right self-center">{formatDate(c.ultimaFecha)}</span>
+                  <span className="text-xs font-semibold text-text-secondary text-right tabular-nums self-center hidden md:block">{formatMoney(c.totalVentas)}</span>
+                  <span className="text-xs font-bold text-text-muted text-center tabular-nums self-center hidden md:block">{c.cantFacturas}</span>
+                  <span className="text-[10px] text-text-muted text-right self-center hidden md:block">{formatDate(c.ultimaFecha)}</span>
                 </button>
 
                 {/* Inline history drawer */}
