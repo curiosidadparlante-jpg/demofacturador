@@ -1,11 +1,12 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { 
   FolderKanban, FolderPlus, Tag, X, Plus, ChevronRight, ChevronDown,
-  Search, Users, TrendingUp, Calendar, FileText, ArrowUpDown
+  Search, Users, TrendingUp, Calendar, FileText, ArrowUpDown, FileDown
 } from 'lucide-react'
 import { LABEL_COLORS } from '../config/colors'
 import { hasEtiqueta } from '../utils/labelHelpers'
 import AnalyticsDashboard from './AnalyticsDashboard'
+import { exportClientsToExcel, exportClientsToCSV } from '../utils/exportUtils'
 
 export default function GestionView({ 
   ventas = [],
@@ -30,9 +31,22 @@ export default function GestionView({
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
 
+  const [showExportOptions, setShowExportOptions] = useState(false)
+  const exportRef = useRef(null)
+
   useEffect(() => {
     setCurrentPage(1)
   }, [clientSearch, sortBy])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportRef.current && !exportRef.current.contains(event.target)) {
+        setShowExportOptions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // ─── Build client directory from ventas ───
   const clients = useMemo(() => {
@@ -160,6 +174,33 @@ export default function GestionView({
               <option value="recent">Más reciente</option>
               <option value="name">Alfabético</option>
             </select>
+            
+            {/* Export Dropdown */}
+            <div className="relative" ref={exportRef}>
+              <button 
+                onClick={() => setShowExportOptions(!showExportOptions)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary hover:border-border transition-all cursor-pointer"
+              >
+                <FileDown size={13} /> Exportar <ChevronDown size={12} className="ml-0.5" />
+              </button>
+              
+              {showExportOptions && (
+                <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-lg border border-border/40 py-1 z-50 animate-slide-down">
+                  <button 
+                    onClick={() => { exportClientsToExcel(sortedClients); setShowExportOptions(false); }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
+                  >
+                    Exportar Excel (.xlsx)
+                  </button>
+                  <button 
+                    onClick={() => { exportClientsToCSV(sortedClients); setShowExportOptions(false); }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
+                  >
+                    Exportar CSV
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
