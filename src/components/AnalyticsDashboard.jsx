@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown } from 'lucide-react'
+import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search } from 'lucide-react'
 import AnalyticsChart from './AnalyticsChart'
 
 const PRESETS = [
@@ -107,6 +107,9 @@ export default function AnalyticsDashboard({ ventas = [] }) {
 
   const [activeMetrics, setActiveMetrics] = useState(['facturadas'])
   const [selectedClient, setSelectedClient] = useState('all')
+  const [clientOpen, setClientOpen] = useState(false)
+  const [clientSearchTerm, setClientSearchTerm] = useState('')
+  const clientRef = useRef(null)
 
   const uniqueClients = useMemo(() => {
     const clients = new Set()
@@ -118,6 +121,12 @@ export default function AnalyticsDashboard({ ventas = [] }) {
     return Array.from(clients).sort((a, b) => a.localeCompare(b))
   }, [ventas])
 
+  const filteredUniqueClients = useMemo(() => {
+    if (!clientSearchTerm.trim()) return uniqueClients
+    const q = clientSearchTerm.toLowerCase().trim()
+    return uniqueClients.filter(c => c.toLowerCase().includes(q))
+  }, [uniqueClients, clientSearchTerm])
+
   const dashboardVentas = useMemo(() => {
     if (selectedClient === 'all') return ventas
     return ventas.filter(v => v.cliente?.trim() === selectedClient)
@@ -127,6 +136,7 @@ export default function AnalyticsDashboard({ ventas = [] }) {
     const handler = (e) => {
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
       if (compareRef.current && !compareRef.current.contains(e.target)) setCompareOpen(false)
+      if (clientRef.current && !clientRef.current.contains(e.target)) setClientOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -205,18 +215,59 @@ export default function AnalyticsDashboard({ ventas = [] }) {
         <div className="flex items-center gap-2 flex-wrap">
           
           {/* Client Filter */}
-          <div className="flex items-center bg-surface-alt rounded-xl border border-border/40 overflow-hidden pr-2">
-            <select
-              value={selectedClient}
-              onChange={(e) => setSelectedClient(e.target.value)}
-              className="bg-transparent text-[10px] font-bold uppercase tracking-widest text-text-primary px-3 py-2 outline-none cursor-pointer appearance-none pr-6 relative"
+          <div className="relative" ref={clientRef}>
+            <button
+              onClick={() => setClientOpen(!clientOpen)}
+              className="flex items-center gap-2 bg-surface-alt rounded-xl border border-border/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-border/30 transition-colors cursor-pointer"
             >
-              <option value="all">Todos los clientes</option>
-              {uniqueClients.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-            <ChevronDown size={12} className="text-text-muted -ml-5 pointer-events-none" />
+              <span className="truncate max-w-[150px]">
+                {selectedClient === 'all' ? 'Todos los clientes' : selectedClient}
+              </span>
+              <ChevronDown size={12} className="text-text-muted" />
+            </button>
+
+            {clientOpen && (
+              <div className="absolute left-0 top-full mt-2 w-[280px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down overflow-hidden flex flex-col">
+                <div className="p-2 border-b border-border/60 bg-surface-alt/20">
+                  <div className="relative">
+                    <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
+                    <input
+                      type="text"
+                      placeholder="Buscar cliente..."
+                      value={clientSearchTerm}
+                      onChange={e => setClientSearchTerm(e.target.value)}
+                      className="w-full pl-7 pr-3 py-1.5 text-xs border border-border/60 rounded-lg bg-white focus:outline-none focus:border-blue placeholder-text-muted"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <div className="max-h-[300px] overflow-y-auto">
+                  <button
+                    onClick={() => { setSelectedClient('all'); setClientOpen(false); setClientSearchTerm(''); }}
+                    className={`w-full text-left px-4 py-2.5 text-xs font-semibold cursor-pointer border-b border-border/10
+                      ${selectedClient === 'all' ? 'bg-blue/5 text-blue' : 'text-text-primary hover:bg-surface-alt/50'}
+                    `}
+                  >
+                    Todos los clientes
+                  </button>
+                  {filteredUniqueClients.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-[10px] text-text-muted">No hay coincidencias</div>
+                  ) : (
+                    filteredUniqueClients.map(c => (
+                      <button
+                        key={c}
+                        onClick={() => { setSelectedClient(c); setClientOpen(false); setClientSearchTerm(''); }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold cursor-pointer border-b border-border/10 last:border-0 truncate
+                          ${selectedClient === c ? 'bg-blue/5 text-blue' : 'text-text-primary hover:bg-surface-alt/50'}
+                        `}
+                      >
+                        {c}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Main Date Selectors */}
