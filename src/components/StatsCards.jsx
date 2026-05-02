@@ -66,6 +66,21 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
     }
   }, []) // Empty dependency array ensures it only runs once on mount
 
+  // Update table when timeframe or data changes
+  useEffect(() => {
+    if (!activeCard || !onCardClick) return;
+    
+    let newData = [];
+    if (activeCard === 'Facturadas') newData = facturadas;
+    else if (activeCard === 'Total Ventas') newData = activas;
+    else if (activeCard === 'Pendientes') newData = pendientes;
+    else if (activeCard === 'Con Error') newData = conError;
+    else return;
+
+    onCardClick(activeCard, newData, timeframe);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeframe, ventas]);
+
   const renderMoney = (amount) => {
     return showValues ? formatCurrency(amount) : '$ ***.***'
   }
