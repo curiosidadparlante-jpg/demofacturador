@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { LABEL_COLORS } from '../config/colors'
 import { hasEtiqueta } from '../utils/labelHelpers'
+import AnalyticsDashboard from './AnalyticsDashboard'
 
 export default function GestionView({ 
   ventas = [],
@@ -23,7 +24,7 @@ export default function GestionView({
   const [newLabelName, setNewLabelName] = useState('')
   const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0].id)
   const [clientSearch, setClientSearch] = useState('')
-  const [sortBy, setSortBy] = useState('total') // 'total' | 'count' | 'name' | 'recent'
+  const [sortBy, setSortBy] = useState('total')
   const [selectedClient, setSelectedClient] = useState(null)
 
   // ─── Build client directory from ventas ───
@@ -92,11 +93,8 @@ export default function GestionView({
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Gestión</h2>
-        <p className="text-xs text-text-muted mt-1">Directorio de clientes y organización</p>
-      </div>
+      {/* ─── ANALYTICS DASHBOARD ─── */}
+      <AnalyticsDashboard ventas={ventas} />
 
       {/* ─── TOP 5 CLIENTS ─── */}
       {top5.length > 0 && (
