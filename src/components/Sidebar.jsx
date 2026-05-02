@@ -113,14 +113,14 @@ export default function Sidebar({
           <button
             onClick={() => onViewChange('contable')}
             className={`p-2.5 rounded-lg transition-all cursor-pointer ${activeView === 'contable' ? 'bg-blue/10 text-blue' : 'text-text-muted hover:bg-surface-alt hover:text-text-primary'}`}
-            title="Contable"
+            title="Gestión contable"
           >
             <BarChart3 size={18} />
           </button>
           <button
             onClick={() => onViewChange('gestion')}
             className={`p-2.5 rounded-lg transition-all cursor-pointer ${activeView === 'gestion' ? 'bg-blue/10 text-blue' : 'text-text-muted hover:bg-surface-alt hover:text-text-primary'}`}
-            title="Gestión"
+            title="Estadísticas"
           >
             <FolderKanban size={18} />
           </button>
@@ -156,13 +156,13 @@ export default function Sidebar({
       <nav className="px-2 mt-1">
         <SidebarItem
           icon={<BarChart3 size={16} />}
-          label="Contable"
+          label="Gestión contable"
           active={isActive('contable')}
           onClick={() => onViewChange('contable')}
         />
         <SidebarItem
           icon={<FolderKanban size={16} />}
-          label="Organización"
+          label="Estadísticas"
           active={isActive('gestion')}
           onClick={() => onViewChange('gestion')}
         />

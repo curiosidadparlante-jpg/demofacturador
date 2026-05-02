@@ -229,7 +229,7 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
       {/* Header + Date Range */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
         <div>
-          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Gestión</h2>
+          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Métricas del negocio</h2>
           <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
