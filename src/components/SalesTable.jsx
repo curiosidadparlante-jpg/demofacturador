@@ -7,7 +7,7 @@ import { useState, Fragment, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useConfig } from '../context/ConfigContext'
 import { translatePaymentMethod, getPaymentBadgeStyle } from '../utils/paymentMethods'
-import { exportToExcel } from '../utils/exportUtils'
+import { exportToExcel, exportToCSV } from '../utils/exportUtils'
 
 const PAGE_SIZES = [25, 50, 100]
 
@@ -490,7 +490,14 @@ export default function SalesTable({
               className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#316973] hover:bg-[#316973]/10 transition-all cursor-pointer"
             >
               <Download size={14} />
-              Exportar
+              Excel
+            </button>
+            <button
+              onClick={() => exportToCSV(sortedVentas)}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#316973] hover:bg-[#316973]/10 transition-all cursor-pointer"
+            >
+              <Download size={14} />
+              CSV
             </button>
           </div>
 

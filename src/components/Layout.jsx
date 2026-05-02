@@ -62,7 +62,7 @@ export default function Layout({
 
           <img src="/logo-comand.png" alt="Command Logo" className="h-6 md:h-8 w-auto object-contain" />
           <span className="text-[10px] md:text-xs font-black text-text-primary uppercase tracking-widest ml-1 border-l-2 border-border pl-2 md:pl-3 hidden md:inline-block">
-            Facturador
+            Asistente y Facturador
           </span>
         </div>
         
