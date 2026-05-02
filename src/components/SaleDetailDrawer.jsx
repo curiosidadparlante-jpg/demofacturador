@@ -8,7 +8,7 @@ import SaleFormFields, { CONCEPTOS, UNIDADES_MEDIDA } from './SaleFormFields';
 import { getTiposComprobante, calcularIVA, getAlicuotaById, needsCbteAsociado } from '../utils/ivaHelpers';
 import { getEtiquetas } from '../utils/labelHelpers';
 
-export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRetry, onAnular, initialEditMode = false, customFolders = [], labels = [] }) {
+export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRetry, initialEditMode = false, customFolders = [], labels = [] }) {
   const { emisor, isRI } = useConfig();
   const conceptoDefault = emisor?.concepto_default || 1;
 
@@ -419,15 +419,6 @@ export default function SaleDetailDrawer({ venta, isOpen, onClose, onSave, onRet
                   >
                     <FileDown size={18} />
                     Ver Factura (PDF)
-                  </button>
-                )}
-                {venta.status === 'facturado' && onAnular && (
-                  <button
-                    onClick={() => onAnular(venta)}
-                    className="w-full flex items-center justify-center gap-2 bg-red-subtle border border-red/20 text-red py-3.5 rounded-xl font-bold uppercase tracking-widest text-xs hover:-translate-y-0.5 hover:shadow-lg transition-all cursor-pointer"
-                  >
-                    <RotateCcw size={18} className="rotate-180" />
-                    Anular Factura (NC)
                   </button>
                 )}
                 {venta.status === 'error' && onRetry && (

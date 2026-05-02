@@ -10,7 +10,6 @@ export default function EmitirFacturaBar({
   onBulkDelete, 
   onBulkRetry, 
   onBulkArchive,
-  onBulkAnular,
   customFolders = [],
   labels = [],
   onBulkMove,
@@ -33,7 +32,6 @@ export default function EmitirFacturaBar({
 
   const hasErrors = selectedVentas.some(v => v.status === 'error')
   const hasPendientes = selectedVentas.some(v => v.status === 'pendiente')
-  const hasFacturados = selectedVentas.some(v => v.status === 'facturado')
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-slide-up">
@@ -152,17 +150,6 @@ export default function EmitirFacturaBar({
           >
             <RotateCcw size={14} />
             <span className="hidden sm:inline">Reintentar</span>
-          </button>
-        )}
-
-        {/* Anular (NC) */}
-        {hasFacturados && onBulkAnular && (
-          <button
-            onClick={onBulkAnular}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red/10 border border-red/20 text-red text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
-          >
-            <RotateCcw size={14} className="rotate-180" />
-            <span className="hidden sm:inline">Anular</span>
           </button>
         )}
 
