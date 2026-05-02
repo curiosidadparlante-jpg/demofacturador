@@ -106,6 +106,22 @@ export default function AnalyticsDashboard({ ventas = [] }) {
   const compareRef = useRef(null)
 
   const [activeMetrics, setActiveMetrics] = useState(['facturadas'])
+  const [selectedClient, setSelectedClient] = useState('all')
+
+  const uniqueClients = useMemo(() => {
+    const clients = new Set()
+    ventas.forEach(v => {
+      if (v.status !== 'borrada' && v.cliente) {
+        clients.add(v.cliente.trim())
+      }
+    })
+    return Array.from(clients).sort((a, b) => a.localeCompare(b))
+  }, [ventas])
+
+  const dashboardVentas = useMemo(() => {
+    if (selectedClient === 'all') return ventas
+    return ventas.filter(v => v.cliente?.trim() === selectedClient)
+  }, [ventas, selectedClient])
 
   useEffect(() => {
     const handler = (e) => {
@@ -146,20 +162,20 @@ export default function AnalyticsDashboard({ ventas = [] }) {
 
   const compareEnabled = compareMode !== 'off'
 
-  const kpi = useMemo(() => computeKPI(ventas, startDate, endDate), [ventas, startDate, endDate])
-  const kpiComp = useMemo(() => computeKPI(ventas, compStartDate, compEndDate), [ventas, compStartDate, compEndDate])
+  const kpi = useMemo(() => computeKPI(dashboardVentas, startDate, endDate), [dashboardVentas, startDate, endDate])
+  const kpiComp = useMemo(() => computeKPI(dashboardVentas, compStartDate, compEndDate), [dashboardVentas, compStartDate, compEndDate])
 
-  const chartData = useMemo(() => groupByInterval(ventas, startDate, endDate), [ventas, startDate, endDate])
+  const chartData = useMemo(() => groupByInterval(dashboardVentas, startDate, endDate), [dashboardVentas, startDate, endDate])
   // Para la comparativa, usamos los mismos buckets de la original (simulando que suceden a la par)
   const chartComp = useMemo(() => {
     if (!compareEnabled || !compStartDate || !compEndDate) return []
-    const compData = groupByInterval(ventas, compStartDate, compEndDate)
+    const compData = groupByInterval(dashboardVentas, compStartDate, compEndDate)
     // Map comparison data to the same length as chartData
     return chartData.map((d, i) => {
       const compBucket = compData[i] || { facturadas: 0, pendientes: 0, total: 0, monto: 0 }
       return { ...compBucket, date: d.date } // Override date so it overlays on the chart
     })
-  }, [ventas, compStartDate, compEndDate, compareEnabled, chartData])
+  }, [dashboardVentas, compStartDate, compEndDate, compareEnabled, chartData])
 
   const toggleMetric = (m) => {
     setActiveMetrics(prev => prev.includes(m) ? (prev.length > 1 ? prev.filter(x => x !== m) : prev) : [...prev, m])
@@ -188,6 +204,21 @@ export default function AnalyticsDashboard({ ventas = [] }) {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           
+          {/* Client Filter */}
+          <div className="flex items-center bg-surface-alt rounded-xl border border-border/40 overflow-hidden pr-2">
+            <select
+              value={selectedClient}
+              onChange={(e) => setSelectedClient(e.target.value)}
+              className="bg-transparent text-[10px] font-bold uppercase tracking-widest text-text-primary px-3 py-2 outline-none cursor-pointer appearance-none pr-6 relative"
+            >
+              <option value="all">Todos los clientes</option>
+              {uniqueClients.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="text-text-muted -ml-5 pointer-events-none" />
+          </div>
+
           {/* Main Date Selectors */}
           <div className="flex items-center bg-surface-alt rounded-xl p-1 border border-border/40">
             {PRESETS.map(p => (
