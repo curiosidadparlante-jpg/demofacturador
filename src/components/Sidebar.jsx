@@ -155,13 +155,6 @@ export default function Sidebar({
       {/* Main Navigation */}
       <nav className="px-2 mt-1">
         <SidebarItem
-          icon={<FileText size={16} />}
-          label="Ventas Recibidas"
-          count={counts.inbox}
-          active={isActive('facturas')}
-          onClick={() => onViewChange('facturas')}
-        />
-        <SidebarItem
           icon={<BarChart3 size={16} />}
           label="Contable"
           active={isActive('contable')}
@@ -169,7 +162,7 @@ export default function Sidebar({
         />
         <SidebarItem
           icon={<FolderKanban size={16} />}
-          label="Gestión"
+          label="Organización"
           active={isActive('gestion')}
           onClick={() => onViewChange('gestion')}
         />
@@ -178,7 +171,60 @@ export default function Sidebar({
       {/* Divider */}
       <div className="h-px bg-border/40 mx-4 my-3" />
 
-      {/* System Folders */}
+      {/* System Status Folders */}
+      <nav className="px-2 space-y-0.5">
+        <SidebarItem
+          icon={<FileText size={15} />}
+          label="Ventas Recibidas"
+          count={counts.inbox}
+          active={isActive('facturas') && !isActive('facturas', { type: 'status' }) && !isActive('facturas', { type: 'historico' })}
+          onClick={() => onViewChange('facturas')}
+        />
+        <SidebarItem
+          icon={<FileCheck size={15} />}
+          label="Facturadas"
+          count={counts.facturadas}
+          active={isActive('facturas', { type: 'status', value: 'facturado' })}
+          onClick={() => onViewChange('facturas', { type: 'status', value: 'facturado' })}
+          color="#2D8F5E"
+        />
+        <SidebarItem
+          icon={<Clock size={15} />}
+          label="Pendientes"
+          count={counts.pendientes}
+          active={isActive('facturas', { type: 'status', value: 'pendiente' })}
+          onClick={() => onViewChange('facturas', { type: 'status', value: 'pendiente' })}
+          color="#FFE100"
+        />
+        <SidebarItem
+          icon={<AlertCircle size={15} />}
+          label="Error"
+          count={counts.error}
+          active={isActive('facturas', { type: 'status', value: 'error' })}
+          onClick={() => onViewChange('facturas', { type: 'status', value: 'error' })}
+          color="#C0443C"
+          highlight={counts.error > 0}
+        />
+        <SidebarItem
+          icon={<Archive size={15} />}
+          label="Archivo"
+          count={counts.archivadas}
+          active={isActive('facturas', { type: 'status', value: 'archivada' })}
+          onClick={() => onViewChange('facturas', { type: 'status', value: 'archivada' })}
+        />
+        <SidebarItem
+          icon={<Trash2 size={15} />}
+          label="Papelera"
+          count={counts.papelera}
+          active={isActive('facturas', { type: 'status', value: 'borrada' })}
+          onClick={() => onViewChange('facturas', { type: 'status', value: 'borrada' })}
+        />
+      </nav>
+
+      {/* Divider */}
+      <div className="h-px bg-border/40 mx-4 my-3" />
+
+      {/* Custom Folders */}
       <div className="px-2">
         <button 
           onClick={() => setFoldersExpanded(!foldersExpanded)}
@@ -190,54 +236,6 @@ export default function Sidebar({
         
         {foldersExpanded && (
           <div className="mt-1 space-y-0.5">
-            <SidebarItem
-              icon={<FileText size={15} />}
-              label="Histórico"
-              count={counts.historico}
-              active={isActive('facturas', { type: 'historico' })}
-              onClick={() => onViewChange('facturas', { type: 'historico' })}
-            />
-            <SidebarItem
-              icon={<FileCheck size={15} />}
-              label="Facturadas"
-              count={counts.facturadas}
-              active={isActive('facturas', { type: 'status', value: 'facturado' })}
-              onClick={() => onViewChange('facturas', { type: 'status', value: 'facturado' })}
-              color="#2D8F5E"
-            />
-            <SidebarItem
-              icon={<Clock size={15} />}
-              label="Pendientes"
-              count={counts.pendientes}
-              active={isActive('facturas', { type: 'status', value: 'pendiente' })}
-              onClick={() => onViewChange('facturas', { type: 'status', value: 'pendiente' })}
-              color="#FFE100"
-            />
-            <SidebarItem
-              icon={<AlertCircle size={15} />}
-              label="Error"
-              count={counts.error}
-              active={isActive('facturas', { type: 'status', value: 'error' })}
-              onClick={() => onViewChange('facturas', { type: 'status', value: 'error' })}
-              color="#C0443C"
-              highlight={counts.error > 0}
-            />
-            <SidebarItem
-              icon={<Archive size={15} />}
-              label="Archivo"
-              count={counts.archivadas}
-              active={isActive('facturas', { type: 'status', value: 'archivada' })}
-              onClick={() => onViewChange('facturas', { type: 'status', value: 'archivada' })}
-            />
-            <SidebarItem
-              icon={<Trash2 size={15} />}
-              label="Papelera"
-              count={counts.papelera}
-              active={isActive('facturas', { type: 'status', value: 'borrada' })}
-              onClick={() => onViewChange('facturas', { type: 'status', value: 'borrada' })}
-            />
-
-            {/* Custom Folders — recursive tree */}
             <FolderTree
               folders={customFolders}
               parentId={null}
