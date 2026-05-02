@@ -1,8 +1,11 @@
 import StatsCards from './StatsCards'
 import SalesTable from './SalesTable'
+import FilterBar from './FilterBar'
 
 export default function ContableView({ 
   ventas, 
+  filters,
+  onFilterChange,
   onCardClick,
   tableData,
   selectedIds,
@@ -27,6 +30,10 @@ export default function ContableView({
         <p className="text-xs text-text-muted mt-1">
           Métricas fiscales y financieras de tu negocio
         </p>
+      </div>
+
+      <div className="mb-6">
+        <FilterBar filters={filters} onFilterChange={onFilterChange} />
       </div>
 
       <StatsCards ventas={ventas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} />
