@@ -201,8 +201,8 @@ export default function Home() {
   }
 
   // ─── Toast helper ───
-  const showToast = useCallback((message, type = 'success') => {
-    setToasts(prev => [...prev, createToast(message, type)])
+  const showToast = useCallback((message, type = 'success', duration = 4000, action = null) => {
+    setToasts(prev => [...prev, createToast(message, type, duration, action)])
   }, [])
 
   const removeToast = useCallback((id) => {
@@ -576,10 +576,34 @@ export default function Home() {
 
       setSelectedIds(new Set())
       
+      const successIds = resultados.filter(r => r.success).map(r => r.id)
+
       if (successCount === resultados.length && successCount > 0) {
-        showToast(`✓ ${successCount} comprobante(s) emitido(s) con éxito`, 'success')
+        showToast(
+          `✓ ${successCount} comprobante(s) emitido(s) con éxito`,
+          'success',
+          8000,
+          {
+            label: 'Ver Facturas',
+            onClick: () => {
+              handleViewChange('facturas', { type: 'status', value: 'facturado' })
+              setSelectedIds(new Set(successIds))
+            }
+          }
+        )
       } else if (successCount > 0) {
-        showToast(`${successCount} de ${resultados.length} emitidas. Algunos fallaron.`, 'warning')
+        showToast(
+          `${successCount} de ${resultados.length} emitidas. Algunos fallaron.`,
+          'warning',
+          8000,
+          {
+            label: 'Ver Facturas',
+            onClick: () => {
+              handleViewChange('facturas', { type: 'status', value: 'facturado' })
+              setSelectedIds(new Set(successIds))
+            }
+          }
+        )
       } else {
         showToast('No se emitió ningún comprobante. Comprobá los errores en la tabla.', 'error')
       }

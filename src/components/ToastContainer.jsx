@@ -35,14 +35,24 @@ function ToastItem({ toast, onRemove }) {
     <div
       className={`
         flex items-start gap-3 px-4 py-3 rounded-xl border shadow-xl shadow-black/15
-        backdrop-blur-sm min-w-[320px] max-w-[420px]
+        backdrop-blur-sm min-w-[320px] max-w-[480px]
         ${COLORS[toast.type] || COLORS.info}
         ${exiting ? 'animate-toast-out' : 'animate-toast-in'}
       `}
      
     >
       <Icon size={18} className="mt-0.5 shrink-0" />
-      <p className="text-sm font-medium flex-1">{toast.message}</p>
+      <div className="flex-1 flex flex-col gap-1.5">
+        <p className="text-sm font-medium">{toast.message}</p>
+        {toast.action && (
+          <button
+            onClick={() => { toast.action.onClick(); handleRemove(); }}
+            className="self-start text-[10px] font-black uppercase tracking-[0.15em] px-3 py-1.5 rounded-lg bg-black/10 hover:bg-black/20 transition-colors cursor-pointer"
+          >
+            {toast.action.label}
+          </button>
+        )}
+      </div>
       <button
         onClick={handleRemove}
         className="p-0.5 rounded hover:bg-black/5 transition-colors shrink-0 cursor-pointer"
@@ -66,6 +76,6 @@ export default function ToastContainer({ toasts, onRemove }) {
 }
 
 /** Helper para crear un toast con ID único */
-export function createToast(message, type = 'success', duration = 4000) {
-  return { id: ++toastIdCounter, message, type, duration };
+export function createToast(message, type = 'success', duration = 4000, action = null) {
+  return { id: ++toastIdCounter, message, type, duration, action };
 }
