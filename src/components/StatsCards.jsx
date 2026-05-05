@@ -4,7 +4,7 @@ import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
 import { getMonotributoLimit } from '../utils/afipConstants'
 
-export default function StatsCards({ ventas, allVentas, onCardClick, activeCard, tableVentas }) {
+export default function StatsCards({ ventas, allVentas, onCardClick, activeCard, tableVentas, selectedVentas = [] }) {
   const [timeframe, setTimeframe] = useState('all')
   const [showValues, setShowValues] = useState(true)
   const [moreOpen, setMoreOpen] = useState(false)
@@ -60,13 +60,13 @@ export default function StatsCards({ ventas, allVentas, onCardClick, activeCard,
   const facturacionAnualFiltrada = useMemo(() => {
     if (isRI) return 0;
     const currentYear = new Date().getFullYear();
-    const source = tableVentas || ventas;
+    const source = selectedVentas.length > 0 ? selectedVentas : (tableVentas || ventas);
     const facturadasAnio = source.filter(v =>
       v.status === 'facturado' &&
       new Date(v.fecha).getFullYear() === currentYear
     );
     return facturadasAnio.reduce((s, v) => s + getAmount(v), 0);
-  }, [tableVentas, ventas, isRI]);
+  }, [tableVentas, ventas, isRI, selectedVentas]);
 
   const category = emisor?.monotributo_categoria || 'A';
   const limit = getMonotributoLimit(category);

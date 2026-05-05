@@ -864,6 +864,7 @@ export default function Home() {
           onCardClick={handleContableCardClick} 
           tableData={contableTableData}
           selectedIds={selectedIds}
+          selectedVentas={selectedVentas}
           onToggleSelect={handleToggleSelect}
           onToggleAll={() => {
             const seleccionables = contableTableData?.ventas || []
