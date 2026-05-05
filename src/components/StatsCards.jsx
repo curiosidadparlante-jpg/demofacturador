@@ -4,7 +4,7 @@ import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
 import { getMonotributoLimit } from '../utils/afipConstants'
 
-export default function StatsCards({ ventas, allVentas, onCardClick, activeCard }) {
+export default function StatsCards({ ventas, allVentas, onCardClick, activeCard, tableVentas }) {
   const [timeframe, setTimeframe] = useState('all')
   const [showValues, setShowValues] = useState(true)
   const [moreOpen, setMoreOpen] = useState(false)
@@ -60,12 +60,13 @@ export default function StatsCards({ ventas, allVentas, onCardClick, activeCard 
   const facturacionAnualFiltrada = useMemo(() => {
     if (isRI) return 0;
     const currentYear = new Date().getFullYear();
-    const facturadasAnio = ventas.filter(v =>
+    const source = tableVentas || ventas;
+    const facturadasAnio = source.filter(v =>
       v.status === 'facturado' &&
       new Date(v.fecha).getFullYear() === currentYear
     );
     return facturadasAnio.reduce((s, v) => s + getAmount(v), 0);
-  }, [ventas, isRI]);
+  }, [tableVentas, ventas, isRI]);
 
   const category = emisor?.monotributo_categoria || 'A';
   const limit = getMonotributoLimit(category);
@@ -296,7 +297,7 @@ export default function StatsCards({ ventas, allVentas, onCardClick, activeCard 
             </div>
             {/* Leyenda sutil de impacto */}
             {percentageFiltrada > 0 && percentageFiltrada < percentageGlobal && (
-              <span className="text-[9px] text-text-muted/70 italic mt-1.5 ml-1 animate-fade-in uppercase tracking-wider">
+              <span className="text-[9px] text-text-muted/70 italic mt-1.5 ml-1 animate-fade-in tracking-wider">
                 Impacto de la tabla en el límite anual
               </span>
             )}

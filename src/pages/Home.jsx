@@ -188,7 +188,7 @@ export default function Home() {
   }
 
   const handleToggleAll = () => {
-    const seleccionables = filteredVentas
+    const seleccionables = viewFilteredVentas
     if (selectedIds.size === seleccionables.length && seleccionables.length > 0) {
       setSelectedIds(new Set())
     } else {

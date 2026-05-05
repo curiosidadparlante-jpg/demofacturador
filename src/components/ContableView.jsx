@@ -33,7 +33,7 @@ export default function ContableView({
         </p>
       </div>
 
-      <StatsCards ventas={ventas} allVentas={allVentas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} />
+      <StatsCards ventas={ventas} allVentas={allVentas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} tableVentas={tableData?.ventas} />
 
       <div className="mt-8 mb-4">
         <FilterBar filters={filters} onFilterChange={onFilterChange} />
