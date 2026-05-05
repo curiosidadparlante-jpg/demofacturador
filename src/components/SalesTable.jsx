@@ -1,7 +1,7 @@
 import StatusBadge from './StatusBadge'
 import { LABEL_COLORS } from '../config/colors'
 import { getEtiquetas, hasEtiqueta } from '../utils/labelHelpers'
-import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download, Archive, Tag, FolderInput, ChevronRight as ChevronRightSub } from 'lucide-react'
+import { AlertCircle, Edit2, FileDown, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Save, Loader2, X, Settings2, Check, Eye, FileText, Download, Archive, Tag, FolderInput, ChevronRight as ChevronRightSub, Trash2 } from 'lucide-react'
 import { generateInvoicePdf } from '../utils/invoicePdf'
 import { useState, Fragment, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
@@ -624,7 +624,7 @@ export default function SalesTable({
                 return (
                   <tr
                     key={venta.id}
-                    onClick={() => handleRowClick(venta)}
+                    onClick={() => onRowClick?.(venta)}
                     onContextMenu={(e) => handleContextMenu(e, venta)}
                     onTouchStart={(e) => handleTouchStart(e, venta)}
                     onTouchEnd={handleTouchEnd}
@@ -846,129 +846,64 @@ export default function SalesTable({
           <div className="fixed inset-0 z-[99998]" onClick={closeCtxMenu} onContextMenu={(e) => { e.preventDefault(); closeCtxMenu(); }} />
           <div
             ref={ctxMenuRef}
-            className="fixed z-[99999] bg-white border border-border/40 rounded-xl shadow-2xl min-w-[200px] overflow-hidden animate-slide-down py-1"
+            className="fixed z-[99999] bg-white border border-border/60 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] min-w-[200px] overflow-hidden animate-slide-down py-1.5"
             style={{
               left: Math.min(ctxMenu.x, window.innerWidth - 220),
               top: Math.min(ctxMenu.y, window.innerHeight - 300),
             }}
           >
             {/* Header */}
-            <div className="px-4 py-2.5 border-b border-border/20">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-text-muted">
+            <div className="px-4 py-3 border-b border-border/30 bg-surface-alt/30">
+              <span className="block text-[10px] font-black uppercase tracking-[0.15em] text-text-primary/70">
+                Opciones
+              </span>
+              <span className="block text-xs font-bold text-text-primary truncate mt-0.5" title={ctxMenu.venta?.cliente || 'Consumidor Final'}>
                 {ctxMenu.venta?.cliente || 'Consumidor Final'}
               </span>
             </div>
 
-            {/* Archive */}
-            <button
-              onMouseEnter={() => setCtxSub(null)}
-              onClick={handleCtxArchive}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
-            >
-              <Archive size={15} className="text-text-muted" />
-              {(ctxMenu.venta?.archivada || ctxMenu.venta?.status === 'archivada' || ctxMenu.venta?.status === 'archivado') ? 'Desarchivar' : 'Archivar'}
-            </button>
-
-            <div className="h-px bg-border/20 mx-2" />
-
-            {/* Labels submenu */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setCtxSub('labels')}
-            >
+            <div className="p-1">
               <button
-                onClick={() => setCtxSub(ctxSub === 'labels' ? null : 'labels')}
-                className="w-full flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+                onClick={() => { onRowClick?.(ctxMenu.venta); closeCtxMenu(); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
               >
-                <span className="flex items-center gap-3">
-                  <Tag size={15} className="text-text-muted" />
-                  Etiquetar
-                </span>
-                <ChevronRightSub size={14} className={`text-text-muted transition-transform ${ctxSub === 'labels' ? 'rotate-90' : ''}`} />
+                <Eye size={15} className="text-text-muted" />
+                Ver Detalle
               </button>
-              {ctxSub === 'labels' && (
-                <div className="border-t border-border/10 bg-surface-alt/30 py-1">
-                  {getEtiquetas(ctxMenu.venta).length > 0 && (
-                    <button
-                      onClick={() => handleCtxLabel('')}
-                      className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 transition-colors cursor-pointer"
-                    >
-                      <X size={13} />
-                      Quitar todas
-                    </button>
-                  )}
-                  {labels.map(label => {
-                    const colorObj = LABEL_COLORS.find(c => c.id === label.colorId) || LABEL_COLORS[0];
-                    const isActive = hasEtiqueta(ctxMenu.venta, label.name);
-                    return (
-                      <button
-                        key={label.name}
-                        onClick={() => handleCtxLabel(label.name)}
-                        className={`w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold transition-colors cursor-pointer ${
-                          isActive ? 'bg-accent/5 text-accent' : 'text-text-primary hover:bg-surface-alt'
-                        }`}
-                      >
-                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colorObj.color }} />
-                        {label.name}
-                        {isActive && <Check size={13} className="ml-auto text-accent" />}
-                      </button>
-                    );
-                  })}
-                  {labels.length === 0 && (
-                    <div className="px-6 py-3 text-[10px] text-text-muted italic">No hay etiquetas creadas</div>
-                  )}
-                </div>
-              )}
-            </div>
 
-            <div className="h-px bg-border/20 mx-2" />
-
-            {/* Folders submenu */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setCtxSub('folders')}
-            >
               <button
-                onClick={() => setCtxSub(ctxSub === 'folders' ? null : 'folders')}
-                className="w-full flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
+                onClick={() => { onEdit?.(ctxMenu.venta); closeCtxMenu(); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
               >
-                <span className="flex items-center gap-3">
-                  <FolderInput size={15} className="text-text-muted" />
-                  Mover a carpeta
-                </span>
-                <ChevronRightSub size={14} className={`text-text-muted transition-transform ${ctxSub === 'folders' ? 'rotate-90' : ''}`} />
+                <Edit2 size={15} className="text-text-muted" />
+                Editar Venta
               </button>
-              {ctxSub === 'folders' && (
-                <div className="border-t border-border/10 bg-surface-alt/30 py-1">
-                  {ctxMenu.venta?.folder && (
-                    <button
-                      onClick={() => handleCtxMove(null)}
-                      className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 transition-colors cursor-pointer"
-                    >
-                      <X size={13} />
-                      Sacar de carpeta
-                    </button>
-                  )}
-                  {customFolders.map(folder => {
-                    const isActive = ctxMenu.venta?.folder === folder.id;
-                    return (
-                      <button
-                        key={folder.id}
-                        onClick={() => handleCtxMove(folder.id)}
-                        className={`w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold transition-colors cursor-pointer ${
-                          isActive ? 'bg-accent/5 text-accent' : 'text-text-primary hover:bg-surface-alt'
-                        }`}
-                      >
-                        📁 {folder.name}
-                        {isActive && <Check size={13} className="ml-auto text-accent" />}
-                      </button>
-                    );
-                  })}
-                  {customFolders.length === 0 && (
-                    <div className="px-6 py-3 text-[10px] text-text-muted italic">No hay carpetas creadas</div>
-                  )}
-                </div>
+
+              {ctxMenu.venta?.status === 'facturado' && ctxMenu.venta?.cae && (
+                <button
+                  onClick={() => {
+                    generateInvoicePdf(ctxMenu.venta, emisor);
+                    closeCtxMenu();
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-blue hover:bg-blue-subtle/50 rounded-lg transition-colors cursor-pointer"
+                >
+                  <FileDown size={15} />
+                  Descargar PDF
+                </button>
               )}
+
+              <div className="h-px bg-border/40 my-1 mx-2" />
+
+              <button
+                onClick={() => {
+                  if (onSaveEdit) onSaveEdit(ctxMenu.venta.id, { status: 'borrada' });
+                  closeCtxMenu();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-red hover:bg-red-subtle/50 rounded-lg transition-colors cursor-pointer"
+              >
+                <Trash2 size={15} />
+                Mover a Papelera
+              </button>
             </div>
           </div>
         </div>,
