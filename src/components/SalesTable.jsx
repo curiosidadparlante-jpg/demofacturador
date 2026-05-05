@@ -855,7 +855,7 @@ export default function SalesTable({
             {/* Header */}
             <div className="px-4 py-3 border-b border-border/30 bg-surface-alt/30">
               <span className="block text-[10px] font-black uppercase tracking-[0.15em] text-text-primary/70">
-                Opciones
+                Organizar
               </span>
               <span className="block text-xs font-bold text-text-primary truncate mt-0.5" title={ctxMenu.venta?.cliente || 'Consumidor Final'}>
                 {ctxMenu.venta?.cliente || 'Consumidor Final'}
@@ -863,47 +863,117 @@ export default function SalesTable({
             </div>
 
             <div className="p-1">
+              {/* Archive */}
               <button
-                onClick={() => { onRowClick?.(ctxMenu.venta); closeCtxMenu(); }}
+                onMouseEnter={() => setCtxSub(null)}
+                onClick={handleCtxArchive}
                 className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
               >
-                <Eye size={15} className="text-text-muted" />
-                Ver Detalle
+                <Archive size={15} className="text-text-muted" />
+                {(ctxMenu.venta?.archivada || ctxMenu.venta?.status === 'archivada' || ctxMenu.venta?.status === 'archivado') ? 'Desarchivar' : 'Archivar'}
               </button>
 
-              <button
-                onClick={() => { onEdit?.(ctxMenu.venta); closeCtxMenu(); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
+              <div className="h-px bg-border/20 mx-2 my-0.5" />
+
+              {/* Labels submenu */}
+              <div 
+                className="relative"
+                onMouseEnter={() => setCtxSub('labels')}
               >
-                <Edit2 size={15} className="text-text-muted" />
-                Editar Venta
-              </button>
-
-              {ctxMenu.venta?.status === 'facturado' && ctxMenu.venta?.cae && (
                 <button
-                  onClick={() => {
-                    generateInvoicePdf(ctxMenu.venta, emisor);
-                    closeCtxMenu();
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-blue hover:bg-blue-subtle/50 rounded-lg transition-colors cursor-pointer"
+                  onClick={() => setCtxSub(ctxSub === 'labels' ? null : 'labels')}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
                 >
-                  <FileDown size={15} />
-                  Descargar PDF
+                  <span className="flex items-center gap-3">
+                    <Tag size={15} className="text-text-muted" />
+                    Etiquetar
+                  </span>
+                  <ChevronRightSub size={14} className={`text-text-muted transition-transform ${ctxSub === 'labels' ? 'rotate-90' : ''}`} />
                 </button>
-              )}
+                {ctxSub === 'labels' && (
+                  <div className="border-t border-border/10 bg-surface-alt/30 rounded-b-lg py-1">
+                    {getEtiquetas(ctxMenu.venta).length > 0 && (
+                      <button
+                        onClick={() => handleCtxLabel('')}
+                        className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <X size={13} />
+                        Quitar todas
+                      </button>
+                    )}
+                    {labels.map(label => {
+                      const colorObj = LABEL_COLORS.find(c => c.id === label.colorId) || LABEL_COLORS[0];
+                      const isActive = hasEtiqueta(ctxMenu.venta, label.name);
+                      return (
+                        <button
+                          key={label.name}
+                          onClick={() => handleCtxLabel(label.name)}
+                          className={`w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold transition-colors cursor-pointer rounded-lg ${
+                            isActive ? 'bg-accent/5 text-accent' : 'text-text-primary hover:bg-surface-alt'
+                          }`}
+                        >
+                          <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colorObj.color }} />
+                          {label.name}
+                          {isActive && <Check size={13} className="ml-auto text-accent" />}
+                        </button>
+                      );
+                    })}
+                    {labels.length === 0 && (
+                      <div className="px-6 py-3 text-[10px] text-text-muted italic">No hay etiquetas creadas</div>
+                    )}
+                  </div>
+                )}
+              </div>
 
-              <div className="h-px bg-border/40 my-1 mx-2" />
+              <div className="h-px bg-border/20 mx-2 my-0.5" />
 
-              <button
-                onClick={() => {
-                  if (onSaveEdit) onSaveEdit(ctxMenu.venta.id, { status: 'borrada' });
-                  closeCtxMenu();
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-red hover:bg-red-subtle/50 rounded-lg transition-colors cursor-pointer"
+              {/* Folders submenu */}
+              <div 
+                className="relative"
+                onMouseEnter={() => setCtxSub('folders')}
               >
-                <Trash2 size={15} />
-                Mover a Papelera
-              </button>
+                <button
+                  onClick={() => setCtxSub(ctxSub === 'folders' ? null : 'folders')}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-3">
+                    <FolderInput size={15} className="text-text-muted" />
+                    Mover a carpeta
+                  </span>
+                  <ChevronRightSub size={14} className={`text-text-muted transition-transform ${ctxSub === 'folders' ? 'rotate-90' : ''}`} />
+                </button>
+                {ctxSub === 'folders' && (
+                  <div className="border-t border-border/10 bg-surface-alt/30 rounded-b-lg py-1">
+                    {ctxMenu.venta?.folder && (
+                      <button
+                        onClick={() => handleCtxMove(null)}
+                        className="w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold text-red hover:bg-red-subtle/30 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <X size={13} />
+                        Sacar de carpeta
+                      </button>
+                    )}
+                    {customFolders.map(folder => {
+                      const isActive = ctxMenu.venta?.folder === folder.id;
+                      return (
+                        <button
+                          key={folder.id}
+                          onClick={() => handleCtxMove(folder.id)}
+                          className={`w-full flex items-center gap-3 px-6 py-2 text-[11px] font-semibold transition-colors cursor-pointer rounded-lg ${
+                            isActive ? 'bg-accent/5 text-accent' : 'text-text-primary hover:bg-surface-alt'
+                          }`}
+                        >
+                          📁 {folder.name}
+                          {isActive && <Check size={13} className="ml-auto text-accent" />}
+                        </button>
+                      );
+                    })}
+                    {customFolders.length === 0 && (
+                      <div className="px-6 py-3 text-[10px] text-text-muted italic">No hay carpetas creadas</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>,

@@ -68,88 +68,6 @@ export default function EmitirFacturaBar({
           </button>
         )}
 
-        {/* Move to Folder */}
-        <div 
-          className="relative"
-          onMouseEnter={() => { setShowFolderMenu(true); setShowLabelMenu(false); }}
-          onMouseLeave={() => setShowFolderMenu(false)}
-        >
-          <button
-            onClick={() => setShowFolderMenu(!showFolderMenu)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-xs font-bold uppercase tracking-wider active:scale-95 hover:bg-white/10 transition-all cursor-pointer"
-          >
-            <FolderKanban size={14} />
-            <span className="hidden sm:inline">Mover</span>
-            <ChevronDown size={12} className={`transition-transform ${showFolderMenu ? 'rotate-180' : ''}`} />
-          </button>
-          {showFolderMenu && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowFolderMenu(false)} />
-              <div className="absolute bottom-full left-0 mb-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-                <div className="px-3 py-2 text-[8px] font-black uppercase tracking-[0.2em] text-white/40 border-b border-white/5 mb-1">Mover a...</div>
-                <button 
-                  onClick={() => { onBulkMove?.(''); setShowFolderMenu(false); }}
-                  className="w-full text-left px-4 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-                >
-                  Ninguna
-                </button>
-                {customFolders.map(f => (
-                  <button 
-                    key={f.id}
-                    onClick={() => { onBulkMove?.(f.id); setShowFolderMenu(false); }}
-                    className="w-full text-left px-4 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-                  >
-                    {f.name}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Tag */}
-        <div 
-          className="relative"
-          onMouseEnter={() => { setShowLabelMenu(true); setShowFolderMenu(false); }}
-          onMouseLeave={() => setShowLabelMenu(false)}
-        >
-          <button
-            onClick={() => setShowLabelMenu(!showLabelMenu)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-xs font-bold uppercase tracking-wider active:scale-95 hover:bg-white/10 transition-all cursor-pointer"
-          >
-            <Tag size={14} />
-            <span className="hidden sm:inline">Etiquetar</span>
-            <ChevronDown size={12} className={`transition-transform ${showLabelMenu ? 'rotate-180' : ''}`} />
-          </button>
-          {showLabelMenu && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowLabelMenu(false)} />
-              <div className="absolute bottom-full left-0 mb-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-                <div className="px-3 py-2 text-[8px] font-black uppercase tracking-[0.2em] text-white/40 border-b border-white/5 mb-1">Etiquetar como...</div>
-                <button 
-                  onClick={() => { onBulkTag?.(''); setShowLabelMenu(false); }}
-                  className="w-full text-left px-4 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-                >
-                  Sin etiqueta
-                </button>
-                {labels.map(l => {
-                  const colorObj = LABEL_COLORS.find(c => c.id === l.colorId) || LABEL_COLORS[0]
-                  return (
-                    <button 
-                      key={l.id}
-                      onClick={() => { onBulkTag?.(l.name); setShowLabelMenu(false); }}
-                      className="w-full text-left px-4 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer flex items-center gap-2"
-                    >
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorObj.color }} />
-                      {l.name}
-                    </button>
-                  )
-                })}
-              </div>
-            </>
-          )}
-        </div>
-
         {/* Retry errors */}
         {hasErrors && onBulkRetry && (
           <button
@@ -169,17 +87,6 @@ export default function EmitirFacturaBar({
           >
             <Download size={14} />
             <span className="hidden sm:inline">Exportar</span>
-          </button>
-        )}
-
-        {/* Archive */}
-        {onBulkArchive && (
-          <button
-            onClick={onBulkArchive}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
-          >
-            <Archive size={14} />
-            <span className="hidden sm:inline">Archivar</span>
           </button>
         )}
 
