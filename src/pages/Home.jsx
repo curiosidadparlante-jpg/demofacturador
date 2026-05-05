@@ -755,6 +755,41 @@ export default function Home() {
     localStorage.setItem('cmd_labels', JSON.stringify(updated))
   }
 
+  // ─── Drag & Drop handler from Sidebar ───
+  const handleSidebarDrop = useCallback((ids, action) => {
+    const count = ids.length
+    if (action.type === 'trash') {
+      setVentas(prev => prev.map(v =>
+        ids.includes(v.id) ? { ...v, status: 'borrada' } : v
+      ))
+      setSelectedIds(new Set())
+      showToast(`${count} venta(s) movida(s) a la papelera`, 'success')
+    } else if (action.type === 'archive') {
+      setVentas(prev => prev.map(v =>
+        ids.includes(v.id) ? { ...v, archivada: true } : v
+      ))
+      setSelectedIds(new Set())
+      showToast(`${count} venta(s) archivada(s)`, 'success')
+    } else if (action.type === 'folder') {
+      setVentas(prev => prev.map(v =>
+        ids.includes(v.id) ? { ...v, folder: action.value } : v
+      ))
+      setSelectedIds(new Set())
+      const folderName = customFolders.find(f => f.id === action.value)?.name || 'carpeta'
+      showToast(`${count} venta(s) movida(s) a "${folderName}"`, 'success')
+    } else if (action.type === 'label') {
+      setVentas(prev => prev.map(v => {
+        if (!ids.includes(v.id)) return v
+        const current = Array.isArray(v.etiquetas) ? v.etiquetas : (v.etiqueta ? [v.etiqueta] : [])
+        if (current.includes(action.value)) return v
+        const next = [...current, action.value]
+        return { ...v, etiquetas: next, etiqueta: next[0] || '' }
+      }))
+      setSelectedIds(new Set())
+      showToast(`Etiqueta "${action.value}" aplicada a ${count} venta(s)`, 'success')
+    }
+  }, [ventas, customFolders, showToast])
+
   return (
     <Layout 
       onSyncMeli={handleSync}
@@ -770,6 +805,7 @@ export default function Home() {
       onDeleteLabel={handleDeleteLabel}
       onNewVenta={() => setAddModalOpen(true)}
       activeFilter={activeFilter}
+      onDrop={handleSidebarDrop}
     >
       <div>
 

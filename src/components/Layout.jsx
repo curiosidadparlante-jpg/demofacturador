@@ -22,6 +22,7 @@ export default function Layout({
   onDeleteLabel,
   onNewVenta,
   activeFilter,
+  onDrop,
 }) {
   const { user, signOut } = useAuth()
   const { emisor, saveConfig } = useConfig()
@@ -196,6 +197,7 @@ export default function Layout({
             collapsed={sidebarCollapsed}
             onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
             activeFilter={activeFilter}
+            onDrop={onDrop}
           />
         </div>
 

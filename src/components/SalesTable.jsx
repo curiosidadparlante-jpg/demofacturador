@@ -624,6 +624,15 @@ export default function SalesTable({
                 return (
                   <tr
                     key={venta.id}
+                    draggable
+                    onDragStart={(e) => {
+                      const isCurrentSelected = selectedIds.has(venta.id)
+                      const ids = isCurrentSelected && selectedIds.size > 0
+                        ? Array.from(selectedIds)
+                        : [venta.id]
+                      e.dataTransfer.setData('application/venta-ids', JSON.stringify(ids))
+                      e.dataTransfer.effectAllowed = 'move'
+                    }}
                     onClick={() => onRowClick?.(venta)}
                     onContextMenu={(e) => handleContextMenu(e, venta)}
                     onTouchStart={(e) => handleTouchStart(e, venta)}

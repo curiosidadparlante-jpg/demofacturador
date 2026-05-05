@@ -25,6 +25,7 @@ export default function Sidebar({
   collapsed,
   onToggleCollapse,
   activeFilter,
+  onDrop,
 }) {
   const [showNewFolder, setShowNewFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
@@ -34,6 +35,28 @@ export default function Sidebar({
   const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0].id)
   const [foldersExpanded, setFoldersExpanded] = useState(true)
   const [labelsExpanded, setLabelsExpanded] = useState(true)
+  const [dropTarget, setDropTarget] = useState(null) // tracks which sidebar item is being hovered
+
+  const handleDragOver = (e, targetId) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDropTarget(targetId)
+  }
+
+  const handleDragLeave = () => {
+    setDropTarget(null)
+  }
+
+  const handleDropOnItem = (e, action) => {
+    e.preventDefault()
+    setDropTarget(null)
+    try {
+      const ids = JSON.parse(e.dataTransfer.getData('application/venta-ids'))
+      if (ids && ids.length > 0 && onDrop) {
+        onDrop(ids, action)
+      }
+    } catch {}
+  }
 
   // Counts
   const counts = {
@@ -207,6 +230,10 @@ export default function Sidebar({
           count={counts.archivadas}
           active={isActive('facturas', { type: 'status', value: 'archivada' })}
           onClick={() => onViewChange('facturas', { type: 'status', value: 'archivada' })}
+          isDropTarget={dropTarget === 'archive'}
+          onDragOver={(e) => handleDragOver(e, 'archive')}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDropOnItem(e, { type: 'archive' })}
         />
         <SidebarItem
           icon={<Trash2 size={15} />}
@@ -214,6 +241,10 @@ export default function Sidebar({
           count={counts.papelera}
           active={isActive('facturas', { type: 'status', value: 'borrada' })}
           onClick={() => onViewChange('facturas', { type: 'status', value: 'borrada' })}
+          isDropTarget={dropTarget === 'trash'}
+          onDragOver={(e) => handleDragOver(e, 'trash')}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDropOnItem(e, { type: 'trash' })}
         />
       </nav>
 
@@ -241,6 +272,10 @@ export default function Sidebar({
               onViewChange={onViewChange}
               onDeleteFolder={onDeleteFolder}
               onStartSubfolder={startNewSubfolder}
+              dropTarget={dropTarget}
+              onItemDragOver={handleDragOver}
+              onItemDragLeave={handleDragLeave}
+              onItemDrop={handleDropOnItem}
             />
 
             {/* Add Folder input (root or subfolder) */}
@@ -295,6 +330,10 @@ export default function Sidebar({
                     count={ventas.filter(v => hasEtiqueta(v, label.name)).length}
                     active={isActive('facturas', { type: 'label', value: label.name })}
                     onClick={() => onViewChange('facturas', { type: 'label', value: label.name })}
+                    isDropTarget={dropTarget === `label-${label.name}`}
+                    onDragOver={(e) => handleDragOver(e, `label-${label.name}`)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDropOnItem(e, { type: 'label', value: label.name })}
                   />
                   <button
                     onClick={(e) => { e.stopPropagation(); onDeleteLabel?.(label.id) }}
@@ -349,10 +388,13 @@ export default function Sidebar({
   )
 }
 
-function SidebarItem({ icon, label, count, active, onClick, color, highlight }) {
+function SidebarItem({ icon, label, count, active, onClick, color, highlight, isDropTarget, onDragOver, onDragLeave, onDrop }) {
   return (
     <button
       onClick={onClick}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
       className={`
         w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[12px] font-semibold transition-all cursor-pointer
         ${active 
@@ -360,6 +402,7 @@ function SidebarItem({ icon, label, count, active, onClick, color, highlight }) 
           : 'text-text-secondary hover:bg-surface-alt hover:text-text-primary'
         }
         ${highlight ? 'font-bold' : ''}
+        ${isDropTarget ? 'ring-2 ring-accent ring-offset-1 bg-accent/10 scale-[1.02]' : ''}
       `}
     >
       <span className={active ? 'text-blue' : (color ? '' : 'text-text-muted')} style={color && !active ? { color } : {}}>
@@ -375,7 +418,7 @@ function SidebarItem({ icon, label, count, active, onClick, color, highlight }) 
   )
 }
 
-function FolderTree({ folders, parentId, depth, ventas, isActive, onViewChange, onDeleteFolder, onStartSubfolder }) {
+function FolderTree({ folders, parentId, depth, ventas, isActive, onViewChange, onDeleteFolder, onStartSubfolder, dropTarget, onItemDragOver, onItemDragLeave, onItemDrop }) {
   const children = folders.filter(f => (f.parentId || null) === parentId)
   if (children.length === 0) return null
 
@@ -390,24 +433,33 @@ function FolderTree({ folders, parentId, depth, ventas, isActive, onViewChange, 
       onViewChange={onViewChange}
       onDeleteFolder={onDeleteFolder}
       onStartSubfolder={onStartSubfolder}
+      dropTarget={dropTarget}
+      onItemDragOver={onItemDragOver}
+      onItemDragLeave={onItemDragLeave}
+      onItemDrop={onItemDrop}
     />
   ))
 }
 
-function FolderNode({ folder, folders, depth, ventas, isActive, onViewChange, onDeleteFolder, onStartSubfolder }) {
+function FolderNode({ folder, folders, depth, ventas, isActive, onViewChange, onDeleteFolder, onStartSubfolder, dropTarget, onItemDragOver, onItemDragLeave, onItemDrop }) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = folders.some(f => f.parentId === folder.id)
   const count = ventas.filter(v => v.folder === folder.id).length
   const active = isActive('facturas', { type: 'folder', value: folder.id })
+  const isOver = dropTarget === `folder-${folder.id}`
 
   return (
     <div>
       <div className="group relative" style={{ paddingLeft: `${depth * 16}px` }}>
         <button
           onClick={() => onViewChange('facturas', { type: 'folder', value: folder.id })}
+          onDragOver={(e) => onItemDragOver?.(e, `folder-${folder.id}`)}
+          onDragLeave={onItemDragLeave}
+          onDrop={(e) => onItemDrop?.(e, { type: 'folder', value: folder.id })}
           className={`
             w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold transition-all cursor-pointer
             ${active ? 'bg-blue/10 text-blue font-bold' : 'text-text-secondary hover:bg-surface-alt hover:text-text-primary'}
+            ${isOver ? 'ring-2 ring-accent ring-offset-1 bg-accent/10 scale-[1.02]' : ''}
           `}
         >
           {/* Expand/collapse chevron */}
@@ -460,6 +512,10 @@ function FolderNode({ folder, folders, depth, ventas, isActive, onViewChange, on
           onViewChange={onViewChange}
           onDeleteFolder={onDeleteFolder}
           onStartSubfolder={onStartSubfolder}
+          dropTarget={dropTarget}
+          onItemDragOver={onItemDragOver}
+          onItemDragLeave={onItemDragLeave}
+          onItemDrop={onItemDrop}
         />
       )}
     </div>
