@@ -654,7 +654,14 @@ export default function SalesTable({
                     )}
                     {isVisible('cliente') && (
                       <td className="px-4 py-3">
-                        <div className="text-text-primary uppercase">{venta.cliente || '—'}</div>
+                        <div className="flex items-center gap-2">
+                          {venta.leido === false && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue shrink-0 shadow-[0_0_8px_rgba(52,96,168,0.5)]" title="Venta nueva" />
+                          )}
+                          <div className={`uppercase ${venta.leido === false ? 'font-black text-text-primary' : 'text-text-primary'}`}>
+                            {venta.cliente || '—'}
+                          </div>
+                        </div>
                       </td>
                     )}
                     {isVisible('cuit') && (

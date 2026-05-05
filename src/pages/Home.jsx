@@ -771,6 +771,9 @@ export default function Home() {
           onRowClick={(venta) => {
             setDetailVenta(venta)
             setDetailVentaEditMode(false)
+            if (venta.leido === false) {
+              updateVenta(venta.id, { leido: true })
+            }
           }}
           onEdit={(venta) => {
             setDetailVenta(venta)
@@ -817,6 +820,9 @@ export default function Home() {
           onRowClick={(venta) => {
             setDetailVenta(venta)
             setDetailVentaEditMode(false)
+            if (venta.leido === false) {
+              updateVenta(venta.id, { leido: true })
+            }
           }}
           onEdit={(venta) => {
             setDetailVenta(venta)

@@ -1148,7 +1148,8 @@ export function useVentas() {
       ...payload,
       id: Math.random().toString(36).substr(2, 9),
       fecha: payload.fecha || new Date().toISOString(),
-      status: payload.status || 'pendiente'
+      status: payload.status || 'pendiente',
+      leido: false
     };
     
     setVentas(prev => {
