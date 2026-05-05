@@ -854,6 +854,7 @@ export default function SalesTable({
 
             {/* Archive */}
             <button
+              onMouseEnter={() => setCtxSub(null)}
               onClick={handleCtxArchive}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
             >
@@ -864,7 +865,10 @@ export default function SalesTable({
             <div className="h-px bg-border/20 mx-2" />
 
             {/* Labels submenu */}
-            <div className="relative">
+            <div 
+              className="relative"
+              onMouseEnter={() => setCtxSub('labels')}
+            >
               <button
                 onClick={() => setCtxSub(ctxSub === 'labels' ? null : 'labels')}
                 className="w-full flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"
@@ -913,7 +917,10 @@ export default function SalesTable({
             <div className="h-px bg-border/20 mx-2" />
 
             {/* Folders submenu */}
-            <div className="relative">
+            <div 
+              className="relative"
+              onMouseEnter={() => setCtxSub('folders')}
+            >
               <button
                 onClick={() => setCtxSub(ctxSub === 'folders' ? null : 'folders')}
                 className="w-full flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt transition-colors cursor-pointer"

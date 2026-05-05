@@ -174,11 +174,12 @@ export default function Sidebar({
       {/* System Status Folders */}
       <nav className="px-2 space-y-0.5">
         <SidebarItem
-          icon={<FileText size={15} />}
-          label="Ventas Recibidas"
+          icon={<Clock size={15} />}
+          label="Ventas pendientes"
           count={counts.inbox}
           active={isActive('facturas') && !isActive('facturas', { type: 'status' }) && !isActive('facturas', { type: 'historico' })}
           onClick={() => onViewChange('facturas')}
+          color="#FFE100"
         />
         <SidebarItem
           icon={<FileCheck size={15} />}
@@ -189,14 +190,6 @@ export default function Sidebar({
           color="#2D8F5E"
         />
         <SidebarItem
-          icon={<Clock size={15} />}
-          label="Pendientes"
-          count={counts.pendientes}
-          active={isActive('facturas', { type: 'status', value: 'pendiente' })}
-          onClick={() => onViewChange('facturas', { type: 'status', value: 'pendiente' })}
-          color="#FFE100"
-        />
-        <SidebarItem
           icon={<AlertCircle size={15} />}
           label="Error"
           count={counts.error}
@@ -205,6 +198,9 @@ export default function Sidebar({
           color="#C0443C"
           highlight={counts.error > 0}
         />
+        
+        <div className="h-px bg-border/40 mx-2 my-2" />
+        
         <SidebarItem
           icon={<Archive size={15} />}
           label="Archivo"
