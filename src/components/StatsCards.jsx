@@ -4,7 +4,7 @@ import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
 import { getMonotributoLimit } from '../utils/afipConstants'
 
-export default function StatsCards({ ventas, onCardClick, activeCard }) {
+export default function StatsCards({ ventas, allVentas, onCardClick, activeCard }) {
   const [timeframe, setTimeframe] = useState('all')
   const [showValues, setShowValues] = useState(true)
   const [moreOpen, setMoreOpen] = useState(false)
@@ -46,7 +46,18 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
 
 
   // ─── Monotributo ───
-  const facturacionAnual = useMemo(() => {
+  const facturacionAnualGlobal = useMemo(() => {
+    if (isRI) return 0;
+    const currentYear = new Date().getFullYear();
+    const sourceVentas = allVentas || ventas;
+    const facturadasAnio = sourceVentas.filter(v =>
+      v.status === 'facturado' &&
+      new Date(v.fecha).getFullYear() === currentYear
+    );
+    return facturadasAnio.reduce((s, v) => s + getAmount(v), 0);
+  }, [allVentas, ventas, isRI]);
+
+  const facturacionAnualFiltrada = useMemo(() => {
     if (isRI) return 0;
     const currentYear = new Date().getFullYear();
     const facturadasAnio = ventas.filter(v =>
@@ -58,14 +69,15 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
 
   const category = emisor?.monotributo_categoria || 'A';
   const limit = getMonotributoLimit(category);
-  const percentage = Math.min((facturacionAnual / limit) * 100, 100);
+  const percentageGlobal = Math.min((facturacionAnualGlobal / limit) * 100, 100);
+  const percentageFiltrada = Math.min((facturacionAnualFiltrada / limit) * 100, 100);
 
   const getThermometerColor = (pct) => {
     if (pct >= 90) return 'text-[#C0443C] bg-[#C0443C]';
     if (pct >= 75) return 'text-[#F59E0B] bg-[#F59E0B]';
     return 'text-[#2D8F5E] bg-[#2D8F5E]';
   };
-  const colorClass = getThermometerColor(percentage);
+  const colorClass = getThermometerColor(percentageGlobal);
 
   useEffect(() => {
     if (!activeCard && onCardClick) {
@@ -269,13 +281,18 @@ export default function StatsCards({ ventas, onCardClick, activeCard }) {
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-lg md:text-xl font-black text-text-primary">{renderMoney(facturacionAnual)}</span>
-                  <span className={`text-[10px] font-bold ${colorClass.split(' ')[0]}`}>{percentage.toFixed(1)}%</span>
+                  <span className="text-lg md:text-xl font-black text-text-primary">{renderMoney(facturacionAnualGlobal)}</span>
+                  <span className={`text-[10px] font-bold ${colorClass.split(' ')[0]}`}>{percentageGlobal.toFixed(1)}%</span>
                 </div>
               </div>
             </div>
-            <div className="h-2.5 w-full bg-border/40 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`} style={{ width: `${percentage}%` }} />
+            <div className="h-2.5 w-full bg-border/40 rounded-full overflow-hidden relative">
+              {/* Barra global (total año fiscal) */}
+              <div className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ${colorClass.split(' ')[1]}`} style={{ width: `${percentageGlobal}%` }} />
+              {/* Barra filtrada sutil superpuesta (impacto del cliente/filtro) */}
+              {percentageFiltrada > 0 && percentageFiltrada < percentageGlobal && (
+                <div className="absolute top-0 left-0 h-full rounded-full bg-white/40 transition-all duration-1000" style={{ width: `${percentageFiltrada}%` }} />
+              )}
             </div>
           </div>
         )}

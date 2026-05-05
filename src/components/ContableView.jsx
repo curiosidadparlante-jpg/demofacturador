@@ -4,6 +4,7 @@ import FilterBar from './FilterBar'
 
 export default function ContableView({ 
   ventas, 
+  allVentas,
   filters,
   onFilterChange,
   onCardClick,
@@ -32,7 +33,7 @@ export default function ContableView({
         </p>
       </div>
 
-      <StatsCards ventas={ventas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} />
+      <StatsCards ventas={ventas} allVentas={allVentas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} />
 
       <div className="mt-8 mb-4">
         <FilterBar filters={filters} onFilterChange={onFilterChange} />
