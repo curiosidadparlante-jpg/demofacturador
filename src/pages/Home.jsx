@@ -913,13 +913,21 @@ export default function Home() {
         onEmitir={handleInvoice}
         onClear={handleClearSelection}
         onExport={handleExportSelection}
-        onBulkDelete={handleBulkDelete}
+        onBulkDelete={activeFilter?.value === 'borrada' ? null : handleBulkDelete}
         onBulkRetry={handleBulkRetry}
         onBulkArchive={handleBulkArchive}
         customFolders={customFolders}
         labels={labels}
         onBulkMove={handleBulkMove}
         onBulkTag={handleBulkTag}
+        onPermanentDelete={activeFilter?.value === 'borrada' ? () => {
+          const count = selectedVentas.length
+          if (count === 0) return
+          const ids = selectedVentas.map(v => String(v.id))
+          setVentas(prev => prev.filter(v => !ids.includes(String(v.id))))
+          setSelectedIds(new Set())
+          showToast(`${count} venta(s) eliminada(s) definitivamente`, 'success')
+        } : null}
       />
 
       {/* ─── Detail Drawer ─── */}
