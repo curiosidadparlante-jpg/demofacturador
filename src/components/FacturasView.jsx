@@ -1,8 +1,6 @@
 import FilterBar from './FilterBar'
 import SalesTable from './SalesTable'
-import { Download, ChevronDown, Plus } from 'lucide-react'
-import { useState } from 'react'
-import { exportToCSV, exportToExcel } from '../utils/exportUtils'
+import { Plus } from 'lucide-react'
 
 export default function FacturasView({
   ventas,
@@ -19,14 +17,12 @@ export default function FacturasView({
   onSaveEdit,
   onRetry,
   onEmit,
-  onExportAll,
   onBulkImport,
   onNewVenta,
   activeFilter,
   labels = [],
   customFolders = [],
 }) {
-  const [exportMenuOpen, setExportMenuOpen] = useState(false)
 
   // Determine title based on active filter
   const getTitle = () => {
@@ -85,49 +81,6 @@ export default function FacturasView({
         />
       </div>
 
-      {/* Table toolbar: Export + Carga Masiva */}
-      <div className="flex items-center gap-2 mb-3">
-        {/* Export dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setExportMenuOpen(!exportMenuOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary hover:border-border shadow-sm transition-all cursor-pointer"
-          >
-            <Download size={12} />
-            Exportar
-            <ChevronDown size={11} className={`transition-transform duration-200 ${exportMenuOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {exportMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setExportMenuOpen(false)} />
-              <div className="absolute left-0 mt-2 bg-white border border-border/40 rounded-xl shadow-xl z-50 min-w-[140px] overflow-hidden animate-slide-down">
-                <button
-                  onClick={() => { onExportAll?.('csv'); setExportMenuOpen(false) }}
-                  className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
-                >
-                  Archivo CSV
-                </button>
-                <div className="h-px bg-border/20 mx-2" />
-                <button
-                  onClick={() => { onExportAll?.('xlsx'); setExportMenuOpen(false) }}
-                  className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-blue/5 hover:text-blue transition-colors cursor-pointer"
-                >
-                  Excel (.xlsx)
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        <button
-          onClick={onBulkImport}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary hover:border-border shadow-sm transition-all cursor-pointer"
-        >
-          <Download size={12} className="rotate-180" />
-          Carga Masiva
-        </button>
-      </div>
-
       {/* Table */}
       <SalesTable
         ventas={filteredVentas}
@@ -143,6 +96,7 @@ export default function FacturasView({
         onEmit={onEmit}
         labels={labels}
         customFolders={customFolders}
+        onBulkImport={onBulkImport}
       />
     </div>
   )

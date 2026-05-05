@@ -841,13 +841,6 @@ export default function Home() {
           onSaveEdit={handleEditVenta}
           onRetry={handleRetry}
           onEmit={handleEmitSingleInvoice}
-          onExportAll={(format) => {
-            const data = viewFilteredVentas.length > 0 ? viewFilteredVentas : ventas
-            const filename = `ventas_${new Date().toISOString().split('T')[0]}`
-            if (format === 'csv') exportToCSV(data, filename)
-            else exportToExcel(data, filename)
-            showToast(`${data.length} ventas exportadas a ${format.toUpperCase()}`, 'success')
-          }}
           onBulkImport={() => setBulkImportModalOpen(true)}
           onNewVenta={() => setAddModalOpen(true)}
           activeFilter={activeFilter}

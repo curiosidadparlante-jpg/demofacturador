@@ -103,6 +103,7 @@ export default function SalesTable({
   onEmit,
   labels = [],
   customFolders = [],
+  onBulkImport,
 }) {
   const { emisor, isRI } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
@@ -484,7 +485,7 @@ export default function SalesTable({
         {/* Table Toolbar / Pagination & Column Picker (Gmail Style) */}
         <div className="flex items-center justify-between px-2 py-2 mb-2 gap-2 relative">
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => exportToExcel(sortedVentas)}
               className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#316973] hover:bg-[#316973]/10 transition-all cursor-pointer"
@@ -499,6 +500,18 @@ export default function SalesTable({
               <Download size={14} />
               CSV
             </button>
+            {onBulkImport && (
+              <>
+                <div className="w-px h-4 bg-border/40" />
+                <button
+                  onClick={onBulkImport}
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#7C4DFF] hover:bg-[#7C4DFF]/10 transition-all cursor-pointer"
+                >
+                  <Download size={14} className="rotate-180" />
+                  Carga Masiva
+                </button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-6">
