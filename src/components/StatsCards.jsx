@@ -294,6 +294,12 @@ export default function StatsCards({ ventas, allVentas, onCardClick, activeCard 
                 <div className="absolute top-0 left-0 h-full rounded-full bg-white/40 transition-all duration-1000" style={{ width: `${percentageFiltrada}%` }} />
               )}
             </div>
+            {/* Leyenda sutil de impacto */}
+            {percentageFiltrada > 0 && percentageFiltrada < percentageGlobal && (
+              <span className="text-[9px] text-text-muted/70 italic mt-1.5 ml-1 animate-fade-in">
+                Impacto en el límite anual
+              </span>
+            )}
           </div>
         )}
       </div>
