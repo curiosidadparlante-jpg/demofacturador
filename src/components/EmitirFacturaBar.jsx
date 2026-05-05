@@ -69,9 +69,13 @@ export default function EmitirFacturaBar({
         )}
 
         {/* Move to Folder */}
-        <div className="relative">
+        <div 
+          className="relative"
+          onMouseEnter={() => { setShowFolderMenu(true); setShowLabelMenu(false); }}
+          onMouseLeave={() => setShowFolderMenu(false)}
+        >
           <button
-            onClick={() => { setShowFolderMenu(!showFolderMenu); setShowLabelMenu(false); }}
+            onClick={() => setShowFolderMenu(!showFolderMenu)}
             className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-xs font-bold uppercase tracking-wider active:scale-95 hover:bg-white/10 transition-all cursor-pointer"
           >
             <FolderKanban size={14} />
@@ -104,9 +108,13 @@ export default function EmitirFacturaBar({
         </div>
 
         {/* Tag */}
-        <div className="relative">
+        <div 
+          className="relative"
+          onMouseEnter={() => { setShowLabelMenu(true); setShowFolderMenu(false); }}
+          onMouseLeave={() => setShowLabelMenu(false)}
+        >
           <button
-            onClick={() => { setShowLabelMenu(!showLabelMenu); setShowFolderMenu(false); }}
+            onClick={() => setShowLabelMenu(!showLabelMenu)}
             className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-xs font-bold uppercase tracking-wider active:scale-95 hover:bg-white/10 transition-all cursor-pointer"
           >
             <Tag size={14} />

@@ -769,8 +769,7 @@ export default function Home() {
           loading={loading}
           onShowError={(msg) => showToast(msg, 'error')}
           onRowClick={(venta) => {
-            setDetailVenta(venta)
-            setDetailVentaEditMode(false)
+            handleToggleSelect(venta.id)
             if (venta.leido === false) {
               updateVenta(venta.id, { leido: true })
             }
@@ -818,8 +817,7 @@ export default function Home() {
           loading={loading}
           onShowError={(msg) => showToast(msg, 'error')}
           onRowClick={(venta) => {
-            setDetailVenta(venta)
-            setDetailVentaEditMode(false)
+            handleToggleSelect(venta.id)
             if (venta.leido === false) {
               updateVenta(venta.id, { leido: true })
             }
