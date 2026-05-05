@@ -353,7 +353,7 @@ export default function Home() {
     const idsToProcess = selectedVentas.map(v => String(v.id))
     
     setVentas(prev => prev.map(v => 
-      idsToProcess.includes(String(v.id)) ? { ...v, status: 'borrada' } : v
+      idsToProcess.includes(String(v.id)) ? { ...v, status: 'borrada', archivada: false } : v
     ))
 
     setSelectedIds(new Set())
@@ -383,13 +383,19 @@ export default function Home() {
     }
 
     const idsToProcess = Array.from(selectedIds).map(id => String(id))
+    const allArchived = selectedVentas.every(v => v.archivada)
     
     setVentas(prev => prev.map(v => 
-      idsToProcess.includes(String(v.id)) ? { ...v, archivada: true } : v
+      idsToProcess.includes(String(v.id)) ? { ...v, archivada: !allArchived } : v
     ))
     
     setSelectedIds(new Set())
-    showToast(`${count} venta(s) archivada(s) correctamente`, 'success')
+    showToast(
+      allArchived 
+        ? `${count} venta(s) desarchivada(s)` 
+        : `${count} venta(s) archivada(s) correctamente`, 
+      'success'
+    )
   }
 
   // ─── Retry handler ───
@@ -760,7 +766,7 @@ export default function Home() {
     const count = ids.length
     if (action.type === 'trash') {
       setVentas(prev => prev.map(v =>
-        ids.includes(v.id) ? { ...v, status: 'borrada' } : v
+        ids.includes(v.id) ? { ...v, status: 'borrada', archivada: false } : v
       ))
       setSelectedIds(new Set())
       showToast(`${count} venta(s) movida(s) a la papelera`, 'success')

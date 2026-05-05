@@ -90,16 +90,19 @@ export default function EmitirFacturaBar({
           </button>
         )}
 
-        {/* Archive */}
-        {onBulkArchive && (
-          <button
-            onClick={onBulkArchive}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
-          >
-            <Archive size={14} />
-            <span className="hidden sm:inline">Archivar</span>
-          </button>
-        )}
+        {/* Archive / Unarchive */}
+        {onBulkArchive && (() => {
+          const allArchived = selectedVentas.every(v => v.archivada)
+          return (
+            <button
+              onClick={onBulkArchive}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+            >
+              <Archive size={14} />
+              <span className="hidden sm:inline">{allArchived ? 'Desarchivar' : 'Archivar'}</span>
+            </button>
+          )
+        })()}
 
         {/* Delete */}
         {onBulkDelete && (
