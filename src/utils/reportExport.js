@@ -17,7 +17,6 @@ export async function exportReportToPDF(containerEl, title = 'Reporte CMD') {
     windowHeight: containerEl.scrollHeight,
   });
 
-  const imgData = canvas.toDataURL('image/png');
   const imgW = canvas.width;
   const imgH = canvas.height;
 

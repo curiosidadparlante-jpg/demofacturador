@@ -22,6 +22,10 @@ export default function FacturasView({
   activeFilter,
   labels = [],
   customFolders = [],
+  onDelete,
+  onArchive,
+  onRestore,
+  onHardDelete,
 }) {
 
   // Determine title based on active filter
@@ -97,6 +101,10 @@ export default function FacturasView({
         labels={labels}
         customFolders={customFolders}
         onBulkImport={onBulkImport}
+        onDelete={onDelete}
+        onArchive={onArchive}
+        onRestore={onRestore}
+        onHardDelete={onHardDelete}
       />
     </div>
   )

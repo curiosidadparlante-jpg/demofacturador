@@ -103,7 +103,7 @@ function computeKPI(ventas, startDate, endDate) {
 }
 
 export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange }) {
-  const [timeframe, setTimeframe] = useState('month') // 'all','year','month','week','day' or 'custom'
+  const [timeframe, setTimeframe] = useState('all') // 'all','year','month','week','day' or 'custom'
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
   const [moreOpen, setMoreOpen] = useState(false)
@@ -258,6 +258,50 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
               <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
             </div>
           </div>
+        
+        </div>
+
+      {/* KPI Cards */}
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
+        <div className="flex flex-wrap gap-2 lg:gap-4 w-full">
+          {cards.map(card => {
+            const Icon = card.icon
+            const isUp = card.change >= 0
+            const isActive = card.active
+            return (
+              <button
+                key={card.key}
+                onClick={() => toggleMetric(card.key)}
+                className={`relative min-w-[160px] max-w-[220px] px-4 py-4 md:px-5 md:py-4 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
+                  ${isActive ? `${card.bgClass} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
+                `}
+              >
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
+                    {isActive && <Icon size={10} className="text-white" />}
+                  </div>
+                  <span className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className={`text-xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textClass}`}>
+                    {card.isMoney ? card.format(card.value) : card.value}
+                  </span>
+                  {compareEnabled && (
+                    <div className={`flex items-center gap-1 mt-1 text-[9px] md:text-[10px] font-bold ${isActive ? 'text-white/80' : (isUp ? 'text-green' : 'text-red')}`}>
+                      {isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                      {isUp ? '+' : ''}{card.change}%
+                      <span className={`font-normal ml-0.5 ${isActive ? 'text-white/60' : 'text-text-muted'}`}>vs comp.</span>
+                    </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row justify-end items-end mb-4">
         <div className="flex items-center gap-2 flex-wrap">
           
           {/* Client Filter */}
@@ -449,49 +493,9 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
               `}
             >
               <Sparkles size={13} />
-              Reporte
+              Análisis de Rendimiento
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
-        <div className="flex flex-wrap gap-2 lg:gap-4 w-full">
-          {cards.map(card => {
-            const Icon = card.icon
-            const isUp = card.change >= 0
-            const isActive = card.active
-            return (
-              <button
-                key={card.key}
-                onClick={() => toggleMetric(card.key)}
-                className={`relative min-w-[160px] max-w-[220px] px-4 py-4 md:px-5 md:py-4 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
-                  ${isActive ? `${card.bgClass} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
-                `}
-              >
-                <div className="flex items-center gap-2 mb-3 md:mb-4">
-                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
-                    {isActive && <Icon size={10} className="text-white" />}
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className={`text-xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textClass}`}>
-                    {card.isMoney ? card.format(card.value) : card.value}
-                  </span>
-                  {compareEnabled && (
-                    <div className={`flex items-center gap-1 mt-1 text-[9px] md:text-[10px] font-bold ${isActive ? 'text-white/80' : (isUp ? 'text-green' : 'text-red')}`}>
-                      {isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                      {isUp ? '+' : ''}{card.change}%
-                      <span className={`font-normal ml-0.5 ${isActive ? 'text-white/60' : 'text-text-muted'}`}>vs comp.</span>
-                    </div>
-                  )}
-                </div>
-              </button>
-            )
-          })}
-        </div>
       </div>
 
       {/* Chart */}

@@ -359,6 +359,8 @@ export default function AIReportModal({ isOpen, onClose, type, data }) {
     if (!reportRef.current) return;
     setExporting(true);
     try {
+      // Small delay to ensure all charts (Recharts) are stable and fully rendered
+      await new Promise(r => setTimeout(r, 100));
       const title = type === 'fiscal' ? 'Reporte_Fiscal' : 'Reporte_Rendimiento';
       await exportReportToPDF(reportRef.current, title);
     } finally {

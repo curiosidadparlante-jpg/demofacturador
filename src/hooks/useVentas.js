@@ -1163,7 +1163,7 @@ export function useVentas() {
 
   const deleteVenta = useCallback(async (id) => {
     setVentas(prev => {
-      const next = prev.map(v => String(v.id) === String(id) ? { ...v, status: 'borrada' } : v);
+      const next = prev.map(v => String(v.id) === String(id) ? { ...v, status: 'borrada', archivada: false } : v);
       localStorage.setItem('demo_ventas', JSON.stringify(next));
       return next;
     });

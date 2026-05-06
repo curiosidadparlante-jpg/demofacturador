@@ -69,7 +69,7 @@ export default function Home() {
 
   // ─── Filtered ventas ───
   const borradas = useMemo(() => ventas.filter(v => v.status === 'borrada'), [ventas])
-  const archivadas = useMemo(() => ventas.filter(v => v.archivada || v.status === 'archivada' || v.status === 'archivado'), [ventas])
+  const archivadas = useMemo(() => ventas.filter(v => (v.archivada || v.status === 'archivada' || v.status === 'archivado') && v.status !== 'borrada'), [ventas])
   const filteredVentas = useMemo(() => {
     return ventas.filter(v => {
       // Exclude borradas and archivadas globally from generic UI views
@@ -852,6 +852,10 @@ export default function Home() {
           activeFilter={activeFilter}
           labels={labels}
           customFolders={customFolders}
+          onDelete={deleteVenta}
+          onArchive={archiveVenta}
+          onRestore={(id) => updateVentaStatus(id, 'facturado')}
+          onHardDelete={hardDeleteVenta}
         />
       )}
 
@@ -891,6 +895,10 @@ export default function Home() {
           onEmit={handleEmitSingleInvoice}
           labels={labels}
           customFolders={customFolders}
+          onDelete={deleteVenta}
+          onArchive={archiveVenta}
+          onRestore={(id) => updateVentaStatus(id, 'facturado')}
+          onHardDelete={hardDeleteVenta}
         />
       )}
 

@@ -17,8 +17,8 @@ const getAmount = (v) => {
 function linearRegression(points) {
   const n = points.length;
   if (n < 2) return { slope: 0, intercept: 0, r2: 0 };
-  let sx = 0, sy = 0, sxy = 0, sxx = 0, syy = 0;
-  points.forEach(([x, y]) => { sx += x; sy += y; sxy += x * y; sxx += x * x; syy += y * y; });
+  let sx = 0, sy = 0, sxy = 0, sxx = 0;
+  points.forEach(([x, y]) => { sx += x; sy += y; sxy += x * y; sxx += x * x; });
   const denom = n * sxx - sx * sx;
   if (denom === 0) return { slope: 0, intercept: sy / n, r2: 0 };
   const slope = (n * sxy - sx * sy) / denom;
@@ -200,13 +200,13 @@ export function generatePerformanceReport({ filteredSales, chartData, kpi, kpiCo
   const facturadasData = filteredSales.filter(v => v.status === 'facturado');
   const tickets = facturadasData.map(v => getAmount(v)).filter(a => a > 0);
   const avgTicket = tickets.length > 0 ? tickets.reduce((s, v) => s + v, 0) / tickets.length : 0;
-  const maxTicket = tickets.length > 0 ? Math.max(...tickets) : 0;
-  const minTicket = tickets.length > 0 ? Math.min(...tickets) : 0;
   const medianTicket = tickets.length > 0 ? (() => {
     const sorted = [...tickets].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
     return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   })() : 0;
+  const maxTicket = tickets.length > 0 ? Math.max(...tickets) : 0;
+  const minTicket = tickets.length > 0 ? Math.min(...tickets) : 0;
   const ticketSpread = maxTicket - minTicket;
   const ticketCV = avgTicket > 0 ? pct(stdDev(tickets), avgTicket) : 0;
 

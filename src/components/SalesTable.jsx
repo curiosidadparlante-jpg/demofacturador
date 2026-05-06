@@ -104,12 +104,18 @@ export default function SalesTable({
   labels = [],
   customFolders = [],
   onBulkImport,
+  onDelete,
+  onArchive,
+  onRestore,
+  onHardDelete,
 }) {
   const { emisor, isRI } = useConfig()
   const [sortKey, setSortKey] = useState('fecha')
   const [sortDir, setSortDir] = useState('desc')
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(25)
+  const [exportOpen, setExportOpen] = useState(false)
+  const exportRef = useRef(null)
 
   // ─── Column visibility state ───
   const [visibleColumns, setVisibleColumns] = useState(() => {
@@ -132,6 +138,16 @@ export default function SalesTable({
   const [ctxSub, setCtxSub] = useState(null); // 'labels' | 'folders' | null
   const longPressTimer = useRef(null);
   const ctxMenuRef = useRef(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (exportRef.current && !exportRef.current.contains(e.target)) setExportOpen(false)
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) setShowColumnPicker(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const closeCtxMenu = useCallback(() => {
     setCtxMenu(null);
@@ -486,31 +502,45 @@ export default function SalesTable({
         <div className="flex items-center justify-between px-2 py-2 mb-2 gap-2 relative">
           
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => exportToExcel(sortedVentas)}
-              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#316973] hover:bg-[#316973]/10 transition-all cursor-pointer"
-            >
-              <Download size={14} />
-              Excel
-            </button>
-            <button
-              onClick={() => exportToCSV(sortedVentas)}
-              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#316973] hover:bg-[#316973]/10 transition-all cursor-pointer"
-            >
-              <Download size={14} />
-              CSV
-            </button>
+            {/* Unified Export Dropdown */}
+            <div className="relative" ref={exportRef}>
+              <button
+                onClick={() => setExportOpen(!exportOpen)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] md:text-xs font-semibold text-text-muted hover:bg-surface-alt hover:text-text-primary shadow-sm transition-all cursor-pointer"
+              >
+                <FileDown size={13} />
+                Exportar
+                <ChevronDown size={12} className={`transition-transform ${exportOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {exportOpen && (
+                <div className="absolute left-0 mt-2 w-40 bg-white border border-border rounded-xl shadow-lg z-50 py-1 animate-slide-down">
+                  <button
+                    onClick={() => { exportToExcel(sortedVentas); setExportOpen(false) }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-green transition-colors cursor-pointer text-left"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-green" />
+                    Excel (.xlsx)
+                  </button>
+                  <button
+                    onClick={() => { exportToCSV(sortedVentas); setExportOpen(false) }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer text-left"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue" />
+                    CSV (.csv)
+                  </button>
+                </div>
+              )}
+            </div>
+
             {onBulkImport && (
-              <>
-                <div className="w-px h-4 bg-border/40" />
-                <button
-                  onClick={onBulkImport}
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-[#7C4DFF] hover:bg-[#7C4DFF]/10 transition-all cursor-pointer"
-                >
-                  <Download size={14} className="rotate-180" />
-                  Carga Masiva
-                </button>
-              </>
+              <button
+                onClick={onBulkImport}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] md:text-xs font-semibold text-text-muted hover:bg-surface-alt hover:text-purple shadow-sm transition-all cursor-pointer"
+              >
+                <FolderInput size={13} />
+                Carga Masiva
+              </button>
             )}
           </div>
 
@@ -894,6 +924,36 @@ export default function SalesTable({
                 <Archive size={15} className="text-text-muted" />
                 {(ctxMenu.venta?.archivada || ctxMenu.venta?.status === 'archivada' || ctxMenu.venta?.status === 'archivado') ? 'Desarchivar' : 'Archivar'}
               </button>
+
+              {/* Trash / Delete Action */}
+              <button
+                onClick={() => {
+                  if (ctxMenu.venta?.status === 'borrada') {
+                    if (confirm('¿Estás seguro de eliminar esta venta definitivamente? Esta acción no se puede deshacer.')) {
+                      onHardDelete?.(ctxMenu.venta.id);
+                    }
+                  } else {
+                    onDelete?.(ctxMenu.venta.id);
+                  }
+                  closeCtxMenu();
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
+                  ctxMenu.venta?.status === 'borrada' ? 'text-red hover:bg-red-subtle/30' : 'text-text-primary hover:bg-surface-alt'
+                }`}
+              >
+                <Trash2 size={15} className={ctxMenu.venta?.status === 'borrada' ? 'text-red' : 'text-text-muted'} />
+                {ctxMenu.venta?.status === 'borrada' ? 'Eliminar definitivamente' : 'Enviar a papelera'}
+              </button>
+
+              {ctxMenu.venta?.status === 'borrada' && (
+                <button
+                  onClick={() => { onRestore?.(ctxMenu.venta.id); closeCtxMenu(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-[11px] font-semibold text-text-primary hover:bg-surface-alt rounded-lg transition-colors cursor-pointer"
+                >
+                  <RotateCcw size={15} className="text-text-muted" />
+                  Restaurar venta
+                </button>
+              )}
 
               <div className="h-px bg-border/20 mx-2 my-0.5" />
 
