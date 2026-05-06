@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Modal from './Modal';
-import { Sparkles, ShieldCheck, TrendingUp, TrendingDown, Target, Zap, Users, AlertTriangle, FileText, ArrowUpRight, ArrowDownRight, Minus, BarChart3, Calendar } from 'lucide-react';
+import { Sparkles, ShieldCheck, TrendingUp, TrendingDown, Target, Zap, Users, AlertTriangle, FileText, ArrowUpRight, ArrowDownRight, Minus, BarChart3, Calendar, Download, FileDown, Loader2 } from 'lucide-react';
 import { generateFiscalReport, generatePerformanceReport } from '../utils/reportEngine';
+import { exportReportToPDF, exportFiscalReportToExcel, exportPerformanceReportToExcel } from '../utils/reportExport';
 
 function Metric({ label, value, sub, color = 'text-text-primary' }) {
   return (
@@ -39,8 +40,11 @@ function Badge({ text, variant = 'green' }) {
 // ═══════════════════════════════════════
 //  FISCAL REPORT VIEW
 // ═══════════════════════════════════════
-function FiscalReportView({ data }) {
+function FiscalReportView({ data, contentRef }) {
   const r = useMemo(() => generateFiscalReport(data), [data]);
+
+  // Expose report data for Excel export
+  if (contentRef) contentRef.current = { reportData: r, type: 'fiscal' };
 
   const statusColor = r.pctUsed >= 90 ? 'red' : r.pctUsed >= 70 ? 'yellow' : 'green';
   const statusLabel = r.pctUsed >= 90 ? 'Zona crítica' : r.pctUsed >= 70 ? 'Zona de precaución' : 'Zona segura';
@@ -172,8 +176,11 @@ function FiscalReportView({ data }) {
 // ═══════════════════════════════════════
 //  PERFORMANCE REPORT VIEW
 // ═══════════════════════════════════════
-function PerformanceReportView({ data }) {
+function PerformanceReportView({ data, contentRef }) {
   const r = useMemo(() => generatePerformanceReport(data), [data]);
+
+  // Expose report data for Excel export
+  if (contentRef) contentRef.current = { reportData: r, type: 'performance' };
 
   const trendIcon = r.montoTrendLabel === 'ascendente' ? ArrowUpRight : r.montoTrendLabel === 'descendente' ? ArrowDownRight : Minus;
   const trendColor = r.montoTrendLabel === 'ascendente' ? 'text-[#2D8F5E]' : r.montoTrendLabel === 'descendente' ? 'text-[#C0443C]' : 'text-[#3460A8]';
@@ -342,15 +349,61 @@ function PerformanceReportView({ data }) {
 //  MAIN MODAL
 // ═══════════════════════════════════════
 export default function AIReportModal({ isOpen, onClose, type, data }) {
+  const reportRef = useRef(null);
+  const dataRef = useRef({ reportData: null, type: null });
+  const [exporting, setExporting] = useState(false);
+
   if (!data) return null;
+
+  const handlePDF = async () => {
+    if (!reportRef.current) return;
+    setExporting(true);
+    try {
+      const title = type === 'fiscal' ? 'Reporte_Fiscal' : 'Reporte_Rendimiento';
+      await exportReportToPDF(reportRef.current, title);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExcel = () => {
+    const { reportData, type: rType } = dataRef.current;
+    if (!reportData) return;
+    if (rType === 'fiscal') {
+      exportFiscalReportToExcel(reportData);
+    } else {
+      exportPerformanceReportToExcel(reportData);
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Reporte CMD — Motor Analítico">
-      {type === 'fiscal' ? (
-        <FiscalReportView data={data} />
-      ) : (
-        <PerformanceReportView data={data} />
-      )}
+      {/* Export toolbar */}
+      <div className="flex items-center justify-end gap-2 mb-4 -mt-1">
+        <button
+          onClick={handleExcel}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-secondary border border-border/60 hover:bg-surface-alt hover:text-text-primary transition-all cursor-pointer"
+        >
+          <FileDown size={13} />
+          Excel
+        </button>
+        <button
+          onClick={handlePDF}
+          disabled={exporting}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white bg-text-primary hover:bg-[#121212] active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+        >
+          {exporting ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+          {exporting ? 'Exportando...' : 'PDF'}
+        </button>
+      </div>
+
+      <div ref={reportRef}>
+        {type === 'fiscal' ? (
+          <FiscalReportView data={data} contentRef={dataRef} />
+        ) : (
+          <PerformanceReportView data={data} contentRef={dataRef} />
+        )}
+      </div>
     </Modal>
   );
 }
