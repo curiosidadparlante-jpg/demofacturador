@@ -104,16 +104,17 @@ function computeKPI(ventas, startDate, endDate) {
 
 export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange }) {
   const [timeframe, setTimeframe] = useState('all') // 'all','year','month','week','day' or 'custom'
+  const [timeframeOpen, setTimeframeOpen] = useState(false)
+  const timeframeRef = useRef(null)
+  
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
   const [moreOpen, setMoreOpen] = useState(false)
   const moreRef = useRef(null)
 
   const [compareMode, setCompareMode] = useState('off') // 'off', 'previous', 'year', 'custom'
-  const [compareFrom, setCompareFrom] = useState('')
-  const [compareTo, setCompareTo] = useState('')
-  const [compareOpen, setCompareOpen] = useState(false)
-  const compareRef = useRef(null)
+  const [compareFrom, setCustomCompareFrom] = useState('')
+  const [compareTo, setCustomCompareTo] = useState('')
 
   const [activeMetrics, setActiveMetrics] = useState(['facturadas'])
   const [selectedClient, setSelectedClient] = useState('all')
@@ -149,7 +150,7 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
   useEffect(() => {
     const handler = (e) => {
       if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false)
-      if (compareRef.current && !compareRef.current.contains(e.target)) setCompareOpen(false)
+      if (timeframeRef.current && !timeframeRef.current.contains(e.target)) setTimeframeOpen(false)
       if (clientRef.current && !clientRef.current.contains(e.target)) setClientOpen(false)
       if (exportRef.current && !exportRef.current.contains(e.target)) setExportOpen(false)
     }
@@ -258,52 +259,37 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
               <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
             </div>
           </div>
-        
-        </div>
-
-      {/* KPI Cards */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
-        <div className="flex flex-wrap gap-2 lg:gap-4 w-full">
-          {cards.map(card => {
-            const Icon = card.icon
-            const isUp = card.change >= 0
-            const isActive = card.active
-            return (
-              <button
-                key={card.key}
-                onClick={() => toggleMetric(card.key)}
-                className={`relative min-w-[160px] max-w-[220px] px-4 py-4 md:px-5 md:py-4 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
-                  ${isActive ? `${card.bgClass} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
-                `}
-              >
-                <div className="flex items-center gap-2 mb-3 md:mb-4">
-                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
-                    {isActive && <Icon size={10} className="text-white" />}
-                  </div>
-                  <span className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className={`text-xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textClass}`}>
-                    {card.isMoney ? card.format(card.value) : card.value}
-                  </span>
-                  {compareEnabled && (
-                    <div className={`flex items-center gap-1 mt-1 text-[9px] md:text-[10px] font-bold ${isActive ? 'text-white/80' : (isUp ? 'text-green' : 'text-red')}`}>
-                      {isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                      {isUp ? '+' : ''}{card.change}%
-                      <span className={`font-normal ml-0.5 ${isActive ? 'text-white/60' : 'text-text-muted'}`}>vs comp.</span>
-                    </div>
-                  )}
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row justify-end items-end mb-4">
         <div className="flex items-center gap-2 flex-wrap">
-          
+          {/* Timeframe Filter */}
+          <div className="relative" ref={timeframeRef}>
+            <button
+              onClick={() => setTimeframeOpen(!timeframeOpen)}
+              className="flex items-center gap-2 bg-surface-alt rounded-xl border border-border/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-border/30 transition-colors cursor-pointer"
+            >
+              <span className="truncate max-w-[150px]">
+                {PRESETS.find(p => p.id === timeframe)?.label || 'Personalizado'}
+              </span>
+              <ChevronDown size={12} className="text-text-muted" />
+            </button>
+            {timeframeOpen && (
+              <div className="absolute left-0 md:right-0 md:left-auto top-full mt-2 w-[220px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down overflow-hidden flex flex-col">
+                <div className="p-2">
+                  {PRESETS.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setTimeframe(p.id); setCustomFrom(''); setCustomTo(''); setTimeframeOpen(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-semibold cursor-pointer rounded-lg mb-1 last:mb-0
+                        ${timeframe === p.id ? 'bg-blue/10 text-blue' : 'text-text-primary hover:bg-surface-alt'}
+                      `}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Client Filter */}
           <div className="relative" ref={clientRef}>
             <button
@@ -317,7 +303,7 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
             </button>
 
             {clientOpen && (
-              <div className="absolute left-0 top-full mt-2 w-[280px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down overflow-hidden flex flex-col">
+              <div className="absolute right-0 top-full mt-2 w-[280px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down overflow-hidden flex flex-col">
                 <div className="p-2 border-b border-border/60 bg-surface-alt/20">
                   <div className="relative">
                     <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
@@ -360,142 +346,147 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
             )}
           </div>
 
-          {/* Main Date Selectors — matching contable style */}
-          <div className="flex p-0.5 bg-white rounded-lg border border-border/60 shadow-sm">
-            {PRESETS.map(p => (
-              <button key={p.id} onClick={() => { setTimeframe(p.id); setCustomFrom(''); setCustomTo(''); }}
-                className={`px-3 py-1.5 rounded-md text-[10px] md:text-xs font-semibold transition-all cursor-pointer ${
-                  timeframe === p.id ? 'bg-blue/10 text-blue shadow-sm' : 'text-text-muted hover:text-text-primary hover:bg-surface-alt'
-                }`}>
-                {p.label}
-              </button>
-            ))}
-          </div>
-
+          {/* More Info / Compare Filter */}
           <div className="relative" ref={moreRef}>
-              <button
-                onClick={() => setMoreOpen(!moreOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
-                  ${(moreOpen || timeframe === 'custom') ? 'bg-blue/10 border-blue/30 text-blue' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
-                `}
-              >
-                <Calendar size={13} />
-                Más información
-                <ChevronDown size={12} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
-              </button>
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border ${
+                (moreOpen || timeframe === 'custom' || compareMode !== 'off') ? 'bg-purple/5 border-purple text-purple' : 'bg-surface-alt border-border/40 text-text-muted hover:text-text-primary hover:bg-border/30'
+              }`}
+            >
+              <Calendar size={13} />
+              Más opciones
+              <ChevronDown size={12} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-              {moreOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[340px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down">
-                  <div className="px-4 py-3 border-b border-border"><h4 className="text-sm font-bold text-text-primary">Período principal</h4></div>
-                  <div className="p-4">
+            {moreOpen && (
+              <div className="absolute right-0 top-full mt-2 w-[340px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down">
+                <div className="px-4 py-3 border-b border-border bg-surface-alt/20"><h4 className="text-sm font-bold text-text-primary">Período personalizado</h4></div>
+                <div className="p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Inicio</label>
+                      <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
+                    </div>
+                    <span className="text-text-muted mt-4">-</span>
+                    <div className="flex-1">
+                      <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fin</label>
+                      <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="px-4 py-3 border-y border-border bg-surface-alt/20"><h4 className="text-sm font-bold text-text-primary">Comparar con</h4></div>
+                <div className="p-2">
+                    <button onClick={() => setCompareMode('off')} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'off' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>Sin comparación</button>
+                    <button onClick={() => setCompareMode('previous')} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'previous' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>Período anterior</button>
+                    <button onClick={() => setCompareMode('year')} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'year' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>Mismo período año anterior</button>
+                    <button onClick={() => setCompareMode('custom')} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'custom' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>Personalizado...</button>
+                </div>
+                {compareMode === 'custom' && (
+                  <div className="p-4 border-t border-border bg-surface-alt/10">
                     <div className="flex items-center gap-2">
                       <div className="flex-1">
-                        <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Inicio</label>
-                        <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-blue" />
+                        <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Inicio Comp.</label>
+                        <input type="date" value={compareFrom} onChange={e => setCustomCompareFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
                       </div>
                       <span className="text-text-muted mt-4">-</span>
                       <div className="flex-1">
-                        <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fin</label>
-                        <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-surface-alt focus:outline-none focus:border-blue" />
+                        <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fin Comp.</label>
+                        <input type="date" value={compareTo} onChange={e => setCustomCompareTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-end gap-2 px-4 py-3 border-t border-border bg-surface-alt/30">
-                    <button onClick={() => setMoreOpen(false)} className="px-4 py-1.5 text-xs font-bold text-blue hover:underline cursor-pointer">Cancelar</button>
-                    <button onClick={() => { if(customFrom && customTo) { setTimeframe('custom'); setMoreOpen(false) } }} className="px-4 py-1.5 text-xs font-bold text-white bg-blue rounded-lg hover:bg-blue/90 disabled:opacity-50 cursor-pointer" disabled={!customFrom || !customTo}>Aplicar</button>
-                  </div>
+                )}
+                
+                <div className="flex justify-end gap-2 px-4 py-3 border-t border-border bg-surface-alt/30">
+                  <button onClick={() => setMoreOpen(false)} className="px-4 py-1.5 text-xs font-bold text-purple hover:underline cursor-pointer">Cerrar</button>
+                  <button onClick={() => { if(customFrom && customTo) setTimeframe('custom'); setMoreOpen(false); }} className="px-4 py-1.5 text-xs font-bold text-white bg-purple rounded-lg hover:bg-purple/90 cursor-pointer">Aplicar</button>
                 </div>
-              )}
-            </div>
-            {/* Compare Selector */}
-            <div className="relative" ref={compareRef}>
-              <button onClick={() => setCompareOpen(!compareOpen)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border ${
-                  compareEnabled ? 'border-purple bg-purple/5 text-purple' : 'border-border/40 text-text-muted hover:bg-surface-alt'
-                }`}>
-                {compareEnabled ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
-                Comparar {compareEnabled && <ChevronDown size={12} className="ml-0.5" />}
-              </button>
+              </div>
+            )}
+          </div>
 
-              {compareOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[300px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down">
-                  <div className="px-4 py-3 border-b border-border"><h4 className="text-sm font-bold text-text-primary">Comparar con</h4></div>
-                  <div className="p-2">
-                    <button onClick={() => { setCompareMode('off'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'off' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                      Sin comparación
-                    </button>
-                    <button onClick={() => { setCompareMode('previous'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'previous' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                      Período anterior
-                    </button>
-                    <button onClick={() => { setCompareMode('year'); setCompareOpen(false) }} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'year' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                      Mismo período año anterior
-                    </button>
-                    <button onClick={() => setCompareMode('custom')} className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg hover:bg-surface-alt cursor-pointer ${compareMode === 'custom' ? 'text-purple bg-purple/5' : 'text-text-primary'}`}>
-                      Personalizado...
-                    </button>
+          {/* Export Dropdown */}
+          <div className="relative" ref={exportRef}>
+            <button 
+              onClick={() => setExportOpen(!exportOpen)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border border-border/40 text-text-muted hover:bg-surface-alt hover:text-text-primary"
+            >
+              <FileDown size={14} />
+              Exportar <ChevronDown size={12} className="ml-0.5" />
+            </button>
+            
+            {exportOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/40 py-1 z-50 animate-slide-down">
+                <button 
+                  onClick={() => { exportChartDataToExcel(chartData); setExportOpen(false); }}
+                  className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
+                >
+                  Exportar Gráfico (Excel)
+                </button>
+                <button 
+                  onClick={() => { exportChartDataToCSV(chartData); setExportOpen(false); }}
+                  className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
+                >
+                  Exportar Gráfico (CSV)
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Report Button */}
+          <button
+            onClick={() => setReportOpen(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+              bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm hover:bg-surface-alt
+            `}
+          >
+            <Sparkles size={13} />
+            Análisis de Rendimiento
+          </button>
+        </div>
+
+        
+        </div>
+
+      {/* KPI Cards */}
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
+        <div className="flex flex-wrap gap-2 lg:gap-4 w-full">
+          {cards.map(card => {
+            const Icon = card.icon
+            const isUp = card.change >= 0
+            const isActive = card.active
+            return (
+              <button
+                key={card.key}
+                onClick={() => toggleMetric(card.key)}
+                className={`relative min-w-[160px] max-w-[220px] px-4 py-4 md:px-5 md:py-4 flex flex-col justify-between text-left transition-all duration-300 outline-none cursor-pointer rounded-xl border border-border shadow-sm group
+                  ${isActive ? `${card.bgClass} text-white border-transparent` : 'bg-white text-text-primary hover:bg-surface-alt'}
+                `}
+              >
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 border-white/40' : 'bg-surface border-border'}`}>
+                    {isActive && <Icon size={10} className="text-white" />}
                   </div>
-                  
-                  {compareMode === 'custom' && (
-                    <div className="p-4 border-t border-border bg-surface-alt/30">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Inicio Comp.</label>
-                          <input type="date" value={compareFrom} onChange={e => setCompareFrom(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
-                        </div>
-                        <span className="text-text-muted mt-4">-</span>
-                        <div className="flex-1">
-                          <label className="text-[9px] font-bold uppercase text-text-muted tracking-widest">Fin Comp.</label>
-                          <input type="date" value={compareTo} onChange={e => setCompareTo(e.target.value)} className="w-full mt-0.5 px-2 py-1.5 text-xs border border-border rounded-lg bg-white focus:outline-none focus:border-purple" />
-                        </div>
-                      </div>
-                      <div className="mt-3 flex justify-end">
-                        <button onClick={() => setCompareOpen(false)} className="px-3 py-1.5 text-xs font-bold text-white bg-purple rounded-lg hover:bg-purple/90 cursor-pointer">OK</button>
-                      </div>
+                  <span className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider ${isActive ? 'text-white' : 'text-text-secondary'}`}>{card.label}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className={`text-xl md:text-3xl font-black tracking-tight ${isActive ? 'text-white' : card.textClass}`}>
+                    {card.isMoney ? card.format(card.value) : card.value}
+                  </span>
+                  {compareEnabled && (
+                    <div className={`flex items-center gap-1 mt-1 text-[9px] md:text-[10px] font-bold ${isActive ? 'text-white/80' : (isUp ? 'text-green' : 'text-red')}`}>
+                      {isUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                      {isUp ? '+' : ''}{card.change}%
+                      <span className={`font-normal ml-0.5 ${isActive ? 'text-white/60' : 'text-text-muted'}`}>vs comp.</span>
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-
-            {/* Export Dropdown */}
-            <div className="relative" ref={exportRef}>
-              <button 
-                onClick={() => setExportOpen(!exportOpen)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border border-border/40 text-text-muted hover:bg-surface-alt hover:text-text-primary"
-              >
-                <FileDown size={14} />
-                Exportar <ChevronDown size={12} className="ml-0.5" />
               </button>
-              
-              {exportOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/40 py-1 z-50 animate-slide-down">
-                  <button 
-                    onClick={() => { exportChartDataToExcel(chartData); setExportOpen(false); }}
-                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
-                  >
-                    Exportar Gráfico (Excel)
-                  </button>
-                  <button 
-                    onClick={() => { exportChartDataToCSV(chartData); setExportOpen(false); }}
-                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-alt hover:text-blue transition-colors cursor-pointer"
-                  >
-                    Exportar Gráfico (CSV)
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Report Button */}
-            <button
-              onClick={() => setReportOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
-                bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm hover:bg-surface-alt
-              `}
-            >
-              <Sparkles size={13} />
-              Análisis de Rendimiento
-            </button>
-          </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Chart */}

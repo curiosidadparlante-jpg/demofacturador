@@ -1,4 +1,4 @@
-import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Eye, EyeOff, Activity, ChevronDown, ChevronUp, AlertTriangle, Archive, Calendar, X } from 'lucide-react'
+import { TrendingUp, Clock, FileCheck, Trash2, AlertCircle, Activity, ChevronDown, ChevronUp, AlertTriangle, Archive, Calendar, X } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { filterVentasByTimeframe } from '../utils/dateUtils'
 import { useConfig } from '../context/ConfigContext'
@@ -6,7 +6,6 @@ import { getMonotributoLimit } from '../utils/afipConstants'
 
 export default function StatsCards({ ventas, allVentas, onCardClick, activeCard, tableVentas, selectedVentas = [] }) {
   const [timeframe, setTimeframe] = useState('all')
-  const [showValues, setShowValues] = useState(true)
   const [moreOpen, setMoreOpen] = useState(false)
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -97,7 +96,7 @@ export default function StatsCards({ ventas, allVentas, onCardClick, activeCard,
     onCardClick(activeCard, newData, timeframe);
   }, [timeframe, ventas, customFrom, customTo]);
 
-  const renderMoney = (amount) => showValues ? formatCurrency(amount) : '$ ***.***'
+  const renderMoney = (amount) => formatCurrency(amount)
 
 
   const handleApplyCustom = () => {
@@ -305,13 +304,6 @@ export default function StatsCards({ ventas, allVentas, onCardClick, activeCard,
         )}
       </div>
 
-      {/* Eye toggle */}
-      <div className="flex justify-end">
-        <button onClick={() => setShowValues(!showValues)} className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-primary transition-colors cursor-pointer">
-          {showValues ? <EyeOff size={12} /> : <Eye size={12} />}
-          {showValues ? 'Ocultar importes' : 'Mostrar importes'}
-        </button>
-      </div>
     </div>
   )
 }

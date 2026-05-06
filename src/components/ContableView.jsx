@@ -57,14 +57,7 @@ export default function ContableView({
             Métricas fiscales y financieras de tu negocio
           </p>
         </div>
-      </div>
-
-      <StatsCards ventas={ventas} allVentas={allVentas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} tableVentas={tableData?.ventas} selectedVentas={selectedVentas} />
-
-      <div className="mt-8 mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="flex-1">
-          <FilterBar filters={filters} onFilterChange={onFilterChange} />
-        </div>
+        
         <button
           onClick={() => setReportOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
@@ -74,6 +67,12 @@ export default function ContableView({
           <Sparkles size={13} />
           Reporte fiscal
         </button>
+      </div>
+
+      <StatsCards ventas={ventas} allVentas={allVentas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} tableVentas={tableData?.ventas} selectedVentas={selectedVentas} />
+
+      <div className="mt-8 mb-4">
+        <FilterBar filters={filters} onFilterChange={onFilterChange} />
       </div>
 
       {tableData && (
