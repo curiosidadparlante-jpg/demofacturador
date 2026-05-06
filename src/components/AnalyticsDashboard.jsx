@@ -270,46 +270,34 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
       {/* ─── TOP BAR (Filters) ─── */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-surface-alt/30 p-2 rounded-xl border border-border/40 mb-6 mt-4">
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Timeframe Filter */}
-          <div className="relative" ref={timeframeRef}>
-            <button
-              onClick={() => setTimeframeOpen(!timeframeOpen)}
-              className="flex items-center gap-2 bg-surface-alt rounded-xl border border-border/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-border/30 transition-colors cursor-pointer"
-            >
-              <span className="truncate max-w-[150px]">
-                {PRESETS.find(p => p.id === timeframe)?.label || 'Personalizado'}
-              </span>
-              <ChevronDown size={12} className="text-text-muted" />
-            </button>
-            {timeframeOpen && (
-              <div className="absolute left-0 md:right-0 md:left-auto top-full mt-2 w-[220px] bg-white border border-border rounded-xl shadow-xl z-50 animate-slide-down overflow-hidden flex flex-col">
-                <div className="p-2">
-                  {PRESETS.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => { setTimeframe(p.id); setCustomFrom(''); setCustomTo(''); setTimeframeOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-xs font-semibold cursor-pointer rounded-lg mb-1 last:mb-0
-                        ${timeframe === p.id ? 'bg-blue/10 text-blue' : 'text-text-primary hover:bg-surface-alt'}
-                      `}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* Quick timeframe pills */}
+          <div className="flex p-0.5 bg-white rounded-lg border border-border/60 shadow-sm">
+            {PRESETS.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => { setTimeframe(option.id); setCustomFrom(''); setCustomTo(''); }}
+                className={`px-3 py-1.5 rounded-md text-[10px] md:text-xs font-semibold transition-all duration-200 cursor-pointer
+                  ${timeframe === option.id ? 'bg-blue/10 text-blue shadow-sm' : 'text-text-muted hover:text-text-primary hover:bg-surface-alt'}
+                `}
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
 
           {/* Client Filter */}
           <div className="relative" ref={clientRef}>
             <button
               onClick={() => setClientOpen(!clientOpen)}
-              className="flex items-center gap-2 bg-surface-alt rounded-xl border border-border/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:bg-border/30 transition-colors cursor-pointer"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+                ${(clientOpen || selectedClient !== 'all') ? 'bg-blue/10 border-blue/30 text-blue' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
+              `}
             >
+              <Users size={13} />
               <span className="truncate max-w-[150px]">
                 {selectedClient === 'all' ? 'Todos los clientes' : selectedClient}
               </span>
-              <ChevronDown size={12} className="text-text-muted" />
+              <ChevronDown size={12} className={`text-text-muted transition-transform ${clientOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {clientOpen && (
@@ -360,9 +348,9 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
           <div className="relative" ref={moreRef}>
             <button
               onClick={() => setMoreOpen(!moreOpen)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border ${
-                (moreOpen || timeframe === 'custom' || compareMode !== 'off') ? 'bg-purple/5 border-purple text-purple' : 'bg-surface-alt border-border/40 text-text-muted hover:text-text-primary hover:bg-border/30'
-              }`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+                ${(moreOpen || timeframe === 'custom' || compareMode !== 'off') ? 'bg-purple/10 border-purple/30 text-purple' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
+              `}
             >
               <Calendar size={13} />
               Más opciones
@@ -421,10 +409,13 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
           <div className="relative" ref={exportRef}>
             <button 
               onClick={() => setExportOpen(!exportOpen)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer border border-border/40 text-text-muted hover:bg-surface-alt hover:text-text-primary"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+                ${exportOpen ? 'bg-blue/10 border-blue/30 text-blue' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
+              `}
             >
-              <FileDown size={14} />
-              Exportar <ChevronDown size={12} className="ml-0.5" />
+              <FileDown size={13} />
+              Exportar
+              <ChevronDown size={12} className={`ml-0.5 transition-transform ${exportOpen ? 'rotate-180' : ''}`} />
             </button>
             
             {exportOpen && (
