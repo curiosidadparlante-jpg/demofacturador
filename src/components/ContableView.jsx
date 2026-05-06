@@ -1,6 +1,11 @@
 import StatsCards from './StatsCards'
 import SalesTable from './SalesTable'
 import FilterBar from './FilterBar'
+import AIReportModal from './AIReportModal'
+import { Sparkles } from 'lucide-react'
+import { useState } from 'react'
+import { getMonotributoLimit } from '../utils/afipConstants'
+import { useConfig } from '../context/ConfigContext'
 
 export default function ContableView({ 
   ventas, 
@@ -10,7 +15,7 @@ export default function ContableView({
   onCardClick,
   tableData,
   selectedIds,
-  selectedVentas,
+  selectedVentas = [],
   onToggleSelect,
   onToggleAll,
   loading,
@@ -23,15 +28,55 @@ export default function ContableView({
   labels,
   customFolders = [],
 }) {
+  const [reportOpen, setReportOpen] = useState(false)
+  const { emisor } = useConfig()
+
+  const getAmount = (v) => {
+    const isCreditNote = [3, 8, 13, 113].includes(v.datos_fiscales?.tipo_cbte);
+    const amount = Number(v.monto) || 0;
+    return isCreditNote ? -Math.abs(amount) : Math.abs(amount);
+  };
+
+  const currentYear = new Date().getFullYear();
+  const annualTotal = allVentas.filter(v => v.status === 'facturado' && new Date(v.fecha).getFullYear() === currentYear)
+    .reduce((s, v) => s + getAmount(v), 0);
+  const tableTotal = (tableData?.ventas || [])
+    .filter(v => v.status === 'facturado' && new Date(v.fecha).getFullYear() === currentYear)
+    .reduce((s, v) => s + getAmount(v), 0);
+  const category = emisor?.monotributo_categoria || 'A';
+  const limit = getMonotributoLimit(category);
+
+  const fiscalData = {
+    category,
+    limit,
+    annualTotal,
+    tableTotal
+  };
+
   return (
     <div className="space-y-6">
-      <div className="mb-2">
-        <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">
-          Gestión contable
-        </h2>
-        <p className="text-xs text-text-muted mt-1">
-          Métricas fiscales y financieras de tu negocio
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">
+            Gestión contable
+          </h2>
+          <p className="text-xs text-text-muted mt-1">
+            Métricas fiscales y financieras de tu negocio
+          </p>
+        </div>
+        
+        <button
+          onClick={() => setReportOpen(true)}
+          className="
+            flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+            bg-text-primary text-white text-[10px] font-bold uppercase tracking-widest
+            hover:bg-[#121212] hover:scale-[1.02] active:scale-95
+            transition-all duration-300 cursor-pointer shadow-lg shadow-black/10
+          "
+        >
+          <Sparkles size={14} className="text-blue" />
+          Reporte de Salud Fiscal (IA)
+        </button>
       </div>
 
       <StatsCards ventas={ventas} allVentas={allVentas} onCardClick={onCardClick} activeCard={tableData?.baseTitle} tableVentas={tableData?.ventas} selectedVentas={selectedVentas} />
@@ -59,6 +104,12 @@ export default function ContableView({
           />
         </div>
       )}
+      <AIReportModal 
+        isOpen={reportOpen} 
+        onClose={() => setReportOpen(false)} 
+        type="fiscal"
+        data={fiscalData}
+      />
     </div>
   )
 }

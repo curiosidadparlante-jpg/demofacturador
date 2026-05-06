@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search, FileDown } from 'lucide-react'
+import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search, FileDown, Sparkles } from 'lucide-react'
 import AnalyticsChart from './AnalyticsChart'
+import AIReportModal from './AIReportModal'
 import { exportChartDataToExcel, exportChartDataToCSV } from '../utils/exportUtils'
 
 const PRESETS = [
@@ -114,6 +115,7 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
 
   const [exportOpen, setExportOpen] = useState(false)
   const exportRef = useRef(null)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const uniqueClients = useMemo(() => {
     const clients = new Set()
@@ -228,10 +230,25 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
     <div className="mb-10">
       {/* Header + Date Range */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
-        <div>
-          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Métricas del negocio</h2>
-          <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
-        </div>
+          <div className="flex items-center gap-3">
+            <div>
+              <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Métricas del negocio</h2>
+              <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
+            </div>
+            
+            <button
+              onClick={() => setReportOpen(true)}
+              className="
+                flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+                bg-text-primary text-white text-[10px] font-bold uppercase tracking-widest
+                hover:bg-[#121212] hover:scale-[1.02] active:scale-95
+                transition-all duration-300 cursor-pointer shadow-lg shadow-black/10
+              "
+            >
+              <Sparkles size={14} className="text-blue" />
+              Análisis de Rendimiento (IA)
+            </button>
+          </div>
         <div className="flex items-center gap-2 flex-wrap">
           
           {/* Client Filter */}
@@ -469,6 +486,12 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
           <span className="flex items-center gap-1.5"><span className="w-6 h-0.5 bg-text-muted rounded inline-block" style={{ borderTop: '2px dashed #999' }} /> Comparación</span>
         </div>
       )}
+      <AIReportModal 
+        isOpen={reportOpen} 
+        onClose={() => setReportOpen(false)} 
+        type="performance"
+        data={{ kpi, chartData, compareEnabled }}
+      />
     </div>
   )
 }
