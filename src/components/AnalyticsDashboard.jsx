@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search, FileDown, Sparkles } from 'lucide-react'
+import { Calendar, TrendingUp, TrendingDown, FileCheck, Clock, FileText, DollarSign, ToggleLeft, ToggleRight, Plus, X, ChevronDown, Search, FileDown, Sparkles, Users } from 'lucide-react'
 import AnalyticsChart from './AnalyticsChart'
 import AIReportModal from './AIReportModal'
 import { exportChartDataToExcel, exportChartDataToCSV } from '../utils/exportUtils'
