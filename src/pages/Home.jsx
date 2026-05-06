@@ -70,12 +70,9 @@ export default function Home() {
   // ─── Filtered ventas ───
   const borradas = useMemo(() => ventas.filter(v => v.status === 'borrada'), [ventas])
   const archivadas = useMemo(() => ventas.filter(v => (v.archivada || v.status === 'archivada' || v.status === 'archivado') && v.status !== 'borrada'), [ventas])
-  const filteredVentas = useMemo(() => {
+  // ─── Base filtered ventas (Applies search and top bar filters only) ───
+  const baseFilteredVentas = useMemo(() => {
     return ventas.filter(v => {
-      // Exclude borradas and archivadas globally from generic UI views
-      if (v.status === 'borrada') return false
-      if (v.archivada || v.status === 'archivada' || v.status === 'archivado') return false
-
       // Universal search across all fields
       if (debouncedSearch) {
         const q = debouncedSearch.toLowerCase()
@@ -141,6 +138,15 @@ export default function Home() {
       return true
     })
   }, [ventas, debouncedSearch, filters.status, filters.medio, filters.origen, filters.dateFrom, filters.dateTo, filters.montoMin, filters.montoMax])
+
+  // ─── Filtered ventas (Excludes deleted/archived, used for stats/dashboards) ───
+  const filteredVentas = useMemo(() => {
+    return baseFilteredVentas.filter(v => {
+      if (v.status === 'borrada') return false
+      if (v.archivada || v.status === 'archivada' || v.status === 'archivado') return false
+      return true
+    })
+  }, [baseFilteredVentas])
 
   // ─── Selected ventas data ───
   const selectedVentas = useMemo(() =>
@@ -708,7 +714,7 @@ export default function Home() {
     return ids
   }
 
-  // ─── Filtered ventas for active filter ───
+  // ─── Filtered ventas for active filter (Table View) ───
   const viewFilteredVentas = useMemo(() => {
     if (!activeFilter) {
       // Default Inbox view (Pendientes + Error)
@@ -719,20 +725,22 @@ export default function Home() {
     }
     if (activeFilter.type === 'status') {
       const st = activeFilter.value
-      return ventas.filter(v => {
-        if (st === 'archivada') return v.archivada || v.status === 'archivada' || v.status === 'archivado'
-        return v.status === st && !v.archivada && v.status !== 'archivada' && v.status !== 'archivado'
-      })
+      // Archived: Search inside baseFilteredVentas (which includes archived but respects top filters)
+      if (st === 'archivada') {
+        return baseFilteredVentas.filter(v => (v.archivada || v.status === 'archivada' || v.status === 'archivado') && v.status !== 'borrada')
+      }
+      // Other statuses (Facturado, Pendiente, Error): Search inside filteredVentas
+      return filteredVentas.filter(v => v.status === st)
     }
     if (activeFilter.type === 'folder') {
       const folderIds = getDescendantIds(activeFilter.value, customFolders)
-      return ventas.filter(v => folderIds.includes(v.folder))
+      return filteredVentas.filter(v => folderIds.includes(v.folder))
     }
     if (activeFilter.type === 'label') {
-      return ventas.filter(v => hasEtiqueta(v, activeFilter.value))
+      return filteredVentas.filter(v => hasEtiqueta(v, activeFilter.value))
     }
     return filteredVentas
-  }, [activeFilter, filteredVentas, ventas, customFolders])
+  }, [activeFilter, filteredVentas, baseFilteredVentas, customFolders])
 
   // ─── Folder CRUD ───
   const handleCreateFolder = (name, parentId = null) => {
