@@ -251,14 +251,24 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
 
   return (
     <div className="mb-10">
-      {/* Header + Date Range */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <div>
-              <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Métricas del negocio</h2>
-              <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
-            </div>
-          </div>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Métricas del negocio</h2>
+          <p className="text-xs text-text-muted mt-1">Panel analítico y organización</p>
+        </div>
+        
+        <button
+          onClick={() => setReportOpen(true)}
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-text-primary text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#121212] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer shadow-lg shadow-black/10"
+        >
+          <Sparkles size={13} />
+          Análisis de Rendimiento
+        </button>
+      </div>
+
+      {/* ─── TOP BAR (Filters) ─── */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-surface-alt/30 p-2 rounded-xl border border-border/40 mb-6 mt-4">
         <div className="flex items-center gap-2 flex-wrap">
           {/* Timeframe Filter */}
           <div className="relative" ref={timeframeRef}>
@@ -435,20 +445,8 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
             )}
           </div>
 
-          {/* Report Button */}
-          <button
-            onClick={() => setReportOpen(true)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
-              bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm hover:bg-surface-alt
-            `}
-          >
-            <Sparkles size={13} />
-            Análisis de Rendimiento
-          </button>
         </div>
-
-        
-        </div>
+      </div>
 
       {/* KPI Cards */}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-stretch gap-4 mb-6">
