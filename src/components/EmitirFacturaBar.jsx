@@ -38,18 +38,18 @@ export default function EmitirFacturaBar({
   return (
     <>
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-slide-up">
-        <div className="flex items-center gap-3 bg-[#121212] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl shadow-black/40">
+        <div className="flex items-center gap-2.5 bg-white/95 backdrop-blur-xl border border-border/60 rounded-full pl-3 pr-4 py-3 shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
           {/* Count */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent text-white text-xs font-bold">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black text-white text-[11px] font-black">
               {selectedCount}
             </span>
-            <span className="text-white/70 text-sm hidden lg:inline">
+            <span className="text-text-secondary text-[10px] font-bold uppercase tracking-[0.15em] hidden lg:inline mr-1">
               {selectedCount === 1 ? 'seleccionada' : 'seleccionadas'}
             </span>
           </div>
 
-          <div className="w-px h-8 bg-white/20" />
+          <div className="w-px h-6 bg-border/60 mx-1" />
 
           {/* Emit */}
           {hasPendientes && (
@@ -58,15 +58,15 @@ export default function EmitirFacturaBar({
               onClick={handleEmitir}
               disabled={loading}
               className="
-                flex items-center gap-2 px-4 py-2 rounded-xl
-                bg-red-subtle border border-red/20 text-red text-xs font-bold
-                uppercase tracking-wider transition-all duration-200
-                hover:bg-red/10 active:scale-95
+                flex items-center gap-2 px-4 py-2 rounded-full
+                bg-[#C0443C] text-white text-[10px] font-bold
+                uppercase tracking-widest transition-all duration-300
+                hover:-translate-y-0.5 shadow-lg shadow-[#C0443C]/20
                 disabled:opacity-50 disabled:cursor-not-allowed
                 cursor-pointer
               "
             >
-              {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+              {loading ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />}
               <span className="hidden sm:inline">Facturar</span>
             </button>
           )}
@@ -75,9 +75,9 @@ export default function EmitirFacturaBar({
           {hasErrors && onBulkRetry && (
             <button
               onClick={onBulkRetry}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-subtle border border-yellow/20 text-yellow text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFE100] text-black text-[10px] font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 shadow-lg shadow-[#FFE100]/20 cursor-pointer"
             >
-              <RotateCcw size={14} />
+              <RotateCcw size={13} />
               <span className="hidden sm:inline">Reintentar</span>
             </button>
           )}
@@ -86,9 +86,9 @@ export default function EmitirFacturaBar({
           {onExport && (
             <button
               onClick={onExport}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider active:scale-95 hover:bg-white/20 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-alt border border-border/60 text-text-primary text-[10px] font-bold uppercase tracking-widest transition-all duration-300 hover:bg-border/40 hover:-translate-y-0.5 cursor-pointer"
             >
-              <Download size={14} />
+              <Download size={13} />
               <span className="hidden sm:inline">Exportar</span>
             </button>
           )}
@@ -99,9 +99,9 @@ export default function EmitirFacturaBar({
             return (
               <button
                 onClick={onBulkArchive}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple/10 border border-purple/20 text-purple text-xs font-bold uppercase tracking-wider active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple/10 border border-purple/20 text-purple text-[10px] font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
               >
-                <Archive size={14} />
+                <Archive size={13} />
                 <span className="hidden sm:inline">{allArchived ? 'Desarchivar' : 'Archivar'}</span>
               </button>
             )
@@ -112,12 +112,12 @@ export default function EmitirFacturaBar({
             <button
               onClick={onBulkDelete}
               className="
-                flex items-center gap-2 px-4 py-2 rounded-xl
-                bg-accent hover:bg-accent-hover text-white text-xs font-bold
-                uppercase tracking-wider active:scale-95 transition-all cursor-pointer
+                flex items-center gap-2 px-4 py-2 rounded-full
+                bg-black hover:bg-black/80 text-white text-[10px] font-bold
+                uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 shadow-lg shadow-black/10 cursor-pointer
               "
             >
-              <Trash2 size={14} />
+              <Trash2 size={13} />
               <span className="hidden sm:inline">Eliminar</span>
             </button>
           )}
@@ -127,23 +127,23 @@ export default function EmitirFacturaBar({
             <button
               onClick={() => setConfirmPermanent(true)}
               className="
-                flex items-center gap-2 px-4 py-2 rounded-xl
-                bg-[#C0443C] hover:bg-[#a83830] text-white text-xs font-bold
-                uppercase tracking-wider active:scale-95 transition-all cursor-pointer
+                flex items-center gap-2 px-4 py-2 rounded-full
+                bg-[#C0443C] hover:bg-[#a83830] text-white text-[10px] font-bold
+                uppercase tracking-widest transition-all duration-300 hover:-translate-y-0.5 shadow-lg shadow-[#C0443C]/20 cursor-pointer
               "
             >
-              <Trash2 size={14} />
-              <span className="hidden sm:inline">Borrar definitivamente</span>
+              <Trash2 size={13} />
+              <span className="hidden sm:inline">Borrar definitivo</span>
             </button>
           )}
 
           {/* Clear */}
           <button
             onClick={onClear}
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-surface-alt hover:bg-border/80 border border-border/40 text-text-muted hover:text-text-primary transition-all cursor-pointer"
             title="Deseleccionar todo"
           >
-            <X size={16} />
+            <X size={14} strokeWidth={2.5} />
           </button>
         </div>
       </div>
