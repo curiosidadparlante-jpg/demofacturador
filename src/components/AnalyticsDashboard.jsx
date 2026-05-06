@@ -4,11 +4,13 @@ import AnalyticsChart from './AnalyticsChart'
 import AIReportModal from './AIReportModal'
 import { exportChartDataToExcel, exportChartDataToCSV } from '../utils/exportUtils'
 
+
 const PRESETS = [
-  { label: '7 días', days: 7 },
-  { label: '28 días', days: 28 },
-  { label: '3 meses', days: 90 },
-  { label: '12 meses', days: 365 },
+  { id: 'all', label: 'Histórico' },
+  { id: 'year', label: 'Año Fiscal' },
+  { id: 'month', label: 'Mes' },
+  { id: 'week', label: 'Semana' },
+  { id: 'day', label: 'Día' },
 ]
 
 const METRICS = {
@@ -101,7 +103,7 @@ function computeKPI(ventas, startDate, endDate) {
 }
 
 export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange }) {
-  const [timeframe, setTimeframe] = useState(28) // number or 'custom'
+  const [timeframe, setTimeframe] = useState('month') // 'all','year','month','week','day' or 'custom'
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
   const [moreOpen, setMoreOpen] = useState(false)
@@ -163,10 +165,24 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
   if (timeframe === 'custom' && customFrom && customTo) {
     startDate = customFrom
     endDate = customTo
-  } else {
-    const tfNum = typeof timeframe === 'number' ? timeframe : 28
+  } else if (timeframe === 'all') {
+    startDate = '2020-01-01'
     endDate = todayStr
-    startDate = toDateStr(addDays(today, -tfNum + 1))
+  } else if (timeframe === 'year') {
+    startDate = `${today.getFullYear()}-01-01`
+    endDate = todayStr
+  } else if (timeframe === 'month') {
+    startDate = toDateStr(new Date(today.getFullYear(), today.getMonth(), 1))
+    endDate = todayStr
+  } else if (timeframe === 'week') {
+    startDate = toDateStr(addDays(today, -6))
+    endDate = todayStr
+  } else if (timeframe === 'day') {
+    startDate = todayStr
+    endDate = todayStr
+  } else {
+    startDate = toDateStr(addDays(today, -27))
+    endDate = todayStr
   }
 
   const durationDays = Math.round((new Date(endDate + 'T12:00') - new Date(startDate + 'T12:00')) / 86400000) + 1
@@ -241,19 +257,6 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
               <h2 className="text-lg md:text-xl font-bold text-text-primary uppercase tracking-tight">Métricas del negocio</h2>
               <p className="text-xs text-text-muted mt-0.5">Panel analítico y organización</p>
             </div>
-            
-            <button
-              onClick={() => setReportOpen(true)}
-              className="
-                flex items-center justify-center gap-2 px-4 py-2 rounded-xl
-                bg-text-primary text-white text-[10px] font-bold uppercase tracking-widest
-                hover:bg-[#121212] hover:scale-[1.02] active:scale-95
-                transition-all duration-300 cursor-pointer shadow-lg shadow-black/10
-              "
-            >
-              <Sparkles size={14} className="text-blue" />
-              Análisis de Rendimiento (IA)
-            </button>
           </div>
         <div className="flex items-center gap-2 flex-wrap">
           
@@ -313,25 +316,28 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
             )}
           </div>
 
-          {/* Main Date Selectors */}
-          <div className="flex items-center bg-surface-alt rounded-xl p-1 border border-border/40">
+          {/* Main Date Selectors — matching contable style */}
+          <div className="flex p-0.5 bg-white rounded-lg border border-border/60 shadow-sm">
             {PRESETS.map(p => (
-              <button key={p.days} onClick={() => setTimeframe(p.days)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
-                  timeframe === p.days ? 'bg-text-primary text-white shadow-md' : 'text-text-muted hover:bg-border/30'
+              <button key={p.id} onClick={() => { setTimeframe(p.id); setCustomFrom(''); setCustomTo(''); }}
+                className={`px-3 py-1.5 rounded-md text-[10px] md:text-xs font-semibold transition-all cursor-pointer ${
+                  timeframe === p.id ? 'bg-blue/10 text-blue shadow-sm' : 'text-text-muted hover:text-text-primary hover:bg-surface-alt'
                 }`}>
                 {p.label}
               </button>
             ))}
+          </div>
 
-            <div className="relative ml-1" ref={moreRef}>
+          <div className="relative" ref={moreRef}>
               <button
                 onClick={() => setMoreOpen(!moreOpen)}
-                className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
-                  timeframe === 'custom' ? 'bg-blue text-white shadow-md' : 'text-text-muted hover:bg-border/30'
-                }`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+                  ${(moreOpen || timeframe === 'custom') ? 'bg-blue/10 border-blue/30 text-blue' : 'bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm'}
+                `}
               >
-                {timeframe === 'custom' ? <Calendar size={14} /> : <Plus size={14} />}
+                <Calendar size={13} />
+                Más información
+                <ChevronDown size={12} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {moreOpen && (
@@ -434,6 +440,17 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
                 </div>
               )}
             </div>
+
+            {/* Report Button */}
+            <button
+              onClick={() => setReportOpen(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+                bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm hover:bg-surface-alt
+              `}
+            >
+              <Sparkles size={13} />
+              Reporte
+            </button>
           </div>
         </div>
       </div>

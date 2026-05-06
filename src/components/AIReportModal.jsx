@@ -382,7 +382,7 @@ export default function AIReportModal({ isOpen, onClose, type, data }) {
       <div className="flex items-center justify-end gap-2 mb-4 -mt-1">
         <button
           onClick={handleExcel}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-text-secondary border border-border/60 hover:bg-surface-alt hover:text-text-primary transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] md:text-xs font-semibold text-text-muted hover:bg-surface-alt hover:text-text-primary shadow-sm transition-all cursor-pointer"
         >
           <FileDown size={13} />
           Excel
@@ -390,7 +390,7 @@ export default function AIReportModal({ isOpen, onClose, type, data }) {
         <button
           onClick={handlePDF}
           disabled={exporting}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white bg-text-primary hover:bg-[#121212] active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-white text-[10px] md:text-xs font-semibold text-text-muted hover:bg-surface-alt hover:text-text-primary shadow-sm transition-all cursor-pointer disabled:opacity-50"
         >
           {exporting ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
           {exporting ? 'Exportando...' : 'PDF'}

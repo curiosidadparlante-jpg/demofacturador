@@ -56,14 +56,11 @@ export default function ContableView({
         
         <button
           onClick={() => setReportOpen(true)}
-          className="
-            flex items-center justify-center gap-2 px-4 py-2 rounded-xl
-            bg-text-primary text-white text-[10px] font-bold uppercase tracking-widest
-            hover:bg-[#121212] hover:scale-[1.02] active:scale-95
-            transition-all duration-300 cursor-pointer shadow-lg shadow-black/10
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] md:text-xs font-semibold transition-all cursor-pointer
+            bg-white border-border/60 text-text-muted hover:text-text-primary hover:border-border shadow-sm hover:bg-surface-alt
           "
         >
-          <Sparkles size={14} className="text-blue" />
+          <Sparkles size={13} />
           Reporte fiscal
         </button>
       </div>

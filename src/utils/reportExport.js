@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // ══════════════════════════════════════════════
 //  EXPORT REPORT TO PDF  (visual capture)
@@ -7,14 +8,13 @@ import jsPDF from 'jspdf';
 export async function exportReportToPDF(containerEl, title = 'Reporte CMD') {
   if (!containerEl) return;
 
-  // Dynamic import to keep bundle lean
-  const html2canvas = (await import('html2canvas')).default;
-
   const canvas = await html2canvas(containerEl, {
     scale: 2,
     useCORS: true,
     backgroundColor: '#FFFFFF',
     logging: false,
+    windowWidth: containerEl.scrollWidth,
+    windowHeight: containerEl.scrollHeight,
   });
 
   const imgData = canvas.toDataURL('image/png');
