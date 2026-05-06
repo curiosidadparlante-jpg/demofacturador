@@ -490,7 +490,7 @@ export default function AnalyticsDashboard({ ventas = [], onFilteredVentasChange
         isOpen={reportOpen} 
         onClose={() => setReportOpen(false)} 
         type="performance"
-        data={{ kpi, chartData, compareEnabled }}
+        data={{ filteredSales, chartData, kpi, kpiComp, compareEnabled, selectedClient, startDate, endDate, durationDays }}
       />
     </div>
   )

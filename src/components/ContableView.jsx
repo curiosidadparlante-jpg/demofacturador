@@ -31,26 +31,15 @@ export default function ContableView({
   const [reportOpen, setReportOpen] = useState(false)
   const { emisor } = useConfig()
 
-  const getAmount = (v) => {
-    const isCreditNote = [3, 8, 13, 113].includes(v.datos_fiscales?.tipo_cbte);
-    const amount = Number(v.monto) || 0;
-    return isCreditNote ? -Math.abs(amount) : Math.abs(amount);
-  };
-
-  const currentYear = new Date().getFullYear();
-  const annualTotal = allVentas.filter(v => v.status === 'facturado' && new Date(v.fecha).getFullYear() === currentYear)
-    .reduce((s, v) => s + getAmount(v), 0);
-  const tableTotal = (tableData?.ventas || [])
-    .filter(v => v.status === 'facturado' && new Date(v.fecha).getFullYear() === currentYear)
-    .reduce((s, v) => s + getAmount(v), 0);
   const category = emisor?.monotributo_categoria || 'A';
   const limit = getMonotributoLimit(category);
 
   const fiscalData = {
+    allVentas,
+    tableVentas: tableData?.ventas || [],
+    selectedVentas,
     category,
     limit,
-    annualTotal,
-    tableTotal
   };
 
   return (
@@ -75,7 +64,7 @@ export default function ContableView({
           "
         >
           <Sparkles size={14} className="text-blue" />
-          Reporte de Salud Fiscal (IA)
+          Reporte fiscal
         </button>
       </div>
 

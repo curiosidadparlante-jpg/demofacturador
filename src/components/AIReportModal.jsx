@@ -1,162 +1,356 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import Modal from './Modal';
-import { Sparkles, TrendingUp, ShieldCheck, Target, Zap, Loader2, ChevronRight, FileText } from 'lucide-react';
+import { Sparkles, ShieldCheck, TrendingUp, TrendingDown, Target, Zap, Users, AlertTriangle, FileText, ArrowUpRight, ArrowDownRight, Minus, BarChart3, Calendar } from 'lucide-react';
+import { generateFiscalReport, generatePerformanceReport } from '../utils/reportEngine';
 
-export default function AIReportModal({ isOpen, onClose, type, data }) {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [report, setReport] = useState(null);
+function Metric({ label, value, sub, color = 'text-text-primary' }) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">{label}</span>
+      <span className={`text-lg font-black tracking-tight ${color}`}>{value}</span>
+      {sub && <span className="text-[10px] text-text-muted mt-0.5">{sub}</span>}
+    </div>
+  );
+}
 
-  useEffect(() => {
-    if (isOpen) {
-      setIsGenerating(true);
-      setReport(null);
-      // Simulate AI thinking
-      const timer = setTimeout(() => {
-        generateReport();
-        setIsGenerating(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, type, data]);
+function Section({ icon: Icon, title, color, children }) {
+  return (
+    <div className="p-5 rounded-2xl border border-border bg-surface-alt/30">
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`p-2 rounded-lg bg-white shadow-sm ${color}`}><Icon size={18} /></div>
+        <h4 className="text-[11px] font-bold uppercase tracking-widest text-text-primary">{title}</h4>
+      </div>
+      {children}
+    </div>
+  );
+}
 
-  const generateReport = () => {
-    if (type === 'fiscal') {
-      const { category, limit, annualTotal, tableTotal } = data;
-      const percentage = (annualTotal / limit) * 100;
-      const remaining = limit - annualTotal;
-      const avgMonthly = annualTotal / (new Date().getMonth() + 1);
-      const projection = avgMonthly * 12;
-      const willExceed = projection > limit;
-
-      setReport({
-        title: 'Diagnóstico de Salud Fiscal',
-        subtitle: `Análisis para Categoría ${category}`,
-        sections: [
-          {
-            title: 'Estado de Escala',
-            icon: ShieldCheck,
-            color: 'text-green',
-            content: `Tu facturación anual acumulada es de $${annualTotal.toLocaleString('es-AR')}, lo que representa el ${percentage.toFixed(1)}% de tu límite de categoría (${category}). Te quedan $${remaining.toLocaleString('es-AR')} de margen para el resto del año fiscal.`
-          },
-          {
-            title: 'Proyección y Riesgo',
-            icon: TrendingUp,
-            color: willExceed ? 'text-coral' : 'text-blue',
-            content: willExceed 
-              ? `ALERTA: Basado en tu promedio mensual de $${avgMonthly.toLocaleString('es-AR')}, proyectamos un cierre anual de $${projection.toLocaleString('es-AR')}. Esto supera el límite de tu categoría actual. Recomendamos evaluar el salto a la siguiente escala o regular la facturación en el último trimestre.`
-              : `Tu ritmo actual proyecta un total anual de $${projection.toLocaleString('es-AR')}. Estás en una "zona segura", operando cómodamente dentro de los límites de la Categoría ${category}.`
-          },
-          {
-            title: 'Impacto de Selección',
-            icon: Zap,
-            color: 'text-purple',
-            content: tableTotal > 0 
-              ? `Las ventas seleccionadas actualmente representan un impacto de $${tableTotal.toLocaleString('es-AR')} (${((tableTotal/limit)*100).toFixed(2)}%) sobre tu tope anual. Facturar estos movimientos ahora es fiscalmente viable sin comprometer tu escala inmediata.`
-              : `No hay una selección activa de impacto. Recordá que cada factura emitida consume parte de tu cupo anual; usá el termómetro para medir el impacto antes de emitir en masa.`
-          }
-        ],
-        advice: 'Tu salud fiscal es estable. Mantené un seguimiento mensual para evitar recategorizaciones de oficio por parte de AFIP.'
-      });
-    } else {
-      // Analytics mode
-      const { kpi, chartData, compareEnabled } = data;
-      const growth = kpi.change || 0;
-      const avgTicket = kpi.monto / (kpi.facturadas || 1);
-      
-      setReport({
-        title: 'Reporte de Rendimiento Comercial',
-        subtitle: 'Insights de operaciones y crecimiento',
-        sections: [
-          {
-            title: 'Análisis de Crecimiento',
-            icon: TrendingUp,
-            color: growth >= 0 ? 'text-green' : 'text-coral',
-            content: compareEnabled 
-              ? `Este período muestra un ${growth >= 0 ? 'incremento' : 'descenso'} del ${Math.abs(growth)}% en facturación respecto al período anterior. ${growth > 10 ? 'El crecimiento es robusto y supera la media del sector.' : 'Se observa una estabilidad operativa con variaciones menores.'}`
-              : `Has facturado un total de $${kpi.monto.toLocaleString('es-AR')} en este período. El volumen de operaciones pendientes (${kpi.pendientes}) sugiere una carga de trabajo activa para los próximos días.`
-          },
-          {
-            title: 'Eficiencia de Venta',
-            icon: Target,
-            color: 'text-blue',
-            content: `Tu ticket promedio por factura emitida es de $${avgTicket.toLocaleString('es-AR')}. ${avgTicket > 50000 ? 'Tu perfil de cliente es de ticket alto, lo que reduce costos operativos por operación.' : 'Tenés un alto volumen de transacciones menores, ideal para diversificar riesgo de cobranza.'}`
-          },
-          {
-            title: 'Tendencias Detectadas',
-            icon: Zap,
-            color: 'text-yellow',
-            content: `Detectamos una concentración de ventas hacia el final del período. La proyección para el próximo ciclo es ${growth >= 0 ? 'positiva' : 'conservadora'}, con un potencial de facturación base de $${(kpi.monto * 1.05).toLocaleString('es-AR')} si se mantienen los ratios actuales.`
-          }
-        ],
-        advice: 'Sugerencia IA: Enfocá tus esfuerzos en convertir las ventas pendientes actuales para maximizar el flujo de caja antes del cierre de mes.'
-      });
-    }
+function Badge({ text, variant = 'green' }) {
+  const colors = {
+    green: 'bg-[#2D8F5E]/10 text-[#2D8F5E] border-[#2D8F5E]/20',
+    yellow: 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
+    red: 'bg-[#C0443C]/10 text-[#C0443C] border-[#C0443C]/20',
+    blue: 'bg-[#3460A8]/10 text-[#3460A8] border-[#3460A8]/20',
+    purple: 'bg-[#7C4DFF]/10 text-[#7C4DFF] border-[#7C4DFF]/20',
   };
+  return <span className={`inline-block px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${colors[variant]}`}>{text}</span>;
+}
+
+// ═══════════════════════════════════════
+//  FISCAL REPORT VIEW
+// ═══════════════════════════════════════
+function FiscalReportView({ data }) {
+  const r = useMemo(() => generateFiscalReport(data), [data]);
+
+  const statusColor = r.pctUsed >= 90 ? 'red' : r.pctUsed >= 70 ? 'yellow' : 'green';
+  const statusLabel = r.pctUsed >= 90 ? 'Zona crítica' : r.pctUsed >= 70 ? 'Zona de precaución' : 'Zona segura';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Inteligencia Artificial CMD">
-      <div className="min-h-[400px] flex flex-col">
-        {isGenerating ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-12 animate-pulse">
-            <div className="relative mb-6">
-              <div className="absolute inset-0 bg-purple/20 rounded-full blur-xl animate-ping" />
-              <div className="relative w-16 h-16 bg-gradient-to-tr from-purple to-blue rounded-2xl flex items-center justify-center shadow-lg">
-                <Sparkles size={32} className="text-white animate-spin-slow" />
-              </div>
-            </div>
-            <h3 className="text-lg font-bold text-text-primary uppercase tracking-tighter">Procesando Datos...</h3>
-            <p className="text-xs text-text-muted mt-2 font-medium">La IA está analizando tus métricas en tiempo real</p>
-          </div>
-        ) : report ? (
-          <div className="animate-fade-in space-y-6 pb-4">
-            {/* Header Report */}
-            <div className="bg-gradient-to-r from-purple/10 to-blue/10 p-6 rounded-2xl border border-purple/10">
-              <div className="flex items-center gap-2 text-purple mb-1">
-                <Sparkles size={16} />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Brief Ejecutivo</span>
-              </div>
-              <h2 className="text-2xl font-black text-text-primary uppercase tracking-tight leading-none mb-1">{report.title}</h2>
-              <p className="text-xs text-text-secondary font-medium">{report.subtitle}</p>
-            </div>
-
-            {/* Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {report.sections.map((section, idx) => {
-                const Icon = section.icon;
-                return (
-                  <div key={idx} className={`p-5 rounded-2xl border border-border bg-surface-alt/30 hover:bg-surface-alt/50 transition-all duration-300 ${idx === 0 ? 'md:col-span-2' : ''}`}>
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={`p-2 rounded-lg bg-white shadow-sm ${section.color}`}>
-                        <Icon size={18} />
-                      </div>
-                      <h4 className="text-[11px] font-bold uppercase tracking-widest text-text-primary">{section.title}</h4>
-                    </div>
-                    <p className="text-xs text-text-secondary leading-relaxed font-medium">
-                      {section.content}
-                    </p>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* AI Advice Footer */}
-            <div className="flex items-start gap-4 p-5 rounded-2xl bg-text-primary text-white shadow-xl shadow-black/10">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                <FileText size={20} className="text-blue" />
-              </div>
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue/80">Recomendación Estratégica</span>
-                <p className="text-xs mt-1 font-medium leading-relaxed italic opacity-90">"{report.advice}"</p>
-              </div>
-            </div>
-
-            {/* Disclaimer */}
-            <p className="text-[9px] text-center text-text-muted italic px-6">
-              * Este reporte es generado automáticamente por IA con fines informativos. No constituye asesoramiento contable legal.
-            </p>
-          </div>
-        ) : null}
+    <div className="space-y-5 animate-fade-in">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple/10 to-blue/10 p-6 rounded-2xl border border-purple/10">
+        <div className="flex items-center gap-2 text-purple mb-2">
+          <Sparkles size={14} />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Diagnóstico fiscal algorítmico</span>
+        </div>
+        <h2 className="text-xl font-black text-text-primary uppercase tracking-tight">
+          Categoría {r.category} — {r.fmt(r.limit)} de tope anual
+        </h2>
+        <div className="flex items-center gap-3 mt-3">
+          <Badge text={statusLabel} variant={statusColor} />
+          <span className="text-xs text-text-muted">{r.pctUsed}% utilizado</span>
+        </div>
       </div>
+
+      {/* Fiscal Position */}
+      <Section icon={ShieldCheck} title="Posición fiscal actual" color="text-[#2D8F5E]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <Metric label="Facturado anual" value={r.fmt(r.annualBilled)} color="text-text-primary" />
+          <Metric label="Margen restante" value={r.fmt(r.remaining)} color={statusColor === 'red' ? 'text-[#C0443C]' : 'text-[#2D8F5E]'} />
+          <Metric label="Promedio mensual" value={r.fmt(r.avgMonthly)} sub={`${r.monthlyValues.length} meses con datos`} />
+          <Metric label="Presupuesto seguro/mes" value={r.fmt(r.safeMonthlyBudget)} sub={`Para los ${r.monthsRemaining} meses restantes`} />
+        </div>
+        <p className="text-xs text-text-secondary leading-relaxed">
+          {r.willExceed
+            ? `⚠️ A ritmo actual, tu proyección anual es de ${r.fmt(r.projectedAnnual)}, lo que supera el límite por ${r.fmt(r.excessAmount)}. Deberías reducir tu facturación mensual a ${r.fmt(r.safeMonthlyBudget)} para mantenerte dentro de la categoría.`
+            : r.monthsUntilLimit === Infinity
+              ? `Estás operando cómodamente dentro de tu categoría. Con el ritmo actual no hay riesgo de exceder el límite.`
+              : `A ritmo actual, alcanzarías el límite en aprox. ${r.monthsUntilLimit} meses. Tu proyección anual es ${r.fmt(r.projectedAnnual)}, dentro del margen.`
+          }
+        </p>
+      </Section>
+
+      {/* Seasonality */}
+      {r.monthlyValues.length >= 2 && (
+        <Section icon={Calendar} title="Estacionalidad mensual" color="text-[#3460A8]">
+          <div className="flex items-end gap-1 h-24 mb-3">
+            {r.monthlyValues.map((m, i) => {
+              const maxVal = Math.max(...r.monthlyValues.map(x => x.value), 1);
+              const h = Math.max((m.value / maxVal) * 100, 4);
+              const isBest = r.bestMonth && m.month === r.bestMonth.month;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                  <div
+                    className={`w-full rounded-t-md transition-all ${isBest ? 'bg-[#3460A8]' : 'bg-[#3460A8]/30'}`}
+                    style={{ height: `${h}%` }}
+                    title={`${m.month}: ${r.fmt(m.value)}`}
+                  />
+                  <span className="text-[8px] font-bold text-text-muted">{m.month}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {r.bestMonth && <Metric label="Mejor mes" value={r.bestMonth.month} sub={r.fmt(r.bestMonth.value)} color="text-[#2D8F5E]" />}
+            {r.worstMonth && <Metric label="Mes más bajo" value={r.worstMonth.month} sub={r.fmt(r.worstMonth.value)} color="text-[#C0443C]" />}
+            <Metric label="Volatilidad" value={`${r.coeffVariation}%`} sub={r.coeffVariation > 40 ? 'Alta variación' : r.coeffVariation > 20 ? 'Variación moderada' : 'Estable'} />
+          </div>
+        </Section>
+      )}
+
+      {/* Client Concentration */}
+      <Section icon={Users} title={`Concentración de clientes (${r.totalClients} clientes)`} color="text-[#7C4DFF]">
+        <div className="space-y-2 mb-3">
+          {r.top3.map((c, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-text-muted w-5 shrink-0">#{i + 1}</span>
+              <div className="flex-1 bg-surface-alt rounded-md h-6 relative overflow-hidden">
+                <div className="absolute inset-y-0 left-0 bg-[#7C4DFF]/20 rounded-md" style={{ width: `${Math.min(c.pct, 100)}%` }} />
+                <span className="absolute inset-0 flex items-center px-2 text-[10px] font-bold text-text-primary truncate">{c.name}</span>
+              </div>
+              <span className="text-xs font-bold text-text-primary w-20 text-right">{r.fmt(c.total)}</span>
+              <span className="text-[10px] text-text-muted w-12 text-right">{c.pct}%</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-text-muted">Riesgo de dependencia:</span>
+          <Badge text={r.concentrationRisk} variant={r.concentrationRisk === 'alto' ? 'red' : r.concentrationRisk === 'moderado' ? 'yellow' : 'green'} />
+        </div>
+      </Section>
+
+      {/* Credit notes + errors */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Section icon={FileText} title="Notas de crédito" color="text-[#C0443C]">
+          <div className="grid grid-cols-2 gap-3">
+            <Metric label="Emitidas" value={r.creditNotesCount} sub={`vs ${r.invoicesCount} facturas`} />
+            <Metric label="Ratio NC/Fact" value={`${r.cnRatio}%`} sub={r.cnRatio > 15 ? 'Ratio elevado' : 'Normal'} color={r.cnRatio > 15 ? 'text-[#C0443C]' : 'text-text-primary'} />
+          </div>
+          <p className="text-[10px] text-text-muted mt-2">
+            Neto: {r.fmt(r.invTotal - r.cnTotal)} ({r.fmt(r.cnTotal)} devuelto)
+          </p>
+        </Section>
+
+        <Section icon={AlertTriangle} title="Tasa de error" color={r.errorRate > 5 ? 'text-[#C0443C]' : 'text-[#2D8F5E]'}>
+          <Metric label="Errores / Total" value={`${r.errorsCount} / ${r.totalActive}`} sub={`${r.errorRate}% de error`} color={r.errorRate > 5 ? 'text-[#C0443C]' : 'text-text-primary'} />
+          <p className="text-[10px] text-text-muted mt-2">
+            {r.errorRate > 5 ? 'Se recomienda revisar los comprobantes rechazados por AFIP y corregir datos antes de reintentar.' : 'La tasa de error está dentro de un rango aceptable.'}
+          </p>
+        </Section>
+      </div>
+
+      {/* Selection impact */}
+      {r.selCount > 0 && (
+        <Section icon={Target} title={`Impacto de selección (${r.selCount} ventas)`} color="text-[#FFE100]">
+          <Metric label="Monto seleccionado" value={r.fmt(r.selTotal)} sub={`Representa ${r.selPctOfLimit}% del tope anual`} />
+        </Section>
+      )}
+
+      {/* Table context */}
+      <div className="p-4 rounded-2xl bg-text-primary text-white">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-blue/80">Contexto de la tabla actual</span>
+        <p className="text-xs mt-1 opacity-80 leading-relaxed">
+          Mostrando {r.tableTotal} registros: {r.tableFacturadas} facturadas ({r.fmt(r.tableBilledTotal)}), {r.tablePendientes} pendientes ({r.fmt(r.tablePendingTotal)}), {r.tableErrors} con error. Este reporte se recalcula automáticamente cada vez que aplicás filtros.
+        </p>
+      </div>
+
+      <p className="text-[9px] text-center text-text-muted italic">* Reporte generado algorítmicamente a partir de los datos filtrados en tu tabla. No constituye asesoramiento contable.</p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+//  PERFORMANCE REPORT VIEW
+// ═══════════════════════════════════════
+function PerformanceReportView({ data }) {
+  const r = useMemo(() => generatePerformanceReport(data), [data]);
+
+  const trendIcon = r.montoTrendLabel === 'ascendente' ? ArrowUpRight : r.montoTrendLabel === 'descendente' ? ArrowDownRight : Minus;
+  const trendColor = r.montoTrendLabel === 'ascendente' ? 'text-[#2D8F5E]' : r.montoTrendLabel === 'descendente' ? 'text-[#C0443C]' : 'text-[#3460A8]';
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue/10 to-purple/10 p-6 rounded-2xl border border-blue/10">
+        <div className="flex items-center gap-2 text-blue mb-2">
+          <BarChart3 size={14} />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Análisis de rendimiento algorítmico</span>
+        </div>
+        <h2 className="text-xl font-black text-text-primary uppercase tracking-tight">
+          {r.durationDays} días analizados {r.selectedClient !== 'all' ? `— ${r.selectedClient}` : ''}
+        </h2>
+        <p className="text-xs text-text-muted mt-1">{r.startDate} → {r.endDate}</p>
+      </div>
+
+      {/* Overview */}
+      <Section icon={BarChart3} title="Resumen del período" color="text-[#3460A8]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+          <Metric label="Total facturado" value={r.fmt(r.totalBilled)} />
+          <Metric label="Operaciones" value={r.totalOps} sub={`${r.dailyOpsAvg.toFixed(1)} ops/día`} />
+          <Metric label="Tasa de conversión" value={`${r.conversionRate}%`} sub={`${r.billed} fact / ${r.totalOps} total`} color={r.conversionRate >= 80 ? 'text-[#2D8F5E]' : 'text-[#F59E0B]'} />
+          <Metric label="Pendientes" value={r.pending} sub="Sin facturar" color={r.pending > 0 ? 'text-[#F59E0B]' : 'text-[#2D8F5E]'} />
+        </div>
+        {r.pending > 0 && (
+          <p className="text-[10px] text-text-muted">
+            Pipeline pendiente estimado: {r.fmt(r.avgTicket * r.pending)} (basado en ticket promedio)
+          </p>
+        )}
+      </Section>
+
+      {/* Comparison */}
+      {r.compareEnabled && r.growth && (
+        <Section icon={r.growth.montoChange >= 0 ? TrendingUp : TrendingDown} title="Comparación de períodos" color={r.growth.montoChange >= 0 ? 'text-[#2D8F5E]' : 'text-[#C0443C]'}>
+          <div className="grid grid-cols-3 gap-4 mb-3">
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">Monto</span>
+              <div className={`text-lg font-black ${r.growth.montoChange >= 0 ? 'text-[#2D8F5E]' : 'text-[#C0443C]'}`}>
+                {r.growth.montoChange >= 0 ? '+' : ''}{r.growth.montoChange}%
+              </div>
+              <span className="text-[10px] text-text-muted">Antes: {r.fmt(r.compInsights.prevMonto)}</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">Operaciones</span>
+              <div className={`text-lg font-black ${r.growth.opsChange >= 0 ? 'text-[#2D8F5E]' : 'text-[#C0443C]'}`}>
+                {r.growth.opsChange >= 0 ? '+' : ''}{r.growth.opsChange}%
+              </div>
+              <span className="text-[10px] text-text-muted">Antes: {r.compInsights.prevOps}</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">Facturadas</span>
+              <div className={`text-lg font-black ${r.growth.factChange >= 0 ? 'text-[#2D8F5E]' : 'text-[#C0443C]'}`}>
+                {r.growth.factChange >= 0 ? '+' : ''}{r.growth.factChange}%
+              </div>
+              <span className="text-[10px] text-text-muted">Antes: {r.compInsights.prevFact}</span>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* Trend + Volatility */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Section icon={trendIcon} title="Tendencia (regresión lineal)" color={trendColor}>
+          <div className="grid grid-cols-2 gap-3">
+            <Metric label="Monto" value={r.montoTrendLabel} color={trendColor} />
+            <Metric label="Operaciones" value={r.opsTrendLabel} />
+          </div>
+          <p className="text-[10px] text-text-muted mt-2">
+            {r.montoTrendLabel === 'ascendente'
+              ? `El monto facturado crece a un ritmo de ${r.fmt(Math.abs(r.montoTrend.slope))} por período. La tendencia es consistente (R²=${r.montoTrend.r2.toFixed(2)}).`
+              : r.montoTrendLabel === 'descendente'
+                ? `La facturación muestra una caída de ${r.fmt(Math.abs(r.montoTrend.slope))} por período. Evaluá si es estacional o estructural.`
+                : `La facturación se mantiene estable sin variaciones significativas entre períodos.`
+            }
+          </p>
+        </Section>
+
+        <Section icon={Zap} title="Volatilidad" color={r.montoCV > 50 ? 'text-[#C0443C]' : 'text-[#3460A8]'}>
+          <Metric label="Coeficiente de variación" value={`${r.montoCV}%`} sub={r.montoCV > 50 ? 'Alta volatilidad' : r.montoCV > 25 ? 'Volatilidad moderada' : 'Baja volatilidad'} color={r.montoCV > 50 ? 'text-[#C0443C]' : 'text-text-primary'} />
+          <p className="text-[10px] text-text-muted mt-2">
+            {r.montoCV > 50
+              ? 'Tu facturación varía mucho entre períodos. Esto puede generar tensión en el flujo de caja.'
+              : 'Tu ingreso es predecible, lo que facilita la planificación financiera.'
+            }
+          </p>
+        </Section>
+      </div>
+
+      {/* Best/Worst + Day of week */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Section icon={Target} title="Períodos destacados" color="text-[#FFE100]">
+          {r.bestPeriod && <Metric label="Mejor período" value={r.bestPeriod.date} sub={`${r.fmt(r.bestPeriod.monto)} facturado, ${r.bestPeriod.total} ops`} color="text-[#2D8F5E]" />}
+          {r.worstPeriod && <Metric label="Período más bajo" value={r.worstPeriod.date} sub={`${r.fmt(r.worstPeriod.monto)} facturado`} color="text-[#C0443C]" />}
+        </Section>
+
+        <Section icon={Calendar} title="Distribución por día" color="text-[#3460A8]">
+          <div className="flex items-end gap-1 h-16 mb-2">
+            {r.dayDistribution.map((d, i) => {
+              const maxVal = Math.max(...r.dayDistribution.map(x => x.total), 1);
+              const h = Math.max((d.total / maxVal) * 100, 4);
+              const isBest = d.day === r.bestDayName;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+                  <div className={`w-full rounded-t-sm ${isBest ? 'bg-[#3460A8]' : 'bg-[#3460A8]/25'}`} style={{ height: `${h}%` }} />
+                  <span className="text-[7px] font-bold text-text-muted">{d.day}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-text-muted">Mejor día: <strong>{r.bestDayName}</strong></p>
+        </Section>
+      </div>
+
+      {/* Ticket analysis */}
+      <Section icon={FileText} title={`Análisis de ticket (${r.ticketCount} facturas)`} color="text-[#7C4DFF]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
+          <Metric label="Promedio" value={r.fmt(r.avgTicket)} />
+          <Metric label="Mediana" value={r.fmt(r.medianTicket)} />
+          <Metric label="Mínimo" value={r.fmt(r.minTicket)} />
+          <Metric label="Máximo" value={r.fmt(r.maxTicket)} />
+        </div>
+        <p className="text-[10px] text-text-muted">
+          {r.ticketCV > 60
+            ? `Dispersión alta (CV ${r.ticketCV}%): tus facturas varían mucho en monto. Tenés una mezcla de tickets chicos y grandes.`
+            : `Dispersión ${r.ticketCV > 30 ? 'moderada' : 'baja'} (CV ${r.ticketCV}%): tus facturas son relativamente uniformes en valor.`
+          }
+        </p>
+      </Section>
+
+      {/* Top clients */}
+      {r.top5.length > 0 && (
+        <Section icon={Users} title={`Top clientes del período (${r.totalClients} clientes)`} color="text-[#7C4DFF]">
+          <div className="space-y-1.5">
+            {r.top5.map((c, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="text-[10px] font-black text-text-muted w-5">#{i + 1}</span>
+                <div className="flex-1 bg-surface-alt rounded-md h-5 relative overflow-hidden">
+                  <div className="absolute inset-y-0 left-0 bg-[#7C4DFF]/20 rounded-md" style={{ width: `${Math.min(c.pct, 100)}%` }} />
+                  <span className="absolute inset-0 flex items-center px-2 text-[9px] font-bold text-text-primary truncate">{c.name}</span>
+                </div>
+                <span className="text-[10px] font-bold w-16 text-right">{r.fmt(c.total)}</span>
+                <span className="text-[9px] text-text-muted w-10 text-right">{c.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Projection */}
+      <div className="p-4 rounded-2xl bg-text-primary text-white">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-blue/80">Proyección próximo período</span>
+        <p className="text-xs mt-1 opacity-80 leading-relaxed">
+          Basado en la tendencia {r.montoTrendLabel} y el promedio diario de {r.fmt(r.dailyAvg)}, se proyecta un facturado de <strong>{r.fmt(r.projectedMonto)}</strong> para los próximos {r.durationDays} días.
+          {r.selectedClient !== 'all' ? ` (filtrado por cliente: ${r.selectedClient})` : ''}
+        </p>
+      </div>
+
+      <p className="text-[9px] text-center text-text-muted italic">* Reporte generado algorítmicamente a partir de los datos filtrados. No constituye asesoramiento contable.</p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+//  MAIN MODAL
+// ═══════════════════════════════════════
+export default function AIReportModal({ isOpen, onClose, type, data }) {
+  if (!data) return null;
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Reporte CMD — Motor Analítico">
+      {type === 'fiscal' ? (
+        <FiscalReportView data={data} />
+      ) : (
+        <PerformanceReportView data={data} />
+      )}
     </Modal>
   );
 }
