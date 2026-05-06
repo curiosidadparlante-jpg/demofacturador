@@ -22,6 +22,12 @@ function toDateStr(d) { return d.toISOString().split('T')[0] }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r }
 function daysAgoStr(n) { return toDateStr(addDays(new Date(), -n)) }
 
+function getSignedAmount(v) {
+  const isCN = [3, 8, 13, 113].includes(v.datos_fiscales?.tipo_cbte);
+  const a = Number(v.monto) || 0;
+  return isCN ? -Math.abs(a) : Math.abs(a);
+}
+
 function groupByInterval(ventas, startDate, endDate) {
   const start = new Date(startDate + 'T00:00:00')
   const end = new Date(endDate + 'T23:59:59')
@@ -63,7 +69,7 @@ function groupByInterval(ventas, startDate, endDate) {
     const b = buckets.get(key)
     if (!b) return
     b.total++
-    if (v.status === 'facturado') { b.facturadas++; b.monto += Number(v.monto) || 0 }
+    if (v.status === 'facturado') { b.facturadas++; b.monto += getSignedAmount(v) }
     if (v.status === 'pendiente' || v.status === 'procesando') b.pendientes++
   })
 
@@ -90,7 +96,7 @@ function computeKPI(ventas, startDate, endDate) {
     facturadas: filtered.filter(v => v.status === 'facturado').length,
     pendientes: filtered.filter(v => v.status === 'pendiente' || v.status === 'procesando').length,
     total: filtered.length,
-    monto: filtered.filter(v => v.status === 'facturado').reduce((s, v) => s + (Number(v.monto) || 0), 0),
+    monto: filtered.filter(v => v.status === 'facturado').reduce((s, v) => s + getSignedAmount(v), 0),
   }
 }
 
