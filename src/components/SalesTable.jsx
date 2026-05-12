@@ -358,7 +358,7 @@ export default function SalesTable({
   // ─── Sort header helper ───
   const SortHeader = ({ label, sortField, align }) => (
     <th
-      className={`px-4 py-3 ${align === 'right' ? 'text-right' : 'text-left'} text-xs font-semibold text-text-secondary uppercase tracking-wider cursor-pointer select-none hover:text-accent transition-colors group`}
+      className={`px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)] ${align === 'right' ? 'text-right' : 'text-left'} text-[clamp(10px,0.7vw,11px)] font-bold text-text-secondary uppercase tracking-wider cursor-pointer select-none hover:text-accent transition-colors group`}
       onClick={() => handleSort(sortField)}
     >
       <div className={`inline-flex items-center gap-1 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
@@ -631,11 +631,11 @@ export default function SalesTable({
 
         {/* Table Container */}
         <div className="bg-white rounded-2xl border border-border/40 shadow-[0_2px_10px_rgba(0,0,0,0.02)] overflow-hidden">
-          <div className="overflow-x-auto min-h-[400px]">
-          <table className="w-full text-sm">
-            <thead>
+          <div className="overflow-x-auto min-h-[400px] scroll-shadow-container">
+          <table className="w-full text-sm border-collapse">
+            <thead className="sticky top-0 z-10 bg-white shadow-[0_1px_0_rgba(0,0,0,0.05)]">
               <tr className="border-b border-border/60">
-                <th className="w-12 px-4 py-3 text-left">
+                <th className="w-10 px-[clamp(0.4rem,1vw,1rem)] py-3 text-left">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -656,7 +656,7 @@ export default function SalesTable({
                 {isVisible('factura') && <SortHeader label="Factura" sortField="factura" />}
                 {isVisible('cae') && <SortHeader label="CAE" sortField="cae" />}
                 {isVisible('etiqueta') && <SortHeader label="Etiqueta" sortField="etiqueta" />}
-                <th className="px-4 py-3 text-right bg-surface-alt/30"></th>
+                <th className="px-4 py-3 text-right bg-surface-alt/5 bg-white sticky right-0 shadow-[-1px_0_0_rgba(0,0,0,0.05)]"></th>
               </tr>
             </thead>
             <tbody>
@@ -689,7 +689,7 @@ export default function SalesTable({
                     `}
                     style={{ touchAction: 'pan-y' }}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -699,25 +699,25 @@ export default function SalesTable({
                       />
                     </td>
                     {isVisible('fecha') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <div className="text-text-primary font-medium">{formatDate(venta.fecha)}</div>
                         <div className="text-text-muted text-xs">{formatTime(venta.fecha)}</div>
                       </td>
                     )}
                     {isVisible('cliente') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <div className="flex items-center gap-2">
                           {venta.leido === false && (
                             <div className="w-1.5 h-1.5 rounded-full bg-blue shrink-0 shadow-[0_0_8px_rgba(52,96,168,0.5)]" title="Venta nueva" />
                           )}
-                          <div className={`uppercase ${venta.leido === false ? 'font-black text-text-primary' : 'text-text-primary'}`}>
+                          <div className={`uppercase truncate max-w-[12vw] ${venta.leido === false ? 'font-black text-text-primary text-[clamp(11px,0.85vw,13px)]' : 'text-text-primary text-[clamp(11px,0.85vw,13px)] font-bold'}`}>
                             {venta.cliente || '—'}
                           </div>
                         </div>
                       </td>
                     )}
                     {isVisible('cuit') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <div className="text-text-muted font-mono text-xs">{venta.datos_fiscales?.cuit || '—'}</div>
                       </td>
                     )}
@@ -725,8 +725,8 @@ export default function SalesTable({
                       <td className="px-4 py-3 text-right">
                         {[3, 8, 13, 113].includes(venta.datos_fiscales?.tipo_cbte) ? (
                           <div className="flex flex-col items-end">
-                            <span className="text-[#C0443C] font-semibold tabular-nums">- {formatCurrency(venta.monto)}</span>
-                            <span className="text-[9px] font-bold text-[#C0443C]/80 uppercase tracking-wider">Nota de Crédito</span>
+                            <span className="text-[#C0443C] font-bold text-[clamp(11px,0.85vw,13px)] tabular-nums">- {formatCurrency(venta.monto)}</span>
+                            <span className="text-[8px] font-bold text-[#C0443C]/80 uppercase tracking-wider">Nota de Crédito</span>
                           </div>
                         ) : [2, 7, 12, 112].includes(venta.datos_fiscales?.tipo_cbte) ? (
                           <div className="flex flex-col items-end">
@@ -734,7 +734,7 @@ export default function SalesTable({
                             <span className="text-[9px] font-bold text-[#3460A8]/80 uppercase tracking-wider">Nota de Débito</span>
                           </div>
                         ) : (
-                          <span className="text-text-primary font-semibold tabular-nums">{formatCurrency(venta.monto)}</span>
+                          <span className="text-text-primary font-bold text-[clamp(11px,0.85vw,13px)] tabular-nums">{formatCurrency(venta.monto)}</span>
                         )}
                         {isRI && venta.datos_fiscales?.neto_gravado != null && (
                           <div className="text-[9px] text-text-muted tabular-nums mt-0.5">
@@ -744,27 +744,27 @@ export default function SalesTable({
                       </td>
                     )}
                     {isVisible('iva') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <div className="text-text-secondary text-xs">{venta.datos_fiscales?.condicion_iva || '—'}</div>
                       </td>
                     )}
                     {isVisible('descripcion') && (
-                      <td className="px-4 py-3">
-                        <div className="text-text-secondary text-xs italic truncate max-w-[150px]" title={venta.datos_fiscales?.descripcion}>{venta.datos_fiscales?.descripcion || '—'}</div>
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
+                        <div className="text-text-secondary text-[clamp(10px,0.8vw,12px)] italic truncate max-w-[150px]" title={venta.datos_fiscales?.descripcion}>{venta.datos_fiscales?.descripcion || '—'}</div>
                       </td>
                     )}
                     {isVisible('origen') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <OrigenBadge origen={venta.datos_fiscales?.origen} mpId={venta.mp_payment_id} />
                       </td>
                     )}
                     {isVisible('medio') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <PaymentBadge method={venta.datos_fiscales?.medio_pago || venta.datos_fiscales?.forma_pago} />
                       </td>
                     )}
                     {isVisible('status') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         <div className="flex items-center gap-2">
                           <StatusBadge status={venta.status} />
                           {isError && venta.datos_fiscales?.error_detalle && (
@@ -782,23 +782,23 @@ export default function SalesTable({
                       </td>
                     )}
                     {isVisible('factura') && (
-                      <td className="px-4 py-3">
-                        <div className="text-text-primary text-xs font-mono whitespace-nowrap">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
+                        <div className="text-text-primary text-[clamp(10px,0.8vw,12px)] font-mono whitespace-nowrap">
                           {venta.nro_comprobante || <span className="text-text-muted">—</span>}
                         </div>
                       </td>
                     )}
                     {isVisible('cae') && (
-                      <td className="px-4 py-3">
+                      <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)]">
                         {venta.cae ? (
                           <div>
-                            <div className="text-text-primary text-xs font-mono">{venta.cae}</div>
+                            <div className="text-text-primary text-[clamp(10px,0.8vw,12px)] font-mono">{venta.cae}</div>
                             {venta.vto_cae && (
-                              <div className="text-text-muted text-xs">Vto: {formatDate(venta.vto_cae)}</div>
+                              <div className="text-text-muted text-[10px]">Vto: {formatDate(venta.vto_cae)}</div>
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-text-muted tabular-nums font-mono">{venta.cae || '—'}</span>
+                          <span className="text-[clamp(10px,0.8vw,12px)] text-text-muted tabular-nums font-mono">{venta.cae || '—'}</span>
                         )}
                       </td>
                     )}
@@ -816,7 +816,7 @@ export default function SalesTable({
                         )}
                       </td>
                     )}
-                    <td className="px-4 py-3 text-right">
+                                                            <td className="px-[clamp(0.4rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.75rem)] text-right bg-white sticky right-0 shadow-[-1px_0_0_rgba(0,0,0,0.05)]">
                       <div className="flex items-center justify-end gap-1">
                         {venta.status === 'facturado' && (
                           <button
