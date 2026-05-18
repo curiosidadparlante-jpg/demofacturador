@@ -108,7 +108,7 @@ export default function Sidebar({
 
   if (collapsed) {
     return (
-      <div className="hidden lg:flex flex-col items-center py-4 w-[60px] border-r border-white/10 shrink-0" style={{ backgroundColor: '#1B3A4B' }}>
+      <div className="hidden lg:flex flex-col items-center py-4 w-[60px] h-full border-r border-white/10 shrink-0" style={{ backgroundColor: '#1B3A4B' }}>
         <button
           onClick={onToggleCollapse}
           className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all cursor-pointer mb-4"
@@ -153,7 +153,7 @@ export default function Sidebar({
   }
 
   return (
-    <div className="w-[240px] shrink-0 flex flex-col border-r border-white/10 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#1B3A4B' }}>
+    <div className="w-[240px] h-full shrink-0 flex flex-col border-r border-white/10 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#1B3A4B' }}>
       
       {/* Collapse toggle + Compose */}
       <div className="p-3 flex items-center gap-2">
