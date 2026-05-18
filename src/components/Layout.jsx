@@ -48,7 +48,7 @@ export default function Layout({
   }, [activeView, activeFilter])
 
   return (
-    <div className="min-h-screen bg-base flex flex-col">
+    <div className="h-[100dvh] bg-base flex flex-col overflow-hidden">
       
       {/* ─── Top Header (full width) ─── */}
       <header className="flex items-center justify-between px-4 md:px-8 py-4 relative z-20" style={{ backgroundColor: '#1B3A4B' }}>
